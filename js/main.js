@@ -86,10 +86,9 @@
       prh += '<div class="card program-card' + modClass + ' fade-in">';
       prh += '<div class="program-card__header">';
       prh += '<h3>' + prog.name + '</h3>';
-      prh += '<div class="program-card__header-right">';
       prh += '<div class="program-card__price">' + prog.priceLabel + '</div>';
       prh += '<div class="program-card__duration">' + prog.duration + '</div>';
-      prh += '</div></div>';
+      prh += '</div>';
       prh += '<div class="program-card__body">';
       prh += '<p>' + prog.shortDesc + '</p>';
       if (prog.features && prog.features.length) {
