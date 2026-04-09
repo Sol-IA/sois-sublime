@@ -27,6 +27,10 @@ var CONFIG = {
   WEBHOOK_VERIFY: '',
   WEBHOOK_CONTACT: '',
 
+  // ── Diagnostic (bouton permanent dans l'espace client) ──
+  diagnosticUrl: 'https://calendly.com/sandra-soissublime',
+  diagnosticPrice: '39\u20AC',
+
   // ── Contact ──
   email: 'sandra.soissublime@gmail.com',
   phone: '06 12 45 29 60',

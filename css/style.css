@@ -894,6 +894,57 @@ p { margin-bottom: var(--space-sm); }
   opacity: 1;
 }
 
+/* ── DIAGNOSTIC STICKY BUTTON ── */
+.diagnostic-sticky {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: var(--color-white);
+  text-align: center;
+  padding: 12px var(--space-md);
+  font-size: var(--text-sm);
+  z-index: 500;
+  text-decoration: none;
+  transition: all var(--transition);
+  box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.15);
+}
+.diagnostic-sticky:hover {
+  background: var(--color-accent);
+}
+.diagnostic-sticky strong {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── UPSELL BANNER ── */
+.upsell-banner {
+  margin-top: var(--space-xl);
+  margin-bottom: var(--space-xl);
+}
+.upsell-banner__inner {
+  padding: var(--space-md) var(--space-lg);
+  border: 2px dashed var(--color-accent-light);
+  border-radius: var(--radius-lg);
+  background: var(--color-bg-rose);
+  color: var(--color-text);
+  font-size: var(--text-sm);
+  line-height: 1.6;
+  text-align: center;
+}
+.upsell-banner__inner a {
+  display: inline-block;
+  margin-top: var(--space-xs);
+  color: var(--color-accent);
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* Add bottom padding to espace-content for sticky button */
+.espace .espace-content { padding-bottom: 80px; }
+
 /* ── RESPONSIVE — TABLET ── */
 @media (min-width: 768px) {
   h1 { font-size: var(--text-4xl); }

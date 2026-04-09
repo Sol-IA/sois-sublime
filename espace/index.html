@@ -80,6 +80,7 @@
       var e = m[state.error] || m.network;
       app.innerHTML = renderMsg(e[0], e[1], e[2]); return;
     }
+    var pid = state.data.program.id;
     var h = renderHeader() + renderTabs() + '<div class="espace-content">';
     switch (state.tab) {
       case 'methode': h += renderDocs('Ma Methode IG Bas', 'Les fiches fondamentales de la methode.', CONFIG.methode); break;
@@ -89,8 +90,18 @@
       case 'tracker': h += renderTracker(); break;
       case 'suivi': h += renderSuivi(); break;
       case 'produits': h += renderProduits(); break;
+      case 'ebooks': h += renderEbooks(); break;
+    }
+    // Upsell Evolution pour Reset 21
+    if (pid === 'reset21' && state.tab !== 'ebooks') {
+      h += '<div class="upsell-banner"><div class="upsell-banner__inner">' +
+        ICO.star + ' <strong>Envie d\'aller plus loin ?</strong> Passe a <em>Sublime Evolution</em> pour debloquer le tracker, toutes les fiches pratiques, les recettes completes et un suivi personnalise.' +
+        ' <a href="mailto:' + CONFIG.email + '">Contacter Sandra</a></div></div>';
     }
     h += '</div>';
+    // Bouton diagnostic sticky
+    h += '<a class="diagnostic-sticky" href="' + CONFIG.diagnosticUrl + '" target="_blank" rel="noopener">' +
+      '&#x1F4DE; Besoin d\'aide entre deux seances ? <strong>Sublime Diagnostic — ' + CONFIG.diagnosticPrice + '</strong></a>';
     app.innerHTML = h;
     bindEvents();
   }
@@ -113,12 +124,13 @@
     var pid = state.data.program.id;
     var tabs = [
       { id: 'methode', label: 'Methode', ico: '&#x1F4D6;' },
-      { id: 'fiches', label: 'Fiches', ico: '&#x1F4A1;' },
+      { id: 'fiches', label: 'Fiches', ico: '&#x1F4A1;', needsEvo: true },
       { id: 'essentiels', label: 'Essentiels', ico: '&#x1F34E;' },
       { id: 'recettes', label: 'Recettes', ico: '&#x1F373;' },
       { id: 'tracker', label: 'Tracker', ico: '&#x1F4CA;', needsEvo: true },
-      { id: 'suivi', label: 'Suivi', ico: '&#x1F4DD;' },
-      { id: 'produits', label: 'Bien-etre', ico: '&#x2728;' }
+      { id: 'suivi', label: 'Suivi', ico: '&#x1F4DD;', needsEvo: true },
+      { id: 'produits', label: 'Bien-etre', ico: '&#x2728;' },
+      { id: 'ebooks', label: 'E-books', ico: '&#x1F4DA;' }
     ];
     var h = '<div class="tab-bar">';
     tabs.forEach(function(t) {
@@ -226,14 +238,6 @@
     } else {
       h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Tes comptes-rendus apparaitront ici apres tes coachings.</div>';
     }
-    if (CONFIG.ebooks && CONFIG.ebooks.length) {
-      h += '<h3 style="margin:var(--space-xl) 0 var(--space-sm);">&#x1F4DA; E-books thematiques</h3>';
-      h += '<p style="color:var(--color-text-light);margin-bottom:var(--space-md);">Des guides pour aller plus loin (bientot disponibles).</p>';
-      CONFIG.ebooks.forEach(function(eb) {
-        h += '<div class="content-card content-card--locked"><div class="content-card__icon">' + ICO.book + '</div>';
-        h += '<div class="content-card__text"><h4>' + esc(eb.title) + '</h4><small>' + esc(eb.desc) + '</small></div></div>';
-      });
-    }
     return h;
   }
 
@@ -250,6 +254,26 @@
       h += '</div>';
     });
     h += '</div>';
+    return h;
+  }
+
+  /* ═══ EBOOKS ═══ */
+  function renderEbooks() {
+    var h = '<h2 style="margin-bottom:var(--space-xs);">E-books Thematiques</h2>';
+    h += '<p class="lead" style="margin-bottom:var(--space-lg);">Des guides approfondis pour aller plus loin dans ta transformation. Disponibles a l\'achat quel que soit ton programme.</p>';
+    if (CONFIG.ebooks && CONFIG.ebooks.length) {
+      CONFIG.ebooks.forEach(function(eb) {
+        h += '<div class="content-card" style="cursor:default;">';
+        h += '<div class="content-card__icon">' + ICO.book + '</div>';
+        h += '<div class="content-card__text"><h4>' + esc(eb.title) + '</h4><small>' + esc(eb.desc) + '</small></div>';
+        if (eb.available && eb.price) {
+          h += '<a class="btn btn--primary btn--sm" href="#" style="flex-shrink:0;">' + eb.price + '</a>';
+        } else {
+          h += '<span style="flex-shrink:0;font-size:var(--text-xs);color:var(--color-text-muted);padding:6px 12px;border:1px dashed var(--color-border);border-radius:var(--radius-full);">Bientot</span>';
+        }
+        h += '</div>';
+      });
+    }
     return h;
   }
 
