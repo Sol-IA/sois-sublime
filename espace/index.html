@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mon Espace — Sois Sublime</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body class="espace">
+
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script src="../config.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  /* ═══════════════════════════════════════════
+     MOCK DATA (utilise quand WEBHOOK_ESPACE est vide)
+     ═══════════════════════════════════════════ */
+  var MOCK_DATA = {
+    client: {
+      firstName: 'Marie',
+      lastName: 'Dupont',
+      email: 'marie@example.com',
+      needsVerification: false
+    },
+    program: {
+      id: 'evolution',
+      name: 'Sublime Evolution',
+      startDate: '2026-03-15',
+      endDate: '2026-06-15',
+      expired: false,
+      durationDays: 90
+    },
+    months: [
+      {
+        number: 1,
+        title: CONFIG.programContent.mois1.title,
+        unlocked: true,
+        documents: CONFIG.programContent.mois1.documents
+      },
+      {
+        number: 2,
+        title: CONFIG.programContent.mois2.title,
+        unlocked: true,
+        documents: CONFIG.programContent.mois2.documents
+      },
+      {
+        number: 3,
+        title: CONFIG.programContent.mois3.title,
+        unlocked: false,
+        documents: CONFIG.programContent.mois3.documents
+      }
+    ],
+    recipes: CONFIG.recipes,
+    products: [
+      { id: 'p1', title: 'Beauty Focus Collagene', description: 'Complement alimentaire pour la peau, les cheveux et les ongles. 4 mois de cure recommandes.', shopUrl: '#', category: 'complement' },
+      { id: 'p2', title: 'LumiSpa', description: 'Appareil de nettoyage facial pour une peau nette et eclatante, matin et soir.', shopUrl: '#', category: 'soin' },
+      { id: 'p3', title: 'Tegreen', description: 'Antioxydant puissant a base de the vert pour booster ton metabolisme.', shopUrl: '#', category: 'complement' },
+      { id: 'p4', title: 'LifePak', description: 'Formule complete de vitamines et mineraux pour combler les carences.', shopUrl: '#', category: 'complement' },
+      { id: 'p5', title: 'Serum Anti-age', description: 'Soin concentre pour reduire les signes visibles du temps.', shopUrl: '#', category: 'soin' }
+    ],
+    tracker: {
+      entries: [
+        { date: '2026-04-08', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: '' },
+        { date: '2026-04-07', fringales: 'un_peu', activite: 'marche', respect: 'a_peu_pres', humeur: 'stable', moment_soi: 'un_peu', difficulte: 'non', notes: 'Bonne journee globalement' },
+        { date: '2026-04-06', fringales: 'non', activite: 'non', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: '' }
+      ],
+      coachNotes: [
+        { date: '2026-04-05', text: 'Super progres cette semaine Marie ! Tes habitudes se mettent bien en place. Continue comme ca, les resultats vont suivre.' }
+      ]
+    },
+    upsells: [
+      { id: 'u1', title: 'Pack Recettes Sans Gluten', description: '12 recettes IG Bas 100% sans gluten', locked: true },
+      { id: 'u2', title: 'Pack Menopause & Vitalite', description: 'Programme adapte aux besoins specifiques de la menopause', locked: true }
+    ]
+  };
+
+  /* ═══════════════════════════════════════════
+     STATE
+     ═══════════════════════════════════════════ */
+  var state = {
+    token: null,
+    tab: 'programme',
+    data: null,
+    loading: true,
+    error: null,
+    recipeFilter: 'all',
+    formDirty: false,
+    trackerValues: {}
+  };
+
+  var app = document.getElementById('app');
+
+  /* ═══════════════════════════════════════════
+     UTILS
+     ═══════════════════════════════════════════ */
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function todayStr() { return new Date().toISOString().slice(0, 10); }
+  function formatDate(d) {
+    var parts = d.split('-');
+    return parts[2] + '/' + parts[1] + '/' + parts[0];
+  }
+  function daysBetween(a, b) {
+    return Math.ceil((new Date(b) - new Date(a)) / 86400000);
+  }
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 3000);
+  }
+
+  /* ═══════════════════════════════════════════
+     DATA LOADING
+     ═══════════════════════════════════════════ */
+  function loadData() {
+    state.token = new URLSearchParams(window.location.search).get('t');
+
+    if (!state.token) {
+      state.loading = false;
+      state.error = 'no_token';
+      render();
+      return;
+    }
+
+    // Mock mode if webhook URL is empty
+    if (!CONFIG.WEBHOOK_ESPACE) {
+      state.data = MOCK_DATA;
+      state.loading = false;
+      render();
+      return;
+    }
+
+    // Real mode: fetch from n8n
+    fetch(CONFIG.WEBHOOK_ESPACE + '?t=' + encodeURIComponent(state.token))
+      .then(function(r) {
+        if (!r.ok) throw new Error('invalid');
+        return r.json();
+      })
+      .then(function(data) {
+        if (data.error) {
+          state.error = data.error;
+        } else {
+          state.data = data;
+        }
+        state.loading = false;
+        render();
+      })
+      .catch(function() {
+        state.error = 'network';
+        state.loading = false;
+        render();
+      });
+  }
+
+  /* ═══════════════════════════════════════════
+     RENDER
+     ═══════════════════════════════════════════ */
+  function render() {
+    if (state.loading) {
+      app.innerHTML = renderMessage('\uD83E\uDD8B', 'Chargement...', 'Un instant, on prepare ton espace.');
+      return;
+    }
+    if (state.error) {
+      var msgs = {
+        no_token: { icon: '\uD83D\uDD12', title: 'Acces reserve', text: 'Cet espace est reserve aux clientes de Sois Sublime. Si tu as un lien d\'acces, utilise-le directement. Sinon, contacte Sandra.' },
+        invalid_token: { icon: '\u274C', title: 'Lien invalide', text: 'Ce lien n\'est plus valide ou a expire. Contacte Sandra pour obtenir un nouvel acces.' },
+        network: { icon: '\u26A0\uFE0F', title: 'Erreur de connexion', text: 'Impossible de charger tes donnees. Verifie ta connexion et reessaie.' }
+      };
+      var m = msgs[state.error] || msgs.network;
+      app.innerHTML = renderMessage(m.icon, m.title, m.text);
+      return;
+    }
+
+    var html = '';
+    html += renderEspaceHeader();
+    html += renderTabs();
+    html += '<div class="espace-content">';
+
+    switch (state.tab) {
+      case 'programme': html += renderProgramme(); break;
+      case 'recettes': html += renderRecettes(); break;
+      case 'produits': html += renderProduits(); break;
+      case 'suivi': html += renderSuivi(); break;
+    }
+
+    html += '</div>';
+    app.innerHTML = html;
+    bindEvents();
+  }
+
+  /* ── Message screen ── */
+  function renderMessage(icon, title, text) {
+    return '<div class="espace-message">' +
+      '<div class="espace-message__icon">' + icon + '</div>' +
+      '<h1>' + esc(title) + '</h1>' +
+      '<p>' + esc(text) + '</p>' +
+      '<a class="btn btn--outline" href="mailto:' + CONFIG.email + '">Contacter Sandra</a>' +
+      '</div>';
+  }
+
+  /* ── Header ── */
+  function renderEspaceHeader() {
+    var d = state.data;
+    var prog = d.program;
+    var today = todayStr();
+    var elapsed = daysBetween(prog.startDate, today);
+    var total = prog.durationDays;
+    var remaining = Math.max(0, total - elapsed);
+    var pct = Math.min(100, Math.round((elapsed / total) * 100));
+
+    return '<div class="espace-header">' +
+      '<h1>\uD83E\uDD8B Bienvenue ' + esc(d.client.firstName) + '</h1>' +
+      '<p>' + esc(prog.name) + ' &mdash; J' + Math.min(elapsed, total) + '/' + total +
+      (remaining > 0 ? ' &middot; ' + remaining + ' jours restants' : ' &middot; Termine') + '</p>' +
+      '<div class="welcome-card__progress" style="max-width:300px;margin:var(--space-sm) auto 0;">' +
+      '<div class="welcome-card__progress-bar" style="width:' + pct + '%;"></div></div>' +
+      '</div>';
+  }
+
+  /* ── Tabs ── */
+  function renderTabs() {
+    var tabs = [
+      { id: 'programme', label: 'Programme' },
+      { id: 'recettes', label: 'Recettes' },
+      { id: 'produits', label: 'Produits' },
+      { id: 'suivi', label: 'Mon Suivi' }
+    ];
+    var html = '<div class="tab-bar">';
+    tabs.forEach(function(t) {
+      html += '<button class="tab-btn' + (state.tab === t.id ? ' active' : '') + '" data-tab="' + t.id + '">' + t.label + '</button>';
+    });
+    return html + '</div>';
+  }
+
+  /* ── Tab: Programme ── */
+  function renderProgramme() {
+    var d = state.data;
+    var html = '';
+
+    // Monthly modules
+    d.months.forEach(function(month) {
+      html += '<div class="month-section">';
+      html += '<div class="month-section__header">';
+      html += '<div class="month-badge">' + month.number + '</div>';
+      html += '<h3>' + esc(month.title) + '</h3>';
+      html += '</div>';
+
+      if (!month.unlocked) {
+        html += '<div class="content-card content-card--locked">';
+        html += '<div class="content-card__icon">\uD83D\uDD12</div>';
+        html += '<div class="content-card__text"><h4>Contenu disponible le mois ' + month.number + '</h4>';
+        html += '<small>Ce module se debloquera automatiquement</small></div></div>';
+      } else {
+        month.documents.forEach(function(doc) {
+          var icons = { fiche: '\uD83D\uDCD6', pratique: '\uD83D\uDCA1', objectif: '\uD83C\uDFAF' };
+          var labels = { fiche: 'Fiche mensuelle', pratique: 'Fiche pratique', objectif: 'Objectif du mois' };
+          html += '<a class="content-card" href="' + encodeURI('../' + doc.file) + '" target="_blank" rel="noopener">';
+          html += '<div class="content-card__icon">' + (icons[doc.type] || '\uD83D\uDCC4') + '</div>';
+          html += '<div class="content-card__text"><h4>' + esc(doc.title) + '</h4>';
+          html += '<small>' + (labels[doc.type] || doc.type) + '</small></div></a>';
+        });
+      }
+      html += '</div>';
+    });
+
+    // Upsells
+    if (d.upsells && d.upsells.length) {
+      html += '<div style="margin-top:var(--space-xl);">';
+      html += '<h3 style="margin-bottom:var(--space-sm);">\u2728 Options premium</h3>';
+      d.upsells.forEach(function(u) {
+        html += '<div class="content-card content-card--locked">';
+        html += '<div class="content-card__icon">\uD83D\uDD12</div>';
+        html += '<div class="content-card__text"><h4>' + esc(u.title) + '</h4>';
+        html += '<small>' + esc(u.description) + '</small></div></div>';
+      });
+      html += '</div>';
+    }
+
+    return html;
+  }
+
+  /* ── Tab: Recettes ── */
+  function renderRecettes() {
+    var d = state.data;
+    var cats = [
+      { id: 'all', label: 'Toutes' },
+      { id: 'petit-dejeuner', label: 'Petit-dej' },
+      { id: 'repas', label: 'Repas' },
+      { id: 'gouter', label: 'Gouter' },
+      { id: 'apero', label: 'Apero' },
+      { id: 'autre', label: 'Autre' }
+    ];
+
+    var html = '<div class="filter-bar">';
+    cats.forEach(function(c) {
+      html += '<button class="filter-btn' + (state.recipeFilter === c.id ? ' active' : '') + '" data-filter="' + c.id + '">' + c.label + '</button>';
+    });
+    html += '</div>';
+
+    var filtered = d.recipes.filter(function(r) {
+      return state.recipeFilter === 'all' || r.category === state.recipeFilter;
+    });
+
+    html += '<div class="recipe-grid">';
+    filtered.forEach(function(r) {
+      html += '<a class="recipe-card" href="' + encodeURI('../' + r.file) + '" target="_blank" rel="noopener">';
+      html += '<h4>' + esc(r.title) + '</h4>';
+      html += '<span class="recipe-card__cat">' + esc(r.category) + '</span>';
+      html += '</a>';
+    });
+    if (filtered.length === 0) {
+      html += '<p style="color:var(--color-text-muted);text-align:center;grid-column:1/-1;">Aucune recette dans cette categorie.</p>';
+    }
+    html += '</div>';
+
+    return html;
+  }
+
+  /* ── Tab: Produits ── */
+  function renderProduits() {
+    var d = state.data;
+    var html = '<p class="lead" style="margin-bottom:var(--space-lg);">Mes recommandations de complements alimentaires et soins beaute, selectionnees pour accompagner ta transformation.</p>';
+
+    html += '<div class="grid grid--2">';
+    d.products.forEach(function(p) {
+      html += '<div class="product-card">';
+      html += '<h4>' + esc(p.title) + '</h4>';
+      html += '<span class="recipe-card__cat" style="margin-bottom:8px;display:inline-block;">' + esc(p.category) + '</span>';
+      html += '<p>' + esc(p.description) + '</p>';
+      if (p.shopUrl && p.shopUrl !== '#') {
+        html += '<a class="btn btn--outline btn--sm" href="' + p.shopUrl + '" target="_blank" rel="noopener">Voir le produit</a>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+
+    return html;
+  }
+
+  /* ── Tab: Suivi ── */
+  function renderSuivi() {
+    var d = state.data;
+    var html = '';
+
+    // Tracker form
+    html += '<div class="tracker-form">';
+    html += '<h3>\uD83D\uDCCA Mon suivi du jour</h3>';
+
+    var fields = [
+      { id: 'fringales', label: 'Fringales ?', options: [
+        { value: 'non', label: 'Non' }, { value: 'un_peu', label: 'Un peu mais gere' }, { value: 'oui', label: 'Oui' }
+      ]},
+      { id: 'activite', label: 'Activite physique ?', options: [
+        { value: 'sport', label: 'Sport' }, { value: 'marche', label: 'Marche / bouge' }, { value: 'non', label: 'Non' }
+      ]},
+      { id: 'respect', label: 'Respect du programme ?', options: [
+        { value: 'oui', label: 'Oui' }, { value: 'a_peu_pres', label: 'A peu pres' }, { value: 'non', label: 'Pas vraiment' }
+      ]},
+      { id: 'humeur', label: 'Comment tu te sens ?', options: [
+        { value: 'forme', label: 'En pleine forme' }, { value: 'stable', label: 'Plutot stable' }, { value: 'pas_top', label: 'Pas au top' }
+      ]},
+      { id: 'moment_soi', label: 'Moment pour toi ?', options: [
+        { value: 'oui', label: 'Oui' }, { value: 'un_peu', label: 'Un peu' }, { value: 'non', label: 'Pas du tout' }
+      ]},
+      { id: 'difficulte', label: 'Journee difficile ?', options: [
+        { value: 'non', label: 'Non, tout va bien' }, { value: 'moyen', label: 'Moyennement' }, { value: 'oui', label: 'Oui difficile' }
+      ]}
+    ];
+
+    fields.forEach(function(f) {
+      var selected = state.trackerValues[f.id] || '';
+      html += '<div class="tracker-field">';
+      html += '<label>' + f.label + '</label>';
+      html += '<div class="tracker-options">';
+      f.options.forEach(function(o) {
+        html += '<button class="tracker-option' + (selected === o.value ? ' selected' : '') + '" data-field="' + f.id + '" data-value="' + o.value + '">' + o.label + '</button>';
+      });
+      html += '</div></div>';
+    });
+
+    html += '<div class="tracker-field">';
+    html += '<label>Notes libres</label>';
+    html += '<textarea class="form__textarea" id="tracker-notes" placeholder="Comment s\'est passee ta journee ?" style="min-height:80px;">' + esc(state.trackerValues.notes || '') + '</textarea>';
+    html += '</div>';
+
+    html += '<button class="btn btn--primary" id="tracker-submit" style="width:100%;">Envoyer mon suivi</button>';
+    html += '</div>';
+
+    // Coach notes
+    if (d.tracker.coachNotes && d.tracker.coachNotes.length) {
+      html += '<h3 style="margin-bottom:var(--space-sm);">Notes de Sandra</h3>';
+      d.tracker.coachNotes.forEach(function(n) {
+        html += '<div class="coach-note">';
+        html += '<div class="coach-note__date">' + formatDate(n.date) + '</div>';
+        html += '<p>' + esc(n.text) + '</p>';
+        html += '</div>';
+      });
+    }
+
+    // Tracker history
+    if (d.tracker.entries && d.tracker.entries.length) {
+      html += '<h3 style="margin:var(--space-lg) 0 var(--space-sm);">Historique</h3>';
+      var moods = { forme: '\uD83D\uDE04', stable: '\uD83D\uDE42', pas_top: '\uD83D\uDE14' };
+      d.tracker.entries.forEach(function(e) {
+        html += '<div class="tracker-entry">';
+        html += '<div class="tracker-entry__date">' + formatDate(e.date) + '</div>';
+        html += '<div>' + (moods[e.humeur] || '') + ' ' + (e.respect === 'oui' ? '\u2705' : e.respect === 'a_peu_pres' ? '\uD83D\uDFE1' : '\uD83D\uDD34') + '</div>';
+        if (e.notes) html += '<div style="flex:1;font-size:var(--text-xs);color:var(--color-text-muted);">' + esc(e.notes) + '</div>';
+        html += '</div>';
+      });
+    }
+
+    return html;
+  }
+
+  /* ═══════════════════════════════════════════
+     EVENT BINDING
+     ═══════════════════════════════════════════ */
+  function bindEvents() {
+    // Tab clicks
+    document.querySelectorAll('.tab-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.tab = this.dataset.tab;
+        render();
+      });
+    });
+
+    // Recipe filter
+    document.querySelectorAll('.filter-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.recipeFilter = this.dataset.filter;
+        render();
+      });
+    });
+
+    // Tracker options
+    document.querySelectorAll('.tracker-option').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.trackerValues[this.dataset.field] = this.dataset.value;
+        state.formDirty = true;
+        // Only update the options, not full render
+        var siblings = this.parentNode.querySelectorAll('.tracker-option');
+        siblings.forEach(function(s) { s.classList.remove('selected'); });
+        this.classList.add('selected');
+      });
+    });
+
+    // Tracker notes
+    var notesEl = document.getElementById('tracker-notes');
+    if (notesEl) {
+      notesEl.addEventListener('input', function() {
+        state.trackerValues.notes = this.value;
+        state.formDirty = true;
+      });
+    }
+
+    // Tracker submit
+    var submitBtn = document.getElementById('tracker-submit');
+    if (submitBtn) {
+      submitBtn.addEventListener('click', function() {
+        var vals = state.trackerValues;
+        if (!vals.fringales || !vals.humeur) {
+          showToast('Remplis au moins les fringales et ton humeur');
+          return;
+        }
+
+        var entry = {
+          date: todayStr(),
+          fringales: vals.fringales,
+          activite: vals.activite || '',
+          respect: vals.respect || '',
+          humeur: vals.humeur,
+          moment_soi: vals.moment_soi || '',
+          difficulte: vals.difficulte || '',
+          notes: vals.notes || ''
+        };
+
+        // Mock mode: add locally
+        if (!CONFIG.WEBHOOK_TRACKER) {
+          state.data.tracker.entries.unshift(entry);
+          state.trackerValues = {};
+          state.formDirty = false;
+          showToast('Suivi enregistre !');
+          render();
+          return;
+        }
+
+        // Real mode: POST to n8n
+        fetch(CONFIG.WEBHOOK_TRACKER, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: state.token, ...entry })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function() {
+          state.data.tracker.entries.unshift(entry);
+          state.trackerValues = {};
+          state.formDirty = false;
+          showToast('Suivi enregistre !');
+          render();
+        })
+        .catch(function() {
+          showToast('Erreur, reessaie plus tard');
+        });
+      });
+    }
+  }
+
+  /* ═══════════════════════════════════════════
+     INIT
+     ═══════════════════════════════════════════ */
+  loadData();
+
+})();
+</script>
+</body>
+</html>
