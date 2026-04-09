@@ -20,52 +20,17 @@
 (function() {
   'use strict';
 
-  /* ═══════════════════════════════════════════
-     MOCK DATA (utilise quand WEBHOOK_ESPACE est vide)
-     ═══════════════════════════════════════════ */
+  /* ═══ PROGRAM HIERARCHY (for access control) ═══ */
+  var PROG_LEVEL = { reset21: 1, evolution: 2, sublimetoi: 3 };
+
+  function hasAccess(clientProgram, requiredProgram) {
+    return (PROG_LEVEL[clientProgram] || 0) >= (PROG_LEVEL[requiredProgram] || 0);
+  }
+
+  /* ═══ MOCK DATA ═══ */
   var MOCK_DATA = {
-    client: {
-      firstName: 'Marie',
-      lastName: 'Dupont',
-      email: 'marie@example.com',
-      needsVerification: false
-    },
-    program: {
-      id: 'evolution',
-      name: 'Sublime Evolution',
-      startDate: '2026-03-15',
-      endDate: '2026-06-15',
-      expired: false,
-      durationDays: 90
-    },
-    months: [
-      {
-        number: 1,
-        title: CONFIG.programContent.mois1.title,
-        unlocked: true,
-        documents: CONFIG.programContent.mois1.documents
-      },
-      {
-        number: 2,
-        title: CONFIG.programContent.mois2.title,
-        unlocked: true,
-        documents: CONFIG.programContent.mois2.documents
-      },
-      {
-        number: 3,
-        title: CONFIG.programContent.mois3.title,
-        unlocked: false,
-        documents: CONFIG.programContent.mois3.documents
-      }
-    ],
-    recipes: CONFIG.recipes,
-    products: [
-      { id: 'p1', title: 'Beauty Focus Collagene', description: 'Complement alimentaire pour la peau, les cheveux et les ongles. 4 mois de cure recommandes.', shopUrl: '#', category: 'complement' },
-      { id: 'p2', title: 'LumiSpa', description: 'Appareil de nettoyage facial pour une peau nette et eclatante, matin et soir.', shopUrl: '#', category: 'soin' },
-      { id: 'p3', title: 'Tegreen', description: 'Antioxydant puissant a base de the vert pour booster ton metabolisme.', shopUrl: '#', category: 'complement' },
-      { id: 'p4', title: 'LifePak', description: 'Formule complete de vitamines et mineraux pour combler les carences.', shopUrl: '#', category: 'complement' },
-      { id: 'p5', title: 'Serum Anti-age', description: 'Soin concentre pour reduire les signes visibles du temps.', shopUrl: '#', category: 'soin' }
-    ],
+    client: { firstName: 'Marie', lastName: 'Dupont', email: 'marie@example.com', needsVerification: false },
+    program: { id: 'evolution', name: 'Sublime Evolution', startDate: '2026-03-15', endDate: '2026-06-15', expired: false, durationDays: 90 },
     tracker: {
       entries: [
         { date: '2026-04-08', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: '' },
@@ -75,450 +40,246 @@
       coachNotes: [
         { date: '2026-04-05', text: 'Super progres cette semaine Marie ! Tes habitudes se mettent bien en place. Continue comme ca, les resultats vont suivre.' }
       ]
-    },
-    upsells: [
-      { id: 'u1', title: 'Pack Recettes Sans Gluten', description: '12 recettes IG Bas 100% sans gluten', locked: true },
-      { id: 'u2', title: 'Pack Menopause & Vitalite', description: 'Programme adapte aux besoins specifiques de la menopause', locked: true }
-    ]
+    }
   };
 
-  /* ═══════════════════════════════════════════
-     STATE
-     ═══════════════════════════════════════════ */
-  var state = {
-    token: null,
-    tab: 'programme',
-    data: null,
-    loading: true,
-    error: null,
-    recipeFilter: 'all',
-    formDirty: false,
-    trackerValues: {}
-  };
-
+  /* ═══ STATE ═══ */
+  var state = { token: null, tab: 'methode', data: null, loading: true, error: null, recipeFilter: 'all', formDirty: false, trackerValues: {} };
   var app = document.getElementById('app');
 
-  /* ═══════════════════════════════════════════
-     UTILS
-     ═══════════════════════════════════════════ */
+  /* ═══ UTILS ═══ */
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
   function todayStr() { return new Date().toISOString().slice(0, 10); }
-  function formatDate(d) {
-    var parts = d.split('-');
-    return parts[2] + '/' + parts[1] + '/' + parts[0];
-  }
-  function daysBetween(a, b) {
-    return Math.ceil((new Date(b) - new Date(a)) / 86400000);
-  }
-  function showToast(msg) {
-    var t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(function() { t.classList.remove('show'); }, 3000);
-  }
+  function formatDate(d) { var p = d.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function daysBetween(a, b) { return Math.ceil((new Date(b) - new Date(a)) / 86400000); }
+  function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 3000); }
 
-  /* ═══════════════════════════════════════════
-     DATA LOADING
-     ═══════════════════════════════════════════ */
+  var ICO = {
+    lock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+    pdf: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>',
+    book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>',
+    star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+  };
+
+  /* ═══ DATA LOADING ═══ */
   function loadData() {
     state.token = new URLSearchParams(window.location.search).get('t');
-
-    if (!state.token) {
-      state.loading = false;
-      state.error = 'no_token';
-      render();
-      return;
-    }
-
-    // Mock mode if webhook URL is empty
-    if (!CONFIG.WEBHOOK_ESPACE) {
-      state.data = MOCK_DATA;
-      state.loading = false;
-      render();
-      return;
-    }
-
-    // Real mode: fetch from n8n
+    if (!state.token) { state.loading = false; state.error = 'no_token'; render(); return; }
+    if (!CONFIG.WEBHOOK_ESPACE) { state.data = MOCK_DATA; state.loading = false; render(); return; }
     fetch(CONFIG.WEBHOOK_ESPACE + '?t=' + encodeURIComponent(state.token))
-      .then(function(r) {
-        if (!r.ok) throw new Error('invalid');
-        return r.json();
-      })
-      .then(function(data) {
-        if (data.error) {
-          state.error = data.error;
-        } else {
-          state.data = data;
-        }
-        state.loading = false;
-        render();
-      })
-      .catch(function() {
-        state.error = 'network';
-        state.loading = false;
-        render();
-      });
+      .then(function(r) { if (!r.ok) throw new Error('invalid'); return r.json(); })
+      .then(function(data) { if (data.error) state.error = data.error; else state.data = data; state.loading = false; render(); })
+      .catch(function() { state.error = 'network'; state.loading = false; render(); });
   }
 
-  /* ═══════════════════════════════════════════
-     RENDER
-     ═══════════════════════════════════════════ */
+  /* ═══ RENDER ═══ */
   function render() {
-    if (state.loading) {
-      app.innerHTML = renderMessage('\uD83E\uDD8B', 'Chargement...', 'Un instant, on prepare ton espace.');
-      return;
-    }
+    if (state.loading) { app.innerHTML = renderMsg('&#x1F98B;', 'Chargement...', 'Un instant, on prepare ton espace.'); return; }
     if (state.error) {
-      var msgs = {
-        no_token: { icon: '\uD83D\uDD12', title: 'Acces reserve', text: 'Cet espace est reserve aux clientes de Sois Sublime. Si tu as un lien d\'acces, utilise-le directement. Sinon, contacte Sandra.' },
-        invalid_token: { icon: '\u274C', title: 'Lien invalide', text: 'Ce lien n\'est plus valide ou a expire. Contacte Sandra pour obtenir un nouvel acces.' },
-        network: { icon: '\u26A0\uFE0F', title: 'Erreur de connexion', text: 'Impossible de charger tes donnees. Verifie ta connexion et reessaie.' }
-      };
-      var m = msgs[state.error] || msgs.network;
-      app.innerHTML = renderMessage(m.icon, m.title, m.text);
-      return;
+      var m = { no_token: ['&#x1F512;', 'Acces reserve', 'Cet espace est reserve aux clientes Sois Sublime.'], invalid_token: ['&#x274C;', 'Lien invalide', 'Ce lien n\'est plus valide.'], network: ['&#x26A0;', 'Erreur', 'Impossible de charger tes donnees.'] };
+      var e = m[state.error] || m.network;
+      app.innerHTML = renderMsg(e[0], e[1], e[2]); return;
     }
-
-    var html = '';
-    html += renderEspaceHeader();
-    html += renderTabs();
-    html += '<div class="espace-content">';
-
+    var h = renderHeader() + renderTabs() + '<div class="espace-content">';
     switch (state.tab) {
-      case 'programme': html += renderProgramme(); break;
-      case 'recettes': html += renderRecettes(); break;
-      case 'produits': html += renderProduits(); break;
-      case 'suivi': html += renderSuivi(); break;
+      case 'methode': h += renderDocs('Ma Methode IG Bas', 'Les fiches fondamentales de la methode.', CONFIG.methode); break;
+      case 'fiches': h += renderDocs('Fiches Pratiques', 'Des conseils concrets pour appliquer la methode au quotidien.', CONFIG.fichesPratiques); break;
+      case 'essentiels': h += renderDocs('Les Essentiels', 'Tes outils du quotidien : listes de courses, composition d\'assiettes, objectifs.', CONFIG.essentiels); break;
+      case 'recettes': h += renderRecettes(); break;
+      case 'tracker': h += renderTracker(); break;
+      case 'suivi': h += renderSuivi(); break;
+      case 'produits': h += renderProduits(); break;
     }
-
-    html += '</div>';
-    app.innerHTML = html;
+    h += '</div>';
+    app.innerHTML = h;
     bindEvents();
   }
 
-  /* ── Message screen ── */
-  function renderMessage(icon, title, text) {
-    return '<div class="espace-message">' +
-      '<div class="espace-message__icon">' + icon + '</div>' +
-      '<h1>' + esc(title) + '</h1>' +
-      '<p>' + esc(text) + '</p>' +
-      '<a class="btn btn--outline" href="mailto:' + CONFIG.email + '">Contacter Sandra</a>' +
-      '</div>';
+  function renderMsg(ico, title, text) {
+    return '<div class="espace-message"><div class="espace-message__icon">' + ico + '</div><h1>' + esc(title) + '</h1><p>' + esc(text) + '</p><a class="btn btn--outline" href="mailto:' + CONFIG.email + '">Contacter Sandra</a></div>';
   }
 
-  /* ── Header ── */
-  function renderEspaceHeader() {
-    var d = state.data;
-    var prog = d.program;
-    var today = todayStr();
-    var elapsed = daysBetween(prog.startDate, today);
-    var total = prog.durationDays;
-    var remaining = Math.max(0, total - elapsed);
-    var pct = Math.min(100, Math.round((elapsed / total) * 100));
-
-    return '<div class="espace-header">' +
-      '<h1>\uD83E\uDD8B Bienvenue ' + esc(d.client.firstName) + '</h1>' +
-      '<p>' + esc(prog.name) + ' &mdash; J' + Math.min(elapsed, total) + '/' + total +
-      (remaining > 0 ? ' &middot; ' + remaining + ' jours restants' : ' &middot; Termine') + '</p>' +
-      '<div class="welcome-card__progress" style="max-width:300px;margin:var(--space-sm) auto 0;">' +
-      '<div class="welcome-card__progress-bar" style="width:' + pct + '%;"></div></div>' +
-      '</div>';
+  function renderHeader() {
+    var d = state.data, p = d.program;
+    var elapsed = Math.min(daysBetween(p.startDate, todayStr()), p.durationDays);
+    var rem = Math.max(0, p.durationDays - elapsed);
+    var pct = Math.min(100, Math.round((elapsed / p.durationDays) * 100));
+    return '<div class="espace-header"><h1>&#x1F98B; Bienvenue ' + esc(d.client.firstName) + '</h1>' +
+      '<p>' + esc(p.name) + ' &mdash; J' + elapsed + '/' + p.durationDays + (rem > 0 ? ' &middot; ' + rem + ' jours restants' : ' &middot; Termine !') + '</p>' +
+      '<div class="welcome-card__progress" style="max-width:300px;margin:var(--space-xs) auto 0;"><div class="welcome-card__progress-bar" style="width:' + pct + '%;"></div></div></div>';
   }
 
-  /* ── Tabs ── */
   function renderTabs() {
+    var pid = state.data.program.id;
     var tabs = [
-      { id: 'programme', label: 'Programme' },
-      { id: 'recettes', label: 'Recettes' },
-      { id: 'produits', label: 'Produits' },
-      { id: 'suivi', label: 'Mon Suivi' }
+      { id: 'methode', label: 'Methode', ico: '&#x1F4D6;' },
+      { id: 'fiches', label: 'Fiches', ico: '&#x1F4A1;' },
+      { id: 'essentiels', label: 'Essentiels', ico: '&#x1F34E;' },
+      { id: 'recettes', label: 'Recettes', ico: '&#x1F373;' },
+      { id: 'tracker', label: 'Tracker', ico: '&#x1F4CA;', needsEvo: true },
+      { id: 'suivi', label: 'Suivi', ico: '&#x1F4DD;' },
+      { id: 'produits', label: 'Bien-etre', ico: '&#x2728;' }
     ];
-    var html = '<div class="tab-bar">';
+    var h = '<div class="tab-bar">';
     tabs.forEach(function(t) {
-      html += '<button class="tab-btn' + (state.tab === t.id ? ' active' : '') + '" data-tab="' + t.id + '">' + t.label + '</button>';
+      var locked = t.needsEvo && !hasAccess(pid, 'evolution');
+      h += '<button class="tab-btn' + (state.tab === t.id ? ' active' : '') + (locked ? ' tab-btn--locked' : '') + '" data-tab="' + t.id + '">' +
+        '<span class="tab-btn__icon">' + t.ico + '</span><span class="tab-btn__label">' + t.label + '</span>' +
+        (locked ? '<span class="tab-btn__lock">' + ICO.lock + '</span>' : '') + '</button>';
     });
-    return html + '</div>';
+    return h + '</div>';
   }
 
-  /* ── Tab: Programme ── */
-  function renderProgramme() {
-    var d = state.data;
-    var html = '';
-
-    // Monthly modules
-    d.months.forEach(function(month) {
-      html += '<div class="month-section">';
-      html += '<div class="month-section__header">';
-      html += '<div class="month-badge">' + month.number + '</div>';
-      html += '<h3>' + esc(month.title) + '</h3>';
-      html += '</div>';
-
-      if (!month.unlocked) {
-        html += '<div class="content-card content-card--locked">';
-        html += '<div class="content-card__icon">\uD83D\uDD12</div>';
-        html += '<div class="content-card__text"><h4>Contenu disponible le mois ' + month.number + '</h4>';
-        html += '<small>Ce module se debloquera automatiquement</small></div></div>';
+  /* ═══ GENERIC DOC LIST RENDERER ═══ */
+  function renderDocs(title, desc, items) {
+    var pid = state.data.program.id;
+    var h = '<h2 style="margin-bottom:var(--space-xs);">' + esc(title) + '</h2>';
+    h += '<p class="lead" style="margin-bottom:var(--space-lg);">' + esc(desc) + '</p>';
+    items.forEach(function(item) {
+      var ok = hasAccess(pid, item.minProgram);
+      if (ok) {
+        h += '<a class="content-card" href="' + encodeURI('../' + item.file) + '" target="_blank" rel="noopener">';
+        h += '<div class="content-card__icon">' + ICO.pdf + '</div>';
+        h += '<div class="content-card__text"><h4>' + esc(item.title) + '</h4>' + (item.desc ? '<small>' + esc(item.desc) + '</small>' : '') + '</div></a>';
       } else {
-        month.documents.forEach(function(doc) {
-          var icons = { fiche: '\uD83D\uDCD6', pratique: '\uD83D\uDCA1', objectif: '\uD83C\uDFAF' };
-          var labels = { fiche: 'Fiche mensuelle', pratique: 'Fiche pratique', objectif: 'Objectif du mois' };
-          html += '<a class="content-card" href="' + encodeURI('../' + doc.file) + '" target="_blank" rel="noopener">';
-          html += '<div class="content-card__icon">' + (icons[doc.type] || '\uD83D\uDCC4') + '</div>';
-          html += '<div class="content-card__text"><h4>' + esc(doc.title) + '</h4>';
-          html += '<small>' + (labels[doc.type] || doc.type) + '</small></div></a>';
-        });
+        h += '<div class="content-card content-card--locked"><div class="content-card__icon">' + ICO.lock + '</div>';
+        h += '<div class="content-card__text"><h4>' + esc(item.title) + '</h4><small>Disponible avec Sublime Evolution</small></div></div>';
       }
-      html += '</div>';
     });
-
-    // Upsells
-    if (d.upsells && d.upsells.length) {
-      html += '<div style="margin-top:var(--space-xl);">';
-      html += '<h3 style="margin-bottom:var(--space-sm);">\u2728 Options premium</h3>';
-      d.upsells.forEach(function(u) {
-        html += '<div class="content-card content-card--locked">';
-        html += '<div class="content-card__icon">\uD83D\uDD12</div>';
-        html += '<div class="content-card__text"><h4>' + esc(u.title) + '</h4>';
-        html += '<small>' + esc(u.description) + '</small></div></div>';
-      });
-      html += '</div>';
-    }
-
-    return html;
+    return h;
   }
 
-  /* ── Tab: Recettes ── */
+  /* ═══ RECETTES ═══ */
   function renderRecettes() {
-    var d = state.data;
-    var cats = [
-      { id: 'all', label: 'Toutes' },
-      { id: 'petit-dejeuner', label: 'Petit-dej' },
-      { id: 'repas', label: 'Repas' },
-      { id: 'gouter', label: 'Gouter' },
-      { id: 'apero', label: 'Apero' },
-      { id: 'autre', label: 'Autre' }
-    ];
-
-    var html = '<div class="filter-bar">';
-    cats.forEach(function(c) {
-      html += '<button class="filter-btn' + (state.recipeFilter === c.id ? ' active' : '') + '" data-filter="' + c.id + '">' + c.label + '</button>';
-    });
-    html += '</div>';
-
-    var filtered = d.recipes.filter(function(r) {
-      return state.recipeFilter === 'all' || r.category === state.recipeFilter;
-    });
-
-    html += '<div class="recipe-grid">';
-    filtered.forEach(function(r) {
-      html += '<a class="recipe-card" href="' + encodeURI('../' + r.file) + '" target="_blank" rel="noopener">';
-      html += '<h4>' + esc(r.title) + '</h4>';
-      html += '<span class="recipe-card__cat">' + esc(r.category) + '</span>';
-      html += '</a>';
-    });
-    if (filtered.length === 0) {
-      html += '<p style="color:var(--color-text-muted);text-align:center;grid-column:1/-1;">Aucune recette dans cette categorie.</p>';
-    }
-    html += '</div>';
-
-    return html;
-  }
-
-  /* ── Tab: Produits ── */
-  function renderProduits() {
-    var d = state.data;
-    var html = '<p class="lead" style="margin-bottom:var(--space-lg);">Mes recommandations de complements alimentaires et soins beaute, selectionnees pour accompagner ta transformation.</p>';
-
-    html += '<div class="grid grid--2">';
-    d.products.forEach(function(p) {
-      html += '<div class="product-card">';
-      html += '<h4>' + esc(p.title) + '</h4>';
-      html += '<span class="recipe-card__cat" style="margin-bottom:8px;display:inline-block;">' + esc(p.category) + '</span>';
-      html += '<p>' + esc(p.description) + '</p>';
-      if (p.shopUrl && p.shopUrl !== '#') {
-        html += '<a class="btn btn--outline btn--sm" href="' + p.shopUrl + '" target="_blank" rel="noopener">Voir le produit</a>';
+    var pid = state.data.program.id;
+    var cats = [{ id: 'all', l: 'Toutes' }, { id: 'petit-dejeuner', l: 'Petit-dej' }, { id: 'repas', l: 'Repas' }, { id: 'gouter', l: 'Gouter' }, { id: 'apero', l: 'Apero' }, { id: 'autre', l: 'Autre' }];
+    var h = '<h2 style="margin-bottom:var(--space-xs);">Mes Recettes IG Bas</h2>';
+    h += '<p class="lead" style="margin-bottom:var(--space-md);">Des idees gourmandes et equilibrees.</p>';
+    h += '<div class="filter-bar">';
+    cats.forEach(function(c) { h += '<button class="filter-btn' + (state.recipeFilter === c.id ? ' active' : '') + '" data-filter="' + c.id + '">' + c.l + '</button>'; });
+    h += '</div><div class="recipe-grid">';
+    CONFIG.recipes.filter(function(r) { return state.recipeFilter === 'all' || r.category === state.recipeFilter; }).forEach(function(r) {
+      var ok = hasAccess(pid, r.minProgram);
+      if (ok) {
+        h += '<a class="recipe-card" href="' + encodeURI('../' + r.file) + '" target="_blank" rel="noopener"><h4>' + esc(r.title) + '</h4><span class="recipe-card__cat">' + esc(r.category) + '</span></a>';
+      } else {
+        h += '<div class="recipe-card content-card--locked" style="cursor:not-allowed;"><h4>' + esc(r.title) + '</h4><span class="recipe-card__cat">' + esc(r.category) + '</span></div>';
       }
-      html += '</div>';
     });
-    html += '</div>';
-
-    return html;
+    h += '</div>';
+    if (!hasAccess(pid, 'evolution')) {
+      h += '<div style="margin-top:var(--space-lg);padding:var(--space-md);border:2px dashed var(--color-accent-light);border-radius:var(--radius-lg);background:var(--color-bg-rose);text-align:center;">';
+      h += '<p style="margin:0;color:var(--color-accent);">' + ICO.star + ' <strong>Recettes personnalisees</strong> — Passe a Sublime Evolution pour des menus adaptes a tes gouts.</p></div>';
+    }
+    return h;
   }
 
-  /* ── Tab: Suivi ── */
-  function renderSuivi() {
-    var d = state.data;
-    var html = '';
-
-    // Tracker form
-    html += '<div class="tracker-form">';
-    html += '<h3>\uD83D\uDCCA Mon suivi du jour</h3>';
-
+  /* ═══ TRACKER ═══ */
+  function renderTracker() {
+    var pid = state.data.program.id;
+    if (!hasAccess(pid, 'evolution')) {
+      return '<div class="espace-message" style="min-height:auto;padding:var(--space-xl) var(--space-md);">' +
+        '<div class="espace-message__icon">' + ICO.lock + '</div><h1 style="font-size:var(--text-2xl);">Tracker Bien-etre</h1>' +
+        '<p>Le tracker quotidien est inclus dans Sublime Evolution. Suis ta progression : humeur, energie, alimentation.</p>' +
+        '<a class="btn btn--primary" href="mailto:' + CONFIG.email + '">Passer a Evolution</a></div>';
+    }
+    var h = '<h2 style="margin-bottom:var(--space-md);">Mon Tracker du jour</h2><div class="tracker-form">';
     var fields = [
-      { id: 'fringales', label: 'Fringales ?', options: [
-        { value: 'non', label: 'Non' }, { value: 'un_peu', label: 'Un peu mais gere' }, { value: 'oui', label: 'Oui' }
-      ]},
-      { id: 'activite', label: 'Activite physique ?', options: [
-        { value: 'sport', label: 'Sport' }, { value: 'marche', label: 'Marche / bouge' }, { value: 'non', label: 'Non' }
-      ]},
-      { id: 'respect', label: 'Respect du programme ?', options: [
-        { value: 'oui', label: 'Oui' }, { value: 'a_peu_pres', label: 'A peu pres' }, { value: 'non', label: 'Pas vraiment' }
-      ]},
-      { id: 'humeur', label: 'Comment tu te sens ?', options: [
-        { value: 'forme', label: 'En pleine forme' }, { value: 'stable', label: 'Plutot stable' }, { value: 'pas_top', label: 'Pas au top' }
-      ]},
-      { id: 'moment_soi', label: 'Moment pour toi ?', options: [
-        { value: 'oui', label: 'Oui' }, { value: 'un_peu', label: 'Un peu' }, { value: 'non', label: 'Pas du tout' }
-      ]},
-      { id: 'difficulte', label: 'Journee difficile ?', options: [
-        { value: 'non', label: 'Non, tout va bien' }, { value: 'moyen', label: 'Moyennement' }, { value: 'oui', label: 'Oui difficile' }
-      ]}
+      { id: 'fringales', label: 'Fringales ?', opts: [['non', 'Non'], ['un_peu', 'Un peu mais gere'], ['oui', 'Oui']] },
+      { id: 'activite', label: 'Activite physique ?', opts: [['sport', 'Sport'], ['marche', 'Marche / bouge'], ['non', 'Non']] },
+      { id: 'respect', label: 'Respect du programme ?', opts: [['oui', 'Oui'], ['a_peu_pres', 'A peu pres'], ['non', 'Pas vraiment']] },
+      { id: 'humeur', label: 'Comment tu te sens ?', opts: [['forme', 'En pleine forme'], ['stable', 'Plutot stable'], ['pas_top', 'Pas au top']] },
+      { id: 'moment_soi', label: 'Moment pour toi ?', opts: [['oui', 'Oui'], ['un_peu', 'Un peu'], ['non', 'Pas du tout']] },
+      { id: 'difficulte', label: 'Journee difficile ?', opts: [['non', 'Non, tout va bien'], ['moyen', 'Moyennement'], ['oui', 'Oui difficile']] }
     ];
-
     fields.forEach(function(f) {
-      var selected = state.trackerValues[f.id] || '';
-      html += '<div class="tracker-field">';
-      html += '<label>' + f.label + '</label>';
-      html += '<div class="tracker-options">';
-      f.options.forEach(function(o) {
-        html += '<button class="tracker-option' + (selected === o.value ? ' selected' : '') + '" data-field="' + f.id + '" data-value="' + o.value + '">' + o.label + '</button>';
-      });
-      html += '</div></div>';
+      var sel = state.trackerValues[f.id] || '';
+      h += '<div class="tracker-field"><label>' + f.label + '</label><div class="tracker-options">';
+      f.opts.forEach(function(o) { h += '<button class="tracker-option' + (sel === o[0] ? ' selected' : '') + '" data-field="' + f.id + '" data-value="' + o[0] + '">' + o[1] + '</button>'; });
+      h += '</div></div>';
     });
-
-    html += '<div class="tracker-field">';
-    html += '<label>Notes libres</label>';
-    html += '<textarea class="form__textarea" id="tracker-notes" placeholder="Comment s\'est passee ta journee ?" style="min-height:80px;">' + esc(state.trackerValues.notes || '') + '</textarea>';
-    html += '</div>';
-
-    html += '<button class="btn btn--primary" id="tracker-submit" style="width:100%;">Envoyer mon suivi</button>';
-    html += '</div>';
-
-    // Coach notes
-    if (d.tracker.coachNotes && d.tracker.coachNotes.length) {
-      html += '<h3 style="margin-bottom:var(--space-sm);">Notes de Sandra</h3>';
-      d.tracker.coachNotes.forEach(function(n) {
-        html += '<div class="coach-note">';
-        html += '<div class="coach-note__date">' + formatDate(n.date) + '</div>';
-        html += '<p>' + esc(n.text) + '</p>';
-        html += '</div>';
+    h += '<div class="tracker-field"><label>Notes libres</label><textarea class="form__textarea" id="tracker-notes" placeholder="Comment s\'est passee ta journee ?" style="min-height:80px;">' + esc(state.trackerValues.notes || '') + '</textarea></div>';
+    h += '<button class="btn btn--primary" id="tracker-submit" style="width:100%;">Envoyer mon suivi</button></div>';
+    var entries = state.data.tracker.entries;
+    if (entries && entries.length) {
+      h += '<h3 style="margin:var(--space-lg) 0 var(--space-sm);">Historique</h3>';
+      var moods = { forme: '&#x1F604;', stable: '&#x1F642;', pas_top: '&#x1F614;' };
+      entries.forEach(function(e) {
+        h += '<div class="tracker-entry"><div class="tracker-entry__date">' + formatDate(e.date) + '</div>';
+        h += '<div>' + (moods[e.humeur] || '') + ' ' + (e.respect === 'oui' ? '&#x2705;' : e.respect === 'a_peu_pres' ? '&#x1F7E1;' : '&#x1F534;') + '</div>';
+        if (e.notes) h += '<div style="flex:1;font-size:var(--text-xs);color:var(--color-text-muted);">' + esc(e.notes) + '</div>';
+        h += '</div>';
       });
     }
-
-    // Tracker history
-    if (d.tracker.entries && d.tracker.entries.length) {
-      html += '<h3 style="margin:var(--space-lg) 0 var(--space-sm);">Historique</h3>';
-      var moods = { forme: '\uD83D\uDE04', stable: '\uD83D\uDE42', pas_top: '\uD83D\uDE14' };
-      d.tracker.entries.forEach(function(e) {
-        html += '<div class="tracker-entry">';
-        html += '<div class="tracker-entry__date">' + formatDate(e.date) + '</div>';
-        html += '<div>' + (moods[e.humeur] || '') + ' ' + (e.respect === 'oui' ? '\u2705' : e.respect === 'a_peu_pres' ? '\uD83D\uDFE1' : '\uD83D\uDD34') + '</div>';
-        if (e.notes) html += '<div style="flex:1;font-size:var(--text-xs);color:var(--color-text-muted);">' + esc(e.notes) + '</div>';
-        html += '</div>';
-      });
-    }
-
-    return html;
+    return h;
   }
 
-  /* ═══════════════════════════════════════════
-     EVENT BINDING
-     ═══════════════════════════════════════════ */
+  /* ═══ SUIVI ═══ */
+  function renderSuivi() {
+    var h = '<h2 style="margin-bottom:var(--space-xs);">Mon Suivi</h2>';
+    h += '<p class="lead" style="margin-bottom:var(--space-lg);">Tes comptes-rendus de seances avec Sandra.</p>';
+    var notes = state.data.tracker.coachNotes;
+    if (notes && notes.length) {
+      notes.forEach(function(n) {
+        h += '<div class="coach-note"><div class="coach-note__date">Sandra &mdash; ' + formatDate(n.date) + '</div><p>' + esc(n.text) + '</p></div>';
+      });
+    } else {
+      h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Tes comptes-rendus apparaitront ici apres tes coachings.</div>';
+    }
+    if (CONFIG.ebooks && CONFIG.ebooks.length) {
+      h += '<h3 style="margin:var(--space-xl) 0 var(--space-sm);">&#x1F4DA; E-books thematiques</h3>';
+      h += '<p style="color:var(--color-text-light);margin-bottom:var(--space-md);">Des guides pour aller plus loin (bientot disponibles).</p>';
+      CONFIG.ebooks.forEach(function(eb) {
+        h += '<div class="content-card content-card--locked"><div class="content-card__icon">' + ICO.book + '</div>';
+        h += '<div class="content-card__text"><h4>' + esc(eb.title) + '</h4><small>' + esc(eb.desc) + '</small></div></div>';
+      });
+    }
+    return h;
+  }
+
+  /* ═══ PRODUITS ═══ */
+  function renderProduits() {
+    var h = '<h2 style="margin-bottom:var(--space-xs);">Mes Paniers Bien-etre</h2>';
+    h += '<p class="lead" style="margin-bottom:var(--space-lg);">Complements alimentaires et soins pour accompagner ta transformation.</p>';
+    h += '<div class="grid grid--2">';
+    CONFIG.products.forEach(function(p) {
+      h += '<div class="product-card"><h4>' + esc(p.title) + '</h4>';
+      h += '<span class="recipe-card__cat" style="margin-bottom:8px;display:inline-block;">' + esc(p.category) + '</span>';
+      h += '<p>' + esc(p.description) + '</p>';
+      if (p.shopUrl && p.shopUrl !== '#') h += '<a class="btn btn--outline btn--sm" href="' + p.shopUrl + '" target="_blank" rel="noopener">Voir le produit</a>';
+      h += '</div>';
+    });
+    h += '</div>';
+    return h;
+  }
+
+  /* ═══ EVENTS ═══ */
   function bindEvents() {
-    // Tab clicks
-    document.querySelectorAll('.tab-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        state.tab = this.dataset.tab;
-        render();
-      });
-    });
-
-    // Recipe filter
-    document.querySelectorAll('.filter-btn').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        state.recipeFilter = this.dataset.filter;
-        render();
-      });
-    });
-
-    // Tracker options
-    document.querySelectorAll('.tracker-option').forEach(function(btn) {
-      btn.addEventListener('click', function() {
-        state.trackerValues[this.dataset.field] = this.dataset.value;
-        state.formDirty = true;
-        // Only update the options, not full render
-        var siblings = this.parentNode.querySelectorAll('.tracker-option');
-        siblings.forEach(function(s) { s.classList.remove('selected'); });
+    document.querySelectorAll('.tab-btn').forEach(function(b) { b.addEventListener('click', function() { state.tab = this.dataset.tab; render(); }); });
+    document.querySelectorAll('.filter-btn').forEach(function(b) { b.addEventListener('click', function() { state.recipeFilter = this.dataset.filter; render(); }); });
+    document.querySelectorAll('.tracker-option').forEach(function(b) {
+      b.addEventListener('click', function() {
+        state.trackerValues[this.dataset.field] = this.dataset.value; state.formDirty = true;
+        this.parentNode.querySelectorAll('.tracker-option').forEach(function(s) { s.classList.remove('selected'); });
         this.classList.add('selected');
       });
     });
-
-    // Tracker notes
-    var notesEl = document.getElementById('tracker-notes');
-    if (notesEl) {
-      notesEl.addEventListener('input', function() {
-        state.trackerValues.notes = this.value;
-        state.formDirty = true;
-      });
-    }
-
-    // Tracker submit
-    var submitBtn = document.getElementById('tracker-submit');
-    if (submitBtn) {
-      submitBtn.addEventListener('click', function() {
-        var vals = state.trackerValues;
-        if (!vals.fringales || !vals.humeur) {
-          showToast('Remplis au moins les fringales et ton humeur');
-          return;
-        }
-
-        var entry = {
-          date: todayStr(),
-          fringales: vals.fringales,
-          activite: vals.activite || '',
-          respect: vals.respect || '',
-          humeur: vals.humeur,
-          moment_soi: vals.moment_soi || '',
-          difficulte: vals.difficulte || '',
-          notes: vals.notes || ''
-        };
-
-        // Mock mode: add locally
-        if (!CONFIG.WEBHOOK_TRACKER) {
-          state.data.tracker.entries.unshift(entry);
-          state.trackerValues = {};
-          state.formDirty = false;
-          showToast('Suivi enregistre !');
-          render();
-          return;
-        }
-
-        // Real mode: POST to n8n
-        fetch(CONFIG.WEBHOOK_TRACKER, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token: state.token, ...entry })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function() {
-          state.data.tracker.entries.unshift(entry);
-          state.trackerValues = {};
-          state.formDirty = false;
-          showToast('Suivi enregistre !');
-          render();
-        })
-        .catch(function() {
-          showToast('Erreur, reessaie plus tard');
-        });
-      });
-    }
+    var n = document.getElementById('tracker-notes');
+    if (n) n.addEventListener('input', function() { state.trackerValues.notes = this.value; state.formDirty = true; });
+    var s = document.getElementById('tracker-submit');
+    if (s) s.addEventListener('click', function() {
+      var v = state.trackerValues;
+      if (!v.fringales || !v.humeur) { showToast('Remplis au moins les fringales et ton humeur'); return; }
+      var entry = { date: todayStr(), fringales: v.fringales, activite: v.activite || '', respect: v.respect || '', humeur: v.humeur, moment_soi: v.moment_soi || '', difficulte: v.difficulte || '', notes: v.notes || '' };
+      if (!CONFIG.WEBHOOK_TRACKER) { state.data.tracker.entries.unshift(entry); state.trackerValues = {}; state.formDirty = false; showToast('Suivi enregistre !'); render(); return; }
+      fetch(CONFIG.WEBHOOK_TRACKER, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token: state.token, ...entry }) })
+        .then(function(r) { return r.json(); }).then(function() { state.data.tracker.entries.unshift(entry); state.trackerValues = {}; state.formDirty = false; showToast('Suivi enregistre !'); render(); })
+        .catch(function() { showToast('Erreur, reessaie plus tard'); });
+    });
   }
 
-  /* ═══════════════════════════════════════════
-     INIT
-     ═══════════════════════════════════════════ */
+  /* ═══ INIT ═══ */
   loadData();
-
 })();
 </script>
 </body>

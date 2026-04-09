@@ -658,6 +658,10 @@ p { margin-bottom: var(--space-sm); }
   color: var(--color-primary);
   border-bottom-color: var(--color-accent);
 }
+.tab-btn__icon { display: block; font-size: 18px; line-height: 1; margin-bottom: 2px; }
+.tab-btn__label { display: block; }
+.tab-btn__lock { display: inline-block; opacity: 0.4; margin-left: 2px; }
+.tab-btn--locked { opacity: 0.45; }
 
 .espace-content { padding: var(--space-md); max-width: var(--container-max); margin: 0 auto; }
 

@@ -166,64 +166,87 @@ var CONFIG = {
     }
   ],
 
-  // ── Contenus programmes (structure reelle des PDF) ──
-  programContent: {
-    mois1: {
-      title: 'Les bases de la methode IG Bas',
-      documents: [
-        { type: 'fiche', title: 'Fiche mensuelle 1', file: 'Documents mois 1/FICHE MENSUELLE 1.pdf' },
-        { type: 'pratique', title: 'Une journee type dans mes assiettes', file: 'Documents mois 1/Fiche pratique Une journée type dans mes assiettes.pdf' },
-        { type: 'pratique', title: 'Petit-dejeuner IG Bas', file: 'Documents mois 1/Petit-déjeuner IGBA.pdf' },
-        { type: 'pratique', title: 'Glucides & perte de poids', file: 'Documents mois 1/Glucides & perte de poids.pdf' },
-        { type: 'pratique', title: 'Liste de courses IG Bas', file: 'Documents mois 1/Liste de Courses pour un Régime à Index Glycémique Bas.pdf' },
-        { type: 'pratique', title: 'Sucrer mes boissons', file: 'Documents mois 1/Sucrer mes boissons.pdf' },
-        { type: 'pratique', title: 'Idees gouters', file: 'Documents mois 1/Idées goûters.pdf' },
-        { type: 'objectif', title: 'Objectif beaute du mois', file: 'Documents mois 1/Objectif beauté du mois 1.pdf' },
-        { type: 'objectif', title: 'Objectif bien-etre du mois', file: 'Documents mois 1/Objectif bien être du mois 1.pdf' },
-        { type: 'objectif', title: 'Objectif mouvement du mois', file: 'Documents mois 1/Objectif mouvement du mois (1).pdf' }
-      ]
-    },
-    mois2: {
-      title: 'Approfondir et ancrer les habitudes',
-      documents: [
-        { type: 'fiche', title: 'Fiche mensuelle 2', file: 'Documents mois 2/Fiche mensuelle 2.pdf' },
-        { type: 'pratique', title: 'Le vinaigre et ses bienfaits', file: 'Documents mois 2/Fiche pratique le vinaigre mois 2.pdf' },
-        { type: 'pratique', title: 'Le verre d\'eau tiede du matin', file: 'Documents mois 2/Fiche pratique le verre d\'eau tiède du matin mois 2.pdf' },
-        { type: 'pratique', title: 'FAQ : le gluten et la methode IG Bas', file: 'Documents mois 2/FAQ le gluten et la méthode IGbas.pdf' },
-        { type: 'objectif', title: 'Objectif beaute du mois', file: 'Documents mois 2/Objectif beauté mois 2.pdf' },
-        { type: 'objectif', title: 'Objectif bien-etre du mois', file: 'Documents mois 2/Objectif bien-être mois 2.pdf' },
-        { type: 'objectif', title: 'Objectif mouvement du mois', file: 'Documents mois 2/Objectif mouvement du mois 2.pdf' }
-      ]
-    },
-    mois3: {
-      title: 'Consolider et devenir autonome',
-      documents: [
-        { type: 'fiche', title: 'Fiche mensuelle 3', file: 'Documents mois 3/Fiche mensuelle 3.pdf' },
-        { type: 'pratique', title: 'Le choix des bonnes huiles', file: 'Documents mois 3/Fiche pratique Le choix des bonnes huiles mois 3.pdf' },
-        { type: 'pratique', title: 'Pourquoi ne pas compter ses calories', file: 'Documents mois 3/Fiche pratique Pqoi ne pas compter ses calories mois 3.pdf' },
-        { type: 'pratique', title: 'Tout comprendre sur les proteines animales', file: 'Documents mois 3/Fiche pratique Tour comprendre sur protéines animales Mois 3.pdf' }
-      ]
-    }
-  },
+  // ══════════════════════════════════════════
+  // CONTENU ESPACE CLIENT — organisé par onglet
+  // Chaque doc a un champ "minProgram" :
+  //   "reset21" = dispo dès Reset 21
+  //   "evolution" = dispo uniquement Évolution+
+  // ══════════════════════════════════════════
 
-  // ── Recettes (structure reelle des PDF) ──
+  // ── Onglet "Ma Méthode" — fiches méthode IG Bas ──
+  methode: [
+    { title: 'Methode IG Bas — Les bases (21 jours)', file: 'Documents mois 1/FICHE MENSUELLE 1.pdf', minProgram: 'reset21', desc: 'Le socle complet de la methode Index Glycemique Bas' },
+    { title: 'Methode IG Bas — Mois 2 : Approfondir', file: 'Documents mois 2/Fiche mensuelle 2.pdf', minProgram: 'evolution', desc: 'Aller plus loin dans la comprehension et l\'application' },
+    { title: 'Methode IG Bas — Mois 3 : Autonomie', file: 'Documents mois 3/Fiche mensuelle 3.pdf', minProgram: 'evolution', desc: 'Consolider tes acquis et devenir autonome' }
+  ],
+
+  // ── Onglet "Fiches Pratiques" ──
+  fichesPratiques: [
+    { title: 'Glucides & perte de poids', file: 'Documents mois 1/Glucides & perte de poids.pdf', minProgram: 'reset21' },
+    { title: 'Sucrer mes boissons autrement', file: 'Documents mois 1/Sucrer mes boissons.pdf', minProgram: 'reset21' },
+    { title: 'Petit-dejeuner IG Bas', file: 'Documents mois 1/Petit-déjeuner IGBA.pdf', minProgram: 'reset21' },
+    { title: 'Une journee type dans mes assiettes', file: 'Documents mois 1/Fiche pratique Une journée type dans mes assiettes.pdf', minProgram: 'reset21' },
+    { title: 'Le vinaigre et ses bienfaits', file: 'Documents mois 2/Fiche pratique le vinaigre mois 2.pdf', minProgram: 'evolution' },
+    { title: 'Le verre d\'eau tiede du matin', file: 'Documents mois 2/Fiche pratique le verre d\'eau tiède du matin mois 2.pdf', minProgram: 'evolution' },
+    { title: 'FAQ : le gluten et la methode IG Bas', file: 'Documents mois 2/FAQ le gluten et la méthode IGbas.pdf', minProgram: 'evolution' },
+    { title: 'Le choix des bonnes huiles', file: 'Documents mois 3/Fiche pratique Le choix des bonnes huiles mois 3.pdf', minProgram: 'evolution' },
+    { title: 'Pourquoi ne pas compter ses calories', file: 'Documents mois 3/Fiche pratique Pqoi ne pas compter ses calories mois 3.pdf', minProgram: 'evolution' },
+    { title: 'Tout comprendre sur les proteines animales', file: 'Documents mois 3/Fiche pratique Tour comprendre sur protéines animales Mois 3.pdf', minProgram: 'evolution' }
+  ],
+
+  // ── Onglet "Les Essentiels" — bases pratiques ──
+  essentiels: [
+    { title: 'Liste de courses IG Bas', file: 'Documents mois 1/Liste de Courses pour un Régime à Index Glycémique Bas.pdf', minProgram: 'reset21' },
+    { title: 'Idees gouters IG Bas', file: 'Documents mois 1/Idées goûters.pdf', minProgram: 'reset21' },
+    { title: 'Objectif beaute du mois 1', file: 'Documents mois 1/Objectif beauté du mois 1.pdf', minProgram: 'reset21' },
+    { title: 'Objectif bien-etre du mois 1', file: 'Documents mois 1/Objectif bien être du mois 1.pdf', minProgram: 'reset21' },
+    { title: 'Objectif mouvement du mois 1', file: 'Documents mois 1/Objectif mouvement du mois (1).pdf', minProgram: 'reset21' },
+    { title: 'Objectif beaute du mois 2', file: 'Documents mois 2/Objectif beauté mois 2.pdf', minProgram: 'evolution' },
+    { title: 'Objectif bien-etre du mois 2', file: 'Documents mois 2/Objectif bien-être mois 2.pdf', minProgram: 'evolution' },
+    { title: 'Objectif mouvement du mois 2', file: 'Documents mois 2/Objectif mouvement du mois 2.pdf', minProgram: 'evolution' }
+  ],
+
+  // ── Onglet "Mes Recettes" ──
   recipes: [
-    { id: 'r1', title: 'Porridge a IG Bas', category: 'petit-dejeuner', file: 'Recettes/Recette de Porridge à IG Bas.pdf' },
-    { id: 'r2', title: 'Petit-dejeuner IG Bas sale & anti-inflammatoire', category: 'petit-dejeuner', file: 'Recettes/Idée de Petit Déjeuner IG bas Salé et anti Infl.pdf' },
-    { id: 'r3', title: 'Petit-dejeuner IG Bas mixte ideal', category: 'petit-dejeuner', file: 'Recettes/Idée de Petit Déjeuner IG bas Mixte Idéal.pdf' },
-    { id: 'r4', title: 'Poisson au four IG Bas', category: 'repas', file: 'Recettes/Recette IG Bas de Poisson au Four.pdf' },
-    { id: 'r5', title: 'Curry de pois chiches et epinards', category: 'repas', file: 'Recettes/Recette Végétarienne à IG Bas Curry de Pois Chiches et Épinards.pdf' },
-    { id: 'r6', title: 'Salade d\'ete IG Bas vegetarienne', category: 'repas', file: 'Recettes/Salade d\'Été à IG Bas végé.pdf' },
-    { id: 'r7', title: 'Salade de poulet d\'ete IG Bas', category: 'repas', file: 'Recettes/Recette d\'Été IG Bas Salade de Poulet .pdf' },
-    { id: 'r8', title: 'Salade de crevettes d\'ete IG Bas', category: 'repas', file: 'Recettes/Recette d\'Été IG Bas Salade de Crevettes.pdf' },
-    { id: 'r9', title: 'Recette gourmande a IG Bas avec proteine', category: 'repas', file: 'Recettes/Recette Gourmande à IG Bas avec Protéine.pdf' },
-    { id: 'r10', title: 'Muffins a IG Bas', category: 'gouter', file: 'Recettes/Recette de Muffins à Index Glycémique Bas.pdf' },
-    { id: 'r11', title: 'Boules de cereales a IG Bas', category: 'gouter', file: 'Recettes/Recettes de Boules de Céréales à IG Bas pour le Goûter.pdf' },
-    { id: 'r12', title: 'Gouters a IG Bas maison', category: 'gouter', file: 'Recettes/Recettes de Goûters à IG bas Maison.pdf' },
-    { id: 'r13', title: 'Gouters IG Bas tout prets', category: 'gouter', file: 'Recettes/Idées de Goûters IG Bas tout prêts.pdf' },
-    { id: 'r14', title: 'Petit-dejeuner IG Bas classique', category: 'petit-dejeuner', file: 'Recettes/Recette de Petit Déjeuner à IG Bas.pdf' },
-    { id: 'r15', title: 'Apero festif a IG Bas', category: 'apero', file: 'Recettes/Recettes d\'Apéro Festif à IG Bas .pdf' },
-    { id: 'r16', title: 'Vinaigre de feu', category: 'autre', file: 'Recettes/Recette du vinaigre de feu mois 2.pdf' },
-    { id: 'r17', title: 'Recettes du vinaigre', category: 'autre', file: 'Recettes/Recettes du vinaigre mois 2.pdf' }
+    { id: 'r1', title: 'Porridge a IG Bas', category: 'petit-dejeuner', file: 'Recettes/Recette de Porridge à IG Bas.pdf', minProgram: 'reset21' },
+    { id: 'r2', title: 'Petit-dejeuner sale & anti-inflammatoire', category: 'petit-dejeuner', file: 'Recettes/Idée de Petit Déjeuner IG bas Salé et anti Infl.pdf', minProgram: 'reset21' },
+    { id: 'r3', title: 'Petit-dejeuner mixte ideal', category: 'petit-dejeuner', file: 'Recettes/Idée de Petit Déjeuner IG bas Mixte Idéal.pdf', minProgram: 'reset21' },
+    { id: 'r14', title: 'Petit-dejeuner IG Bas classique', category: 'petit-dejeuner', file: 'Recettes/Recette de Petit Déjeuner à IG Bas.pdf', minProgram: 'reset21' },
+    { id: 'r4', title: 'Poisson au four IG Bas', category: 'repas', file: 'Recettes/Recette IG Bas de Poisson au Four.pdf', minProgram: 'reset21' },
+    { id: 'r5', title: 'Curry de pois chiches et epinards', category: 'repas', file: 'Recettes/Recette Végétarienne à IG Bas Curry de Pois Chiches et Épinards.pdf', minProgram: 'reset21' },
+    { id: 'r6', title: 'Salade d\'ete vegetarienne', category: 'repas', file: 'Recettes/Salade d\'Été à IG Bas végé.pdf', minProgram: 'reset21' },
+    { id: 'r7', title: 'Salade de poulet d\'ete', category: 'repas', file: 'Recettes/Recette d\'Été IG Bas Salade de Poulet .pdf', minProgram: 'reset21' },
+    { id: 'r8', title: 'Salade de crevettes d\'ete', category: 'repas', file: 'Recettes/Recette d\'Été IG Bas Salade de Crevettes.pdf', minProgram: 'reset21' },
+    { id: 'r9', title: 'Recette gourmande avec proteine', category: 'repas', file: 'Recettes/Recette Gourmande à IG Bas avec Protéine.pdf', minProgram: 'reset21' },
+    { id: 'r10', title: 'Muffins a IG Bas', category: 'gouter', file: 'Recettes/Recette de Muffins à Index Glycémique Bas.pdf', minProgram: 'reset21' },
+    { id: 'r11', title: 'Boules de cereales IG Bas', category: 'gouter', file: 'Recettes/Recettes de Boules de Céréales à IG Bas pour le Goûter.pdf', minProgram: 'reset21' },
+    { id: 'r12', title: 'Gouters IG Bas maison', category: 'gouter', file: 'Recettes/Recettes de Goûters à IG bas Maison.pdf', minProgram: 'reset21' },
+    { id: 'r13', title: 'Gouters IG Bas tout prets', category: 'gouter', file: 'Recettes/Idées de Goûters IG Bas tout prêts.pdf', minProgram: 'reset21' },
+    { id: 'r15', title: 'Apero festif a IG Bas', category: 'apero', file: 'Recettes/Recettes d\'Apéro Festif à IG Bas .pdf', minProgram: 'reset21' },
+    { id: 'r16', title: 'Vinaigre de feu', category: 'autre', file: 'Recettes/Recette du vinaigre de feu mois 2.pdf', minProgram: 'evolution' },
+    { id: 'r17', title: 'Recettes du vinaigre', category: 'autre', file: 'Recettes/Recettes du vinaigre mois 2.pdf', minProgram: 'evolution' }
+  ],
+
+  // ── Options premium (verrouillées selon programme) ──
+  premium: [
+    { id: 'prem1', title: 'Recettes personnalisees', desc: 'Des menus et recettes adaptes a tes gouts, ton mode de vie et tes objectifs.', includedIn: 'evolution', type: 'recettes' },
+    { id: 'prem2', title: 'Tracker bien-etre quotidien', desc: 'Suis ta progression jour apres jour : humeur, energie, alimentation, activite.', includedIn: 'evolution', type: 'tracker' },
+    { id: 'prem3', title: 'Paniers bien-etre personnalises', desc: 'Des recommandations de complements et soins selectionnees pour ton profil.', includedIn: 'evolution', type: 'produits' }
+  ],
+
+  // ── E-books (payants pour tous, futurs) ──
+  ebooks: [
+    { id: 'eb1', title: 'Menopause & perte de poids', desc: 'Comprendre les changements hormonaux et adapter son alimentation pour continuer a perdre du poids.', price: '', available: false },
+    { id: 'eb2', title: 'Stress & alimentation', desc: 'Comment le stress impacte ta prise de poids et les strategies pour reprendre le controle.', price: '', available: false },
+    { id: 'eb3', title: 'Detox douce & IG Bas', desc: 'Un programme detox compatible avec la methode IG Bas pour relancer ton organisme.', price: '', available: false }
+  ],
+
+  // ── Produits recommandés (paniers bien-être) ──
+  products: [
+    { id: 'p1', title: 'Beauty Focus Collagene', description: 'Complement alimentaire pour la peau, les cheveux et les ongles. 4 mois de cure recommandes.', shopUrl: '#', category: 'complement' },
+    { id: 'p2', title: 'LumiSpa', description: 'Appareil de nettoyage facial pour une peau nette et eclatante.', shopUrl: '#', category: 'soin' },
+    { id: 'p3', title: 'Tegreen', description: 'Antioxydant puissant a base de the vert pour booster ton metabolisme.', shopUrl: '#', category: 'complement' },
+    { id: 'p4', title: 'LifePak', description: 'Formule complete de vitamines et mineraux.', shopUrl: '#', category: 'complement' },
+    { id: 'p5', title: 'Serum Anti-age', description: 'Soin concentre pour reduire les signes visibles du temps.', shopUrl: '#', category: 'soin' }
   ]
 };
