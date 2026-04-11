@@ -6,26 +6,26 @@
 
 /* ── DESIGN TOKENS ── */
 :root {
-  /* Couleurs marque Sandra */
-  --color-primary: #641919;
-  --color-primary-light: #8a2c2c;
-  --color-primary-dark: #4a1212;
-  --color-accent: #f13d52;
+  /* Couleurs marque Sandra — charte officielle */
+  --color-primary: #5A0303;
+  --color-primary-light: #7a1a1a;
+  --color-primary-dark: #3d0202;
+  --color-accent: #F13D52;
   --color-accent-light: #f47098;
   --color-accent-dark: #d42e43;
-  --color-text: #3d2828;
-  --color-text-light: #6b5050;
+  --color-text: #3d2020;
+  --color-text-light: #6b4444;
   --color-text-muted: #999;
   --color-bg: #fffbfa;
-  --color-bg-warm: #fdefec;
+  --color-bg-warm: #FDEFEC;
   --color-bg-rose: #fef5f3;
   --color-white: #fff;
   --color-border: #f0e0dc;
   --color-border-light: #f8eeec;
 
-  /* Typo */
-  --font-heading: 'Playfair Display', Georgia, serif;
-  --font-body: 'Nunito Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+  /* Typo — The Seasons (≈ Cormorant Garamond) + Glacial Indifference (≈ Raleway) */
+  --font-heading: 'Cormorant Garamond', Georgia, serif;
+  --font-body: 'Raleway', -apple-system, BlinkMacSystemFont, sans-serif;
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -658,8 +658,8 @@ p { margin-bottom: var(--space-sm); }
   color: var(--color-primary);
   border-bottom-color: var(--color-accent);
 }
-.tab-btn__icon { display: block; font-size: 18px; line-height: 1; margin-bottom: 2px; }
-.tab-btn__label { display: block; }
+.tab-btn__icon { display: block; font-size: 20px; line-height: 1; margin-bottom: 2px; }
+.tab-btn__label { display: none; }
 .tab-btn__lock { display: inline-block; opacity: 0.4; margin-left: 2px; }
 .tab-btn--locked { opacity: 0.45; }
 
@@ -894,6 +894,28 @@ p { margin-bottom: var(--space-sm); }
   opacity: 1;
 }
 
+/* ── WHATSAPP FLOATING BUTTON ── */
+.whatsapp-float {
+  position: fixed;
+  bottom: var(--space-md);
+  right: var(--space-md);
+  width: 56px;
+  height: 56px;
+  background: #25D366;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+  z-index: 900;
+  transition: all var(--transition);
+  color: #fff;
+}
+.whatsapp-float:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 24px rgba(37, 211, 102, 0.5);
+}
+
 /* ── DIAGNOSTIC STICKY BUTTON ── */
 .diagnostic-sticky {
   position: fixed;
@@ -1003,6 +1025,7 @@ p { margin-bottom: var(--space-sm); }
   .recipe-grid { grid-template-columns: 1fr 1fr; }
 
   .tab-btn { font-size: var(--text-sm); padding: var(--space-sm) var(--space-md); }
+  .tab-btn__label { display: block; }
 }
 
 /* ── RESPONSIVE — DESKTOP ── */
