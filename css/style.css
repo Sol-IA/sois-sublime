@@ -328,7 +328,7 @@ p { margin-bottom: var(--space-sm); }
   height: auto;
   margin-bottom: var(--space-md);
   filter: brightness(0) invert(1);
-  opacity: 0.15;
+  opacity: 0.12;
 }
 .hero__badge {
   display: inline-block;
