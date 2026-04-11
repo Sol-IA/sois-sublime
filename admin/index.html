@@ -71,7 +71,12 @@
       program: 'evolution', programName: 'Sublime Evolution',
       startDate: '2026-03-15', endDate: '2026-06-15',
       status: 'active',
-      options: { tracker: true, recettesPerso: true, paniersPerso: true },
+      options: { tracker: true, recettesPerso: true },
+      paniers: [
+        { name: 'Beauty Focus Collagène', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/beauty-focus-collagen.html' },
+        { name: 'LumiSpa', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/ageloc-lumispa.html' },
+        { name: 'Tegreen', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/pharmanex/tegreen97.html' }
+      ],
       ebooks: ['Ménopause & perte de poids'],
       tracker: [
         { date: '2026-04-11', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', notes: '' },
@@ -91,10 +96,11 @@
       program: 'reset21', programName: 'Sublime Reset 21',
       startDate: '2026-04-01', endDate: '2026-04-22',
       status: 'active',
-      options: { tracker: false, recettesPerso: false, paniersPerso: false },
+      options: { tracker: false, recettesPerso: false },
+      paniers: [],
       ebooks: [],
       tracker: [
-        { date: '2026-04-11', fringales: 'oui', activite: 'non', respect: 'a_peu_pres', humeur: 'pas_top', notes: 'Difficile aujourd\'hui' }
+        { date: '2026-04-11', fringales: 'oui', activite: 'non', respect: 'a_peu_pres', humeur: 'pas_top', moment_soi: 'non', difficulte: 'oui', notes: 'Difficile aujourd\'hui', coachComment: '' }
       ],
       coachNotes: []
     },
@@ -105,7 +111,8 @@
       program: 'reset21', programName: 'Sublime Reset 21',
       startDate: '2026-01-10', endDate: '2026-01-31',
       status: 'expired',
-      options: { tracker: false, recettesPerso: false, paniersPerso: false },
+      options: { tracker: false, recettesPerso: false },
+      paniers: [],
       ebooks: [],
       tracker: [
         { date: '2026-01-25', fringales: 'non', activite: 'marche', respect: 'oui', humeur: 'forme', notes: '' },
@@ -122,7 +129,8 @@
       program: 'evolution', programName: 'Sublime Evolution',
       startDate: '', endDate: '',
       status: 'pending',
-      options: { tracker: false, recettesPerso: false, paniersPerso: false },
+      options: { tracker: false, recettesPerso: false },
+      paniers: [],
       ebooks: [],
       tracker: [],
       coachNotes: []
@@ -259,7 +267,8 @@
     if (cl.status === 'active' || cl.status === 'expired') {
       h += '<div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;align-items:center;">';
       h += '<span style="font-size:var(--text-sm);font-weight:600;">Accès jusqu\'au :</span> <span style="font-size:var(--text-sm);">' + formatDate(cl.endDate) + '</span>';
-      h += ' <button class="btn btn--outline btn--sm" id="extend-btn">+ Prolonger 30 jours</button>';
+      h += ' <input type="number" id="extend-days" value="30" min="1" max="365" style="width:60px;padding:4px 8px;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:var(--text-sm);text-align:center;">';
+      h += ' <button class="btn btn--outline btn--sm" id="extend-btn">+ Prolonger</button>';
       h += '</div>';
     }
     h += '</div>';
@@ -268,18 +277,40 @@
     var opts = cl.options || {};
     h += '<div class="card" style="margin-bottom:var(--space-lg);padding:var(--space-lg);">';
     h += '<h3 style="margin-bottom:var(--space-md);">Options</h3>';
-    var optionsList = [
+    var toggleOpts = [
       { key: 'tracker', label: 'Tracker bien-être', desc: 'Suivi quotidien humeur, énergie, alimentation' },
-      { key: 'recettesPerso', label: 'Recettes personnalisées', desc: 'Menus et recettes adaptés aux goûts de la cliente' },
-      { key: 'paniersPerso', label: 'Paniers bien-être personnalisés', desc: 'Recommandations produits sur mesure' }
+      { key: 'recettesPerso', label: 'Recettes personnalisées', desc: 'Menus et recettes adaptés aux goûts de la cliente' }
     ];
-    optionsList.forEach(function(opt) {
+    toggleOpts.forEach(function(opt) {
       var isOn = opts[opt.key] || false;
       h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-sm) 0;border-bottom:1px solid var(--color-border-light);">';
       h += '<div><strong style="font-size:var(--text-sm);">' + opt.label + '</strong><br><span style="font-size:var(--text-xs);color:var(--color-text-muted);">' + opt.desc + '</span></div>';
       h += '<button class="btn btn--sm toggle-option-btn" data-option="' + opt.key + '" style="' + (isOn ? 'background:var(--color-accent);color:#fff;border-color:var(--color-accent);' : '') + '">' + (isOn ? '✓ Activé' : 'Activer') + '</button>';
       h += '</div>';
     });
+    h += '</div>';
+
+    // ── Paniers bien-être (liste de produits avec liens) ──
+    var paniers = cl.paniers || [];
+    h += '<div class="card" style="margin-bottom:var(--space-lg);padding:var(--space-lg);">';
+    h += '<h3 style="margin-bottom:var(--space-md);">Paniers bien-être</h3>';
+    if (paniers.length) {
+      paniers.forEach(function(p, i) {
+        h += '<div style="display:flex;gap:var(--space-sm);align-items:center;padding:var(--space-xs) 0;border-bottom:1px solid var(--color-border-light);flex-wrap:wrap;">';
+        h += '<span style="font-size:var(--text-sm);font-weight:600;min-width:120px;">' + esc(p.name) + '</span>';
+        h += '<a href="' + esc(p.url) + '" target="_blank" rel="noopener" style="font-size:var(--text-xs);color:var(--color-accent);word-break:break-all;flex:1;">' + esc(p.url) + '</a>';
+        h += '<button class="btn btn--sm edit-panier-btn" data-index="' + i + '" style="font-size:var(--text-xs);">Modifier</button>';
+        h += '<button class="btn btn--sm remove-panier-btn" data-index="' + i + '" style="font-size:var(--text-xs);color:#c44;border-color:#c44;">×</button>';
+        h += '</div>';
+      });
+    } else {
+      h += '<p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-sm);">Aucun produit ajouté.</p>';
+    }
+    h += '<div style="margin-top:var(--space-sm);display:flex;gap:var(--space-xs);flex-wrap:wrap;align-items:flex-end;">';
+    h += '<div style="flex:1;min-width:120px;"><label style="font-size:var(--text-xs);color:var(--color-text-muted);">Nom du produit</label><input type="text" id="panier-name" class="form__input" style="padding:6px 10px;font-size:var(--text-sm);" placeholder="Ex: Beauty Focus Collagène"></div>';
+    h += '<div style="flex:2;min-width:200px;"><label style="font-size:var(--text-xs);color:var(--color-text-muted);">URL boutique</label><input type="url" id="panier-url" class="form__input" style="padding:6px 10px;font-size:var(--text-sm);" placeholder="https://..."></div>';
+    h += '<button class="btn btn--primary btn--sm" id="add-panier-btn">Ajouter</button>';
+    h += '</div>';
     h += '</div>';
 
     // ── E-books ──
@@ -318,20 +349,32 @@
     // Tracker
     if (cl.tracker && cl.tracker.length) {
       h += '<h3 style="margin:var(--space-lg) 0 var(--space-sm);">Historique tracker</h3>';
-      h += '<div style="overflow-x:auto;"><table class="tracker-table">';
-      h += '<thead><tr><th>Date</th><th>Humeur</th><th>Programme</th><th>Fringales</th><th>Activité</th><th>Notes</th></tr></thead>';
-      h += '<tbody>';
-      cl.tracker.forEach(function(e) {
-        h += '<tr>';
-        h += '<td>' + formatDate(e.date) + '</td>';
-        h += '<td>' + (moods[e.humeur] || '—') + '</td>';
-        h += '<td>' + (respects[e.respect] || '—') + '</td>';
-        h += '<td>' + esc(e.fringales || '—') + '</td>';
-        h += '<td>' + esc(e.activite || '—') + '</td>';
-        h += '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">' + esc(e.notes || '') + '</td>';
-        h += '</tr>';
+      cl.tracker.forEach(function(e, idx) {
+        h += '<div class="card" style="margin-bottom:var(--space-sm);padding:var(--space-md);">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-xs);">';
+        h += '<strong style="font-size:var(--text-sm);">' + formatDate(e.date) + '</strong>';
+        h += '<span>' + (moods[e.humeur] || '') + ' ' + (respects[e.respect] || '') + '</span>';
+        h += '</div>';
+        h += '<div style="font-size:var(--text-xs);color:var(--color-text-light);display:flex;gap:var(--space-md);flex-wrap:wrap;margin-bottom:var(--space-xs);">';
+        h += '<span>Fringales : ' + esc(e.fringales || '—') + '</span>';
+        h += '<span>Activité : ' + esc(e.activite || '—') + '</span>';
+        h += '<span>Moment soi : ' + esc(e.moment_soi || '—') + '</span>';
+        h += '<span>Difficulté : ' + esc(e.difficulte || '—') + '</span>';
+        h += '</div>';
+        if (e.notes) h += '<p style="font-size:var(--text-sm);color:var(--color-text);margin-bottom:var(--space-xs);font-style:italic;">"' + esc(e.notes) + '"</p>';
+        // Coach comment on this entry
+        if (e.coachComment) {
+          h += '<div style="background:var(--color-bg-warm);border-left:3px solid var(--color-accent);padding:8px 12px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-top:var(--space-xs);">';
+          h += '<span style="font-size:var(--text-xs);color:var(--color-accent);font-weight:600;">Sandra :</span> ';
+          h += '<span style="font-size:var(--text-sm);">' + esc(e.coachComment) + '</span></div>';
+        } else {
+          h += '<div style="display:flex;gap:var(--space-xs);margin-top:var(--space-xs);">';
+          h += '<input type="text" class="form__input tracker-comment-input" data-idx="' + idx + '" placeholder="Ajouter un commentaire..." style="padding:4px 8px;font-size:var(--text-xs);flex:1;">';
+          h += '<button class="btn btn--outline btn--sm tracker-comment-btn" data-idx="' + idx + '" style="font-size:var(--text-xs);padding:4px 12px;">Envoyer</button>';
+          h += '</div>';
+        }
+        h += '</div>';
       });
-      h += '</tbody></table></div>';
     } else {
       h += '<p style="color:var(--color-text-muted);margin-top:var(--space-lg);">Aucune entrée tracker pour le moment.</p>';
     }
@@ -369,21 +412,22 @@
       cl.endDate = end.toISOString().slice(0, 10);
       cl.options.tracker = true;
       cl.options.recettesPerso = true;
-      cl.options.paniersPerso = true;
       showToast('Upgrade vers Évolution ! Toutes les options activées.');
       render();
     });
 
-    // Prolonger accès
+    // Prolonger accès (jours variables)
     var extendBtn = document.getElementById('extend-btn');
     if (extendBtn) extendBtn.addEventListener('click', function() {
       var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
       if (!cl) return;
+      var daysInput = document.getElementById('extend-days');
+      var days = parseInt(daysInput ? daysInput.value : 30) || 30;
       var end = cl.endDate ? new Date(cl.endDate) : new Date();
-      end.setDate(end.getDate() + 30);
+      end.setDate(end.getDate() + days);
       cl.endDate = end.toISOString().slice(0, 10);
       if (cl.status === 'expired') cl.status = 'active';
-      showToast('Accès prolongé de 30 jours !');
+      showToast('Accès prolongé de ' + days + ' jours !');
       render();
     });
 
@@ -453,6 +497,61 @@
           showToast('Accès activé et email envoyé !');
           render();
         }).catch(function() { showToast('Erreur — réessaie'); });
+    });
+
+    // Paniers — add
+    var addPanierBtn = document.getElementById('add-panier-btn');
+    if (addPanierBtn) addPanierBtn.addEventListener('click', function() {
+      var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+      if (!cl) return;
+      var nameEl = document.getElementById('panier-name');
+      var urlEl = document.getElementById('panier-url');
+      if (!nameEl.value.trim()) { showToast('Nom du produit requis'); return; }
+      if (!cl.paniers) cl.paniers = [];
+      cl.paniers.push({ name: nameEl.value.trim(), url: urlEl.value.trim() || '#' });
+      showToast('Produit ajouté !');
+      render();
+    });
+
+    // Paniers — remove
+    document.querySelectorAll('.remove-panier-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+        if (!cl) return;
+        cl.paniers.splice(parseInt(this.dataset.index), 1);
+        showToast('Produit retiré');
+        render();
+      });
+    });
+
+    // Paniers — edit
+    document.querySelectorAll('.edit-panier-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+        if (!cl) return;
+        var idx = parseInt(this.dataset.index);
+        var p = cl.paniers[idx];
+        var newUrl = prompt('Nouvelle URL pour ' + p.name + ' :', p.url);
+        if (newUrl !== null) {
+          p.url = newUrl;
+          showToast('URL mise à jour');
+          render();
+        }
+      });
+    });
+
+    // Tracker — coach comment
+    document.querySelectorAll('.tracker-comment-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+        if (!cl) return;
+        var idx = parseInt(this.dataset.idx);
+        var input = document.querySelector('.tracker-comment-input[data-idx="' + idx + '"]');
+        if (!input || !input.value.trim()) { showToast('Écris un commentaire'); return; }
+        cl.tracker[idx].coachComment = input.value.trim();
+        showToast('Commentaire ajouté !');
+        render();
+      });
     });
 
     // Note textarea
