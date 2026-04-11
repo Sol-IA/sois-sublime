@@ -138,7 +138,7 @@
   ];
 
   /* ═══ STATE ═══ */
-  var state = { view: 'list', clients: [], selectedToken: null, noteText: '' };
+  var state = { view: 'list', clients: [], selectedToken: null, noteText: '', search: '', filterStatus: 'all', filterProgram: 'all' };
   var app = document.getElementById('app');
 
   /* ═══ UTILS ═══ */
@@ -185,28 +185,63 @@
 
   /* ═══ LIST VIEW ═══ */
   function renderList() {
-    var c = state.clients;
-    var active = c.filter(function(cl) { return cl.status === 'active'; }).length;
-    var pending = c.filter(function(cl) { return cl.status === 'pending'; }).length;
-    var expired = c.filter(function(cl) { return cl.status === 'expired'; }).length;
+    var all = state.clients;
+    var active = all.filter(function(cl) { return cl.status === 'active'; }).length;
+    var pending = all.filter(function(cl) { return cl.status === 'pending'; }).length;
+    var expired = all.filter(function(cl) { return cl.status === 'expired'; }).length;
+
+    // Apply filters
+    var c = all.filter(function(cl) {
+      if (state.filterStatus !== 'all' && cl.status !== state.filterStatus) return false;
+      if (state.filterProgram !== 'all' && cl.program !== state.filterProgram) return false;
+      if (state.search) {
+        var q = state.search.toLowerCase();
+        var match = (cl.firstName + ' ' + cl.lastName).toLowerCase().indexOf(q) !== -1 ||
+                    cl.email.toLowerCase().indexOf(q) !== -1 ||
+                    (cl.phone || '').indexOf(q) !== -1;
+        if (!match) return false;
+      }
+      return true;
+    });
 
     var h = '<div class="espace-content" style="padding-top:calc(var(--header-h) + var(--space-md));">';
 
-    // Stats
+    // Stats (cliquables comme filtres)
     h += '<div class="admin-stats">';
-    h += '<div class="stat-card"><div class="stat-card__number">' + c.length + '</div><div class="stat-card__label">Total</div></div>';
-    h += '<div class="stat-card"><div class="stat-card__number" style="color:#2e7d32;">' + active + '</div><div class="stat-card__label">Actives</div></div>';
-    h += '<div class="stat-card"><div class="stat-card__number" style="color:#e65100;">' + pending + '</div><div class="stat-card__label">En attente</div></div>';
-    h += '<div class="stat-card"><div class="stat-card__number" style="color:#c62828;">' + expired + '</div><div class="stat-card__label">Expirées</div></div>';
+    h += '<div class="stat-card stat-filter" data-filter-status="all" style="cursor:pointer;' + (state.filterStatus === 'all' ? 'border-color:var(--color-primary);' : '') + '"><div class="stat-card__number">' + all.length + '</div><div class="stat-card__label">Total</div></div>';
+    h += '<div class="stat-card stat-filter" data-filter-status="active" style="cursor:pointer;' + (state.filterStatus === 'active' ? 'border-color:#2e7d32;' : '') + '"><div class="stat-card__number" style="color:#2e7d32;">' + active + '</div><div class="stat-card__label">Actives</div></div>';
+    h += '<div class="stat-card stat-filter" data-filter-status="pending" style="cursor:pointer;' + (state.filterStatus === 'pending' ? 'border-color:#e65100;' : '') + '"><div class="stat-card__number" style="color:#e65100;">' + pending + '</div><div class="stat-card__label">En attente</div></div>';
+    h += '<div class="stat-card stat-filter" data-filter-status="expired" style="cursor:pointer;' + (state.filterStatus === 'expired' ? 'border-color:#c62828;' : '') + '"><div class="stat-card__number" style="color:#c62828;">' + expired + '</div><div class="stat-card__label">Expirées</div></div>';
     h += '</div>';
+
+    // Search + programme filter
+    h += '<div style="display:flex;gap:var(--space-sm);margin-bottom:var(--space-md);flex-wrap:wrap;align-items:center;">';
+    h += '<input type="text" id="search-input" class="form__input" value="' + esc(state.search) + '" placeholder="Rechercher par nom, email, tel..." style="flex:1;min-width:200px;padding:8px 14px;font-size:var(--text-sm);">';
+    h += '<select id="filter-program" class="form__input" style="width:auto;padding:8px 14px;font-size:var(--text-sm);cursor:pointer;">';
+    h += '<option value="all"' + (state.filterProgram === 'all' ? ' selected' : '') + '>Tous les programmes</option>';
+    h += '<option value="reset21"' + (state.filterProgram === 'reset21' ? ' selected' : '') + '>Reset 21</option>';
+    h += '<option value="evolution"' + (state.filterProgram === 'evolution' ? ' selected' : '') + '>Evolution</option>';
+    h += '</select>';
+    if (state.search || state.filterStatus !== 'all' || state.filterProgram !== 'all') {
+      h += '<button class="btn btn--outline btn--sm" id="clear-filters-btn">Effacer les filtres</button>';
+    }
+    h += '</div>';
+
+    // Results count
+    if (c.length !== all.length) {
+      h += '<p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-sm);">' + c.length + ' résultat' + (c.length > 1 ? 's' : '') + ' sur ' + all.length + '</p>';
+    }
 
     // Table
     h += '<div style="overflow-x:auto;">';
     h += '<table class="client-table">';
     h += '<thead><tr><th>Nom</th><th>Programme</th><th>Email</th><th>Statut</th><th>Dates</th></tr></thead>';
     h += '<tbody>';
+    if (c.length === 0) {
+      h += '<tr><td colspan="5" style="text-align:center;color:var(--color-text-muted);padding:var(--space-xl);">Aucune cliente trouvée</td></tr>';
+    }
     c.forEach(function(cl) {
-      h += '<tr data-token="' + esc(cl.token) + '">';
+      h += '<tr data-token="' + esc(cl.token || cl.email) + '">';
       h += '<td><strong>' + esc(cl.firstName) + ' ' + esc(cl.lastName) + '</strong></td>';
       h += '<td>' + esc(cl.programName) + '</td>';
       h += '<td>' + esc(cl.email) + '</td>';
@@ -220,7 +255,7 @@
 
   /* ═══ DETAIL VIEW ═══ */
   function renderDetail() {
-    var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+    var cl = state.clients.find(function(c) { return c.token === state.selectedToken || c.email === state.selectedToken; });
     if (!cl) { state.view = 'list'; render(); return ''; }
 
     var siteUrl = CONFIG.siteUrl || 'https://sois-sublime.fr';
@@ -385,10 +420,40 @@
 
   /* ═══ EVENTS ═══ */
   function bindEvents() {
+    // Search
+    var searchInput = document.getElementById('search-input');
+    if (searchInput) {
+      searchInput.addEventListener('input', function() { state.search = this.value; render(); });
+      searchInput.focus();
+      searchInput.setSelectionRange(searchInput.value.length, searchInput.value.length);
+    }
+
+    // Filter by programme
+    var filterProg = document.getElementById('filter-program');
+    if (filterProg) filterProg.addEventListener('change', function() { state.filterProgram = this.value; render(); });
+
+    // Filter by status (stat cards)
+    document.querySelectorAll('.stat-filter').forEach(function(card) {
+      card.addEventListener('click', function() {
+        var s = this.dataset.filterStatus;
+        state.filterStatus = (state.filterStatus === s && s !== 'all') ? 'all' : s;
+        render();
+      });
+    });
+
+    // Clear filters
+    var clearBtn = document.getElementById('clear-filters-btn');
+    if (clearBtn) clearBtn.addEventListener('click', function() {
+      state.search = ''; state.filterStatus = 'all'; state.filterProgram = 'all';
+      render();
+    });
+
     // Row click → detail
     document.querySelectorAll('.client-table tr[data-token]').forEach(function(row) {
       row.addEventListener('click', function() {
-        state.selectedToken = this.dataset.token;
+        var token = this.dataset.token;
+        var cl = state.clients.find(function(c) { return c.token === token || c.email === token; });
+        if (cl) { state.selectedToken = cl.token || cl.email; }
         state.view = 'detail';
         state.noteText = '';
         render();
