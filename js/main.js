@@ -56,11 +56,11 @@
   });
 
   /* ═══ BUILD DYNAMIC CONTENT FROM CONFIG ═══ */
-  if (typeof CONFIG === 'undefined') return;
+  var hasConfig = typeof CONFIG !== 'undefined';
 
   /* ── Pillars ── */
   var pillarGrid = document.getElementById('pillar-grid');
-  if (pillarGrid) {
+  if (pillarGrid && hasConfig) {
     var ph = '';
     CONFIG.pillars.forEach(function(p) {
       var icon = SVG[p.icon] || '';
@@ -75,7 +75,7 @@
 
   /* ── Programs ── */
   var programGrid = document.getElementById('program-grid');
-  if (programGrid) {
+  if (programGrid && hasConfig) {
     var prh = '';
     CONFIG.programs.filter(function(p) { return p.id !== 'diagnostic'; }).forEach(function(prog) {
       var modClass = '';
@@ -110,7 +110,7 @@
 
   /* ── Testimonials ── */
   var sliderEl = document.getElementById('testimonial-slider');
-  if (sliderEl && CONFIG.testimonials && CONFIG.testimonials.length) {
+  if (sliderEl && hasConfig && CONFIG.testimonials && CONFIG.testimonials.length) {
     var th = '<div class="testimonial-slider__track">';
     var dh = '<div class="testimonial-slider__dots">';
     CONFIG.testimonials.forEach(function(t, i) {
