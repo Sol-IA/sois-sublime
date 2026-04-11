@@ -71,6 +71,8 @@
       program: 'evolution', programName: 'Sublime Evolution',
       startDate: '2026-03-15', endDate: '2026-06-15',
       status: 'active',
+      options: { tracker: true, recettesPerso: true, paniersPerso: true },
+      ebooks: ['Ménopause & perte de poids'],
       tracker: [
         { date: '2026-04-11', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', notes: '' },
         { date: '2026-04-10', fringales: 'un_peu', activite: 'marche', respect: 'a_peu_pres', humeur: 'stable', notes: 'Journée chargée' },
@@ -89,6 +91,8 @@
       program: 'reset21', programName: 'Sublime Reset 21',
       startDate: '2026-04-01', endDate: '2026-04-22',
       status: 'active',
+      options: { tracker: false, recettesPerso: false, paniersPerso: false },
+      ebooks: [],
       tracker: [
         { date: '2026-04-11', fringales: 'oui', activite: 'non', respect: 'a_peu_pres', humeur: 'pas_top', notes: 'Difficile aujourd\'hui' }
       ],
@@ -101,6 +105,8 @@
       program: 'reset21', programName: 'Sublime Reset 21',
       startDate: '2026-01-10', endDate: '2026-01-31',
       status: 'expired',
+      options: { tracker: false, recettesPerso: false, paniersPerso: false },
+      ebooks: [],
       tracker: [
         { date: '2026-01-25', fringales: 'non', activite: 'marche', respect: 'oui', humeur: 'forme', notes: '' },
         { date: '2026-01-20', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', notes: 'Très motivée' }
@@ -116,6 +122,8 @@
       program: 'evolution', programName: 'Sublime Evolution',
       startDate: '', endDate: '',
       status: 'pending',
+      options: { tracker: false, recettesPerso: false, paniersPerso: false },
+      ebooks: [],
       tracker: [],
       coachNotes: []
     }
@@ -239,6 +247,59 @@
     }
     h += '</div>';
 
+    // ── Programme & accès ──
+    h += '<div class="card" style="margin-bottom:var(--space-lg);padding:var(--space-lg);">';
+    h += '<h3 style="margin-bottom:var(--space-md);">Programme & accès</h3>';
+    h += '<div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;align-items:center;margin-bottom:var(--space-md);">';
+    h += '<span style="font-size:var(--text-sm);font-weight:600;">Programme actuel :</span> <span class="badge badge--active">' + esc(cl.programName) + '</span>';
+    if (cl.program === 'reset21' && cl.status === 'active') {
+      h += ' <button class="btn btn--primary btn--sm" id="upgrade-btn">↑ Upgrade vers Évolution</button>';
+    }
+    h += '</div>';
+    if (cl.status === 'active' || cl.status === 'expired') {
+      h += '<div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;align-items:center;">';
+      h += '<span style="font-size:var(--text-sm);font-weight:600;">Accès jusqu\'au :</span> <span style="font-size:var(--text-sm);">' + formatDate(cl.endDate) + '</span>';
+      h += ' <button class="btn btn--outline btn--sm" id="extend-btn">+ Prolonger 30 jours</button>';
+      h += '</div>';
+    }
+    h += '</div>';
+
+    // ── Options actives ──
+    var opts = cl.options || {};
+    h += '<div class="card" style="margin-bottom:var(--space-lg);padding:var(--space-lg);">';
+    h += '<h3 style="margin-bottom:var(--space-md);">Options</h3>';
+    var optionsList = [
+      { key: 'tracker', label: 'Tracker bien-être', desc: 'Suivi quotidien humeur, énergie, alimentation' },
+      { key: 'recettesPerso', label: 'Recettes personnalisées', desc: 'Menus et recettes adaptés aux goûts de la cliente' },
+      { key: 'paniersPerso', label: 'Paniers bien-être personnalisés', desc: 'Recommandations produits sur mesure' }
+    ];
+    optionsList.forEach(function(opt) {
+      var isOn = opts[opt.key] || false;
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-sm) 0;border-bottom:1px solid var(--color-border-light);">';
+      h += '<div><strong style="font-size:var(--text-sm);">' + opt.label + '</strong><br><span style="font-size:var(--text-xs);color:var(--color-text-muted);">' + opt.desc + '</span></div>';
+      h += '<button class="btn btn--sm toggle-option-btn" data-option="' + opt.key + '" style="' + (isOn ? 'background:var(--color-accent);color:#fff;border-color:var(--color-accent);' : '') + '">' + (isOn ? '✓ Activé' : 'Activer') + '</button>';
+      h += '</div>';
+    });
+    h += '</div>';
+
+    // ── E-books ──
+    var ebooksOwned = cl.ebooks || [];
+    var allEbooks = (typeof CONFIG !== 'undefined' && CONFIG.ebooks) ? CONFIG.ebooks : [
+      { id: 'eb1', title: 'Ménopause & perte de poids' },
+      { id: 'eb2', title: 'Stress & alimentation' },
+      { id: 'eb3', title: 'Detox douce & IG Bas' }
+    ];
+    h += '<div class="card" style="margin-bottom:var(--space-lg);padding:var(--space-lg);">';
+    h += '<h3 style="margin-bottom:var(--space-md);">E-books</h3>';
+    allEbooks.forEach(function(eb) {
+      var owned = ebooksOwned.indexOf(eb.title) !== -1;
+      h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-xs) 0;border-bottom:1px solid var(--color-border-light);">';
+      h += '<span style="font-size:var(--text-sm);">' + esc(eb.title) + '</span>';
+      h += '<button class="btn btn--sm toggle-ebook-btn" data-ebook="' + esc(eb.title) + '" style="' + (owned ? 'background:var(--color-accent);color:#fff;border-color:var(--color-accent);' : '') + '">' + (owned ? '✓ Acheté' : 'Marquer acheté') + '</button>';
+      h += '</div>';
+    });
+    h += '</div>';
+
     // Add note
     h += '<div class="note-form">';
     h += '<h3 style="margin-bottom:var(--space-sm);">Ajouter un compte-rendu</h3>';
@@ -295,6 +356,61 @@
     // Back button
     var backBtn = document.getElementById('back-btn');
     if (backBtn) backBtn.addEventListener('click', function() { state.view = 'list'; render(); });
+
+    // Upgrade programme
+    var upgradeBtn = document.getElementById('upgrade-btn');
+    if (upgradeBtn) upgradeBtn.addEventListener('click', function() {
+      var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+      if (!cl) return;
+      cl.program = 'evolution';
+      cl.programName = 'Sublime Evolution';
+      var end = new Date(cl.startDate);
+      end.setDate(end.getDate() + 90);
+      cl.endDate = end.toISOString().slice(0, 10);
+      cl.options.tracker = true;
+      cl.options.recettesPerso = true;
+      cl.options.paniersPerso = true;
+      showToast('Upgrade vers Évolution ! Toutes les options activées.');
+      render();
+    });
+
+    // Prolonger accès
+    var extendBtn = document.getElementById('extend-btn');
+    if (extendBtn) extendBtn.addEventListener('click', function() {
+      var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+      if (!cl) return;
+      var end = cl.endDate ? new Date(cl.endDate) : new Date();
+      end.setDate(end.getDate() + 30);
+      cl.endDate = end.toISOString().slice(0, 10);
+      if (cl.status === 'expired') cl.status = 'active';
+      showToast('Accès prolongé de 30 jours !');
+      render();
+    });
+
+    // Toggle options
+    document.querySelectorAll('.toggle-option-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+        if (!cl) return;
+        var key = this.dataset.option;
+        cl.options[key] = !cl.options[key];
+        showToast(cl.options[key] ? 'Option activée !' : 'Option désactivée');
+        render();
+      });
+    });
+
+    // Toggle ebooks
+    document.querySelectorAll('.toggle-ebook-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+        if (!cl) return;
+        var title = this.dataset.ebook;
+        var idx = cl.ebooks.indexOf(title);
+        if (idx === -1) { cl.ebooks.push(title); showToast('E-book marqué comme acheté'); }
+        else { cl.ebooks.splice(idx, 1); showToast('E-book retiré'); }
+        render();
+      });
+    });
 
     // Copy link
     var copyBtn = document.getElementById('copy-link-btn');
