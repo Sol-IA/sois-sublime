@@ -1043,6 +1043,6 @@ p { margin-bottom: var(--space-sm); }
 @media (max-width: 480px) {
   .btn { width: 100%; justify-content: center; }
   .hero h1 { font-size: var(--text-2xl); }
-  .hero__bg img { object-position: 70% top; }
+  .hero__bg img { object-position: 90% top; }
   .grid--4 { grid-template-columns: 1fr; }
 }
