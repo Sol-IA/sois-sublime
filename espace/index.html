@@ -32,14 +32,21 @@
   var MOCK_DATA = {
     client: { firstName: 'Marie', lastName: 'Dupont', email: 'marie@example.com', needsVerification: false },
     program: { id: 'evolution', name: 'Sublime Evolution', startDate: '2026-03-15', endDate: '2026-06-15', expired: false, durationDays: 90 },
+    paniers: [
+      { name: 'Beauty Focus Collagene', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/beauty-focus-collagen.html' },
+      { name: 'LumiSpa', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/ageloc-lumispa.html' },
+      { name: 'Tegreen', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/pharmanex/tegreen97.html' }
+    ],
     tracker: {
       entries: [
-        { date: '2026-04-08', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: '' },
-        { date: '2026-04-07', fringales: 'un_peu', activite: 'marche', respect: 'a_peu_pres', humeur: 'stable', moment_soi: 'un_peu', difficulte: 'non', notes: 'Bonne journee globalement' },
-        { date: '2026-04-06', fringales: 'non', activite: 'non', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: '' }
+        { date: '2026-04-11', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: '', coachComment: 'Bravo Marie, 3 seances de sport cette semaine ! Continue.' },
+        { date: '2026-04-10', fringales: 'un_peu', activite: 'marche', respect: 'a_peu_pres', humeur: 'stable', moment_soi: 'un_peu', difficulte: 'non', notes: 'Journee chargee', coachComment: '' },
+        { date: '2026-04-09', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: 'Super seance !', coachComment: 'Top ! Tu prends le rythme.' },
+        { date: '2026-04-08', fringales: 'non', activite: 'non', respect: 'oui', humeur: 'stable', moment_soi: 'non', difficulte: 'non', notes: '', coachComment: '' }
       ],
       coachNotes: [
-        { date: '2026-04-05', text: 'Super progres cette semaine Marie ! Tes habitudes se mettent bien en place. Continue comme ca, les resultats vont suivre.' }
+        { date: '2026-04-07', text: 'Super progres cette semaine Marie ! Tes habitudes se mettent bien en place. Continue comme ca, les resultats vont suivre.' },
+        { date: '2026-03-25', text: 'On a travaille sur la composition des petits-dejeuners. Marie a bien compris le principe IG Bas.' }
       ]
     }
   };
@@ -223,10 +230,23 @@
     if (entries && entries.length) {
       h += '<h3 style="margin:var(--space-lg) 0 var(--space-sm);">Historique</h3>';
       var moods = { forme: '&#x1F604;', stable: '&#x1F642;', pas_top: '&#x1F614;' };
+      var respects = { oui: '&#x2705;', a_peu_pres: '&#x1F7E1;', non: '&#x1F534;' };
       entries.forEach(function(e) {
-        h += '<div class="tracker-entry"><div class="tracker-entry__date">' + formatDate(e.date) + '</div>';
-        h += '<div>' + (moods[e.humeur] || '') + ' ' + (e.respect === 'oui' ? '&#x2705;' : e.respect === 'a_peu_pres' ? '&#x1F7E1;' : '&#x1F534;') + '</div>';
-        if (e.notes) h += '<div style="flex:1;font-size:var(--text-xs);color:var(--color-text-muted);">' + esc(e.notes) + '</div>';
+        h += '<div style="background:var(--color-white);border-radius:var(--radius-md);padding:var(--space-md);border:1px solid var(--color-border-light);margin-bottom:var(--space-sm);">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-xs);">';
+        h += '<strong style="font-size:var(--text-sm);">' + formatDate(e.date) + '</strong>';
+        h += '<span>' + (moods[e.humeur] || '') + ' ' + (respects[e.respect] || '') + '</span>';
+        h += '</div>';
+        h += '<div style="font-size:var(--text-xs);color:var(--color-text-light);display:flex;gap:var(--space-sm);flex-wrap:wrap;">';
+        h += '<span>Fringales : ' + esc(e.fringales || '') + '</span>';
+        h += '<span>Activite : ' + esc(e.activite || '') + '</span>';
+        h += '</div>';
+        if (e.notes) h += '<p style="font-size:var(--text-sm);font-style:italic;color:var(--color-text-light);margin:var(--space-xs) 0 0;">"' + esc(e.notes) + '"</p>';
+        if (e.coachComment) {
+          h += '<div style="background:var(--color-bg-warm);border-left:3px solid var(--color-accent);padding:8px 12px;border-radius:0 var(--radius-sm) var(--radius-sm) 0;margin-top:var(--space-xs);">';
+          h += '<span style="font-size:var(--text-xs);color:var(--color-accent);font-weight:600;">Sandra :</span> ';
+          h += '<span style="font-size:var(--text-sm);">' + esc(e.coachComment) + '</span></div>';
+        }
         h += '</div>';
       });
     }
@@ -251,16 +271,34 @@
   /* ═══ PRODUITS ═══ */
   function renderProduits() {
     var h = '<h2 style="margin-bottom:var(--space-xs);">Mes Paniers Bien-etre</h2>';
-    h += '<p class="lead" style="margin-bottom:var(--space-lg);">Complements alimentaires et soins pour accompagner ta transformation.</p>';
-    h += '<div class="grid grid--2">';
-    CONFIG.products.forEach(function(p) {
-      h += '<div class="product-card"><h4>' + esc(p.title) + '</h4>';
-      h += '<span class="recipe-card__cat" style="margin-bottom:8px;display:inline-block;">' + esc(p.category) + '</span>';
-      h += '<p>' + esc(p.description) + '</p>';
-      if (p.shopUrl && p.shopUrl !== '#') h += '<a class="btn btn--outline btn--sm" href="' + p.shopUrl + '" target="_blank" rel="noopener">Voir le produit</a>';
+    h += '<p class="lead" style="margin-bottom:var(--space-lg);">Les produits selectionnes par Sandra specialement pour toi.</p>';
+
+    // Paniers personnalisés (ajoutés par Sandra)
+    var paniers = state.data.paniers || [];
+    if (paniers.length) {
+      h += '<h3 style="margin-bottom:var(--space-sm);">Mes recommandations personnalisees</h3>';
+      h += '<div class="grid grid--2">';
+      paniers.forEach(function(p) {
+        h += '<div class="product-card"><h4>' + esc(p.name) + '</h4>';
+        if (p.url && p.url !== '#') h += '<a class="btn btn--primary btn--sm" href="' + esc(p.url) + '" target="_blank" rel="noopener">Voir le produit</a>';
+        h += '</div>';
+      });
       h += '</div>';
-    });
-    h += '</div>';
+    }
+
+    // Produits standards (du config.js)
+    if (typeof CONFIG !== 'undefined' && CONFIG.products && CONFIG.products.length) {
+      h += '<h3 style="margin:var(--space-lg) 0 var(--space-sm);">Produits recommandes</h3>';
+      h += '<div class="grid grid--2">';
+      CONFIG.products.forEach(function(p) {
+        h += '<div class="product-card"><h4>' + esc(p.title) + '</h4>';
+        h += '<p style="font-size:var(--text-sm);color:var(--color-text-light);">' + esc(p.description) + '</p>';
+        if (p.shopUrl && p.shopUrl !== '#') h += '<a class="btn btn--outline btn--sm" href="' + p.shopUrl + '" target="_blank" rel="noopener">Voir le produit</a>';
+        h += '</div>';
+      });
+      h += '</div>';
+    }
+
     return h;
   }
 
