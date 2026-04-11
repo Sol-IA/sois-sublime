@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blog Nutrition, Beaute & Bien-etre | Sois Sublime</title>
+<meta name="description" content="Conseils nutrition IG Bas, astuces beaute, recettes saines et bien-etre. Le blog de Sandra pour t'accompagner dans ta transformation.">
+<link rel="canonical" href="https://soissublime.fr/blog.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Blog Nutrition, Beaute & Bien-etre | Sois Sublime">
+<meta property="og:description" content="Conseils nutrition IG Bas, astuces beaute, recettes saines et bien-etre.">
+<meta property="og:locale" content="fr_FR">
+<link rel="icon" type="image/png" sizes="32x32" href="assets-sandra/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<style>
+/* Blog grid */
+.blog-grid { display: grid; grid-template-columns: 1fr; gap: var(--space-lg); }
+@media (min-width: 768px) { .blog-grid { grid-template-columns: 1fr 1fr; } }
+@media (min-width: 1024px) { .blog-grid { grid-template-columns: repeat(3, 1fr); } }
+
+/* Blog cards */
+.blog-card { background: var(--color-white); border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--color-border-light); transition: all var(--transition); display: flex; flex-direction: column; }
+.blog-card:hover { box-shadow: var(--shadow-md); transform: translateY(-4px); }
+.blog-card__img { width: 100%; height: 200px; object-fit: cover; }
+.blog-card__body { padding: var(--space-md); display: flex; flex-direction: column; flex-grow: 1; }
+.blog-card__tag { display: inline-block; font-size: var(--text-xs); background: var(--color-bg-warm); color: var(--color-primary); padding: 2px 10px; border-radius: var(--radius-full); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: var(--space-xs); align-self: flex-start; }
+.blog-card__title { font-family: var(--font-heading); font-size: var(--text-xl); color: var(--color-primary); margin-bottom: var(--space-xs); line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-card__title a { color: inherit; text-decoration: none; }
+.blog-card__title a:hover { color: var(--color-accent); }
+.blog-card__excerpt { font-size: var(--text-sm); color: var(--color-text-light); flex-grow: 1; margin-bottom: var(--space-sm); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.blog-card__footer { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap; margin-top: auto; }
+.blog-card__date { font-size: var(--text-xs); color: var(--color-text-muted); }
+.blog-card__read-time { font-size: var(--text-xs); color: var(--color-text-muted); }
+
+/* Pagination */
+.pagination { display: flex; align-items: center; justify-content: center; gap: 0.5rem; margin-top: var(--space-xl); flex-wrap: wrap; }
+.pagination__btn { width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 1.5px solid var(--color-border); background: #fff; font-size: var(--text-sm); font-weight: 500; cursor: pointer; transition: all var(--transition); display: flex; align-items: center; justify-content: center; color: var(--color-text); }
+.pagination__btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.pagination__btn--active { background: var(--color-primary); border-color: var(--color-primary); color: #fff !important; }
+.pagination__btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* Empty state */
+.blog-empty { text-align: center; padding: var(--space-xl) var(--space-md); color: var(--color-text-muted); }
+.blog-empty__icon { font-size: 64px; margin-bottom: var(--space-md); }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header__inner">
+    <a class="header__logo" href="index.html">
+      <img src="assets-sandra/logo-papillon.svg" alt="Sois Sublime" width="40" height="40">
+      <span>Sois Sublime</span>
+    </a>
+    <nav class="header__nav" id="nav">
+      <a href="index.html#approche">Approche</a>
+      <a href="programmes.html">Programmes</a>
+      <a href="index.html#a-propos">A propos</a>
+      <a href="index.html#contact">Contact</a>
+      <a href="blog.html" class="active">Blog</a>
+      <a href="faq.html">FAQ</a>
+      <a class="btn btn--primary btn--sm header__cta" href="espace/">Mon Espace</a>
+    </nav>
+    <button class="menu-toggle" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<div style="padding-top:var(--header-h);">
+
+<!-- PAGE HEADER -->
+<section class="section section--bg">
+  <div class="container">
+    <div class="section-header">
+      <span class="subtitle">Blog</span>
+      <h1>Nutrition, beaute & bien-etre</h1>
+      <div class="section-line"></div>
+      <p>Conseils, astuces et inspirations pour t'accompagner dans ta transformation au quotidien.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ARTICLES GRID -->
+<section class="section">
+  <div class="container">
+    <div class="blog-grid fade-in" id="blog-grid">
+
+      <!-- ARTICLES ICI — Chaque article suit ce template :
+      <article class="blog-card">
+        <a href="blog/articles/SLUG.html"><img class="blog-card__img" src="blog/images/IMAGE.jpg" alt="TITRE" loading="lazy" width="400" height="260"></a>
+        <div class="blog-card__body">
+          <span class="blog-card__tag">CATEGORIE</span>
+          <h3 class="blog-card__title"><a href="blog/articles/SLUG.html">TITRE</a></h3>
+          <p class="blog-card__excerpt">DESCRIPTION COURTE</p>
+          <div class="blog-card__footer">
+            <span class="blog-card__date">DATE</span>
+            <span class="blog-card__read-time">X min de lecture</span>
+          </div>
+        </div>
+      </article>
+      -->
+
+      <!-- PLACEHOLDER — premier article a venir -->
+      <div class="blog-empty" style="grid-column:1/-1;">
+        <div class="blog-empty__icon">&#x1F4DD;</div>
+        <h2 style="color:var(--color-primary);margin-bottom:var(--space-xs);">Le blog arrive bientot</h2>
+        <p>Des articles sur la nutrition IG Bas, la beaute, le bien-etre et la vitalite. Reviens vite !</p>
+        <a class="btn btn--outline" href="index.html#contact" style="margin-top:var(--space-sm);">Me prevenir</a>
+      </div>
+
+    </div>
+
+    <!-- PAGINATION (activée quand il y a assez d'articles) -->
+    <!--
+    <div class="pagination" id="pagination"></div>
+    -->
+  </div>
+</section>
+
+</div>
+
+<!-- WHATSAPP FLOAT -->
+<a class="whatsapp-float" href="https://wa.me/33612452960?text=Bonjour%20Sandra%2C%20j%27ai%20une%20question..." target="_blank" rel="noopener" aria-label="WhatsApp">
+  <svg viewBox="0 0 24 24" fill="#fff" width="28" height="28"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492l4.625-1.476A11.929 11.929 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 21.818c-2.168 0-4.19-.605-5.916-1.652l-.424-.253-2.744.877.87-2.69-.278-.44A9.778 9.778 0 0 1 2.182 12c0-5.423 4.395-9.818 9.818-9.818S21.818 6.577 21.818 12 17.423 21.818 12 21.818z"/></svg>
+</a>
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__grid">
+      <div class="footer__brand">
+        <img src="assets-sandra/logo-papillon.svg" alt="Sois Sublime" width="36" height="36">
+        <p>Coaching nutrition, beaute &amp; bien-etre. Accompagnement personnalise pour femmes qui veulent se reveler.</p>
+        <div class="footer__social">
+          <a href="https://www.instagram.com/sois_sublime" target="_blank" rel="noopener" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg></a>
+          <a href="https://www.facebook.com/share/1AceJpnCmo/" target="_blank" rel="noopener" aria-label="Facebook"><svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg></a>
+        </div>
+      </div>
+      <div>
+        <h5>Navigation</h5>
+        <div class="footer__links">
+          <a href="index.html#approche">Approche</a>
+          <a href="programmes.html">Programmes</a>
+          <a href="index.html#a-propos">A propos</a>
+          <a href="index.html#contact">Contact</a>
+          <a href="blog.html">Blog</a>
+          <a href="faq.html">FAQ</a>
+        </div>
+      </div>
+      <div>
+        <h5>Contact</h5>
+        <div class="footer__links">
+          <a href="mailto:sandra.soissublime@gmail.com">sandra.soissublime@gmail.com</a>
+          <a href="tel:0612452960">06 12 45 29 60</a>
+          <span>Sainte-Tulle (04)</span>
+        </div>
+      </div>
+      <div>
+        <h5>Informations</h5>
+        <div class="footer__links">
+          <a href="mentions-legales.html">Mentions legales</a>
+          <a href="cgv.html">CGV</a>
+          <a href="politique-confidentialite.html">Confidentialite</a>
+          <a href="espace/">Mon espace client</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer__bottom">
+      <span>&copy; 2026 Sois Sublime. Tous droits reserves.</span>
+      <span>Site realise par <a href="https://sol-ia.tech" target="_blank" rel="noopener" style="color:rgba(255,255,255,.8);">SOL&middot;IA</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
