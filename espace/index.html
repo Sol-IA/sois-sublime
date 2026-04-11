@@ -119,10 +119,10 @@
     return '<header class="header" style="background:var(--color-primary);border-bottom:none;">' +
       '<div class="header__inner">' +
       '<a class="header__logo" href="../index.html"><img src="../assets-sandra/logo-papillon.svg" alt="Sois Sublime" width="40" height="40" style="filter:brightness(0) invert(1);"><span style="color:#fff;">Sois Sublime</span></a>' +
-      '<span style="color:rgba(255,255,255,.7);font-size:var(--text-sm);">Bienvenue ' + esc(d.client.firstName) + '</span>' +
       '</div></header>' +
       '<div class="espace-header" style="padding-top:calc(var(--header-h) + var(--space-sm));">' +
-      '<h1 style="color:#fff;">&#x1F98B; ' + esc(p.name) + '</h1>' +
+      '<h1 style="color:#fff;">&#x1F98B; Bienvenue ' + esc(d.client.firstName) + '</h1>' +
+      '<p style="font-size:var(--text-lg);color:rgba(255,255,255,.9);">' + esc(p.name) + '</p>' +
       '<p>J' + elapsed + '/' + p.durationDays + (rem > 0 ? ' &middot; ' + rem + ' jours restants' : ' &middot; Termine !') + '</p>' +
       '<div class="welcome-card__progress" style="max-width:300px;margin:var(--space-xs) auto 0;"><div class="welcome-card__progress-bar" style="width:' + pct + '%;"></div></div></div>';
   }
