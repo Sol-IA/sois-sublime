@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+Disallow: /espace/
+Sitemap: https://sois-sublime.fr/sitemap.xml
