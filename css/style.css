@@ -317,7 +317,7 @@ p { margin-bottom: var(--space-sm); }
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(100, 25, 25, 0.7) 0%, rgba(100, 25, 25, 0.3) 50%, rgba(0, 0, 0, 0.2) 100%);
+  background: linear-gradient(135deg, rgba(90, 3, 3, 0.82) 0%, rgba(90, 3, 3, 0.55) 50%, rgba(0, 0, 0, 0.4) 100%);
 }
 .hero__content {
   position: relative;
@@ -341,13 +341,13 @@ p { margin-bottom: var(--space-sm); }
   color: var(--color-white);
   font-size: var(--text-4xl);
   margin-bottom: var(--space-sm);
-  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.2);
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
 }
 .hero p {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   font-size: var(--text-lg);
   margin-bottom: var(--space-lg);
-  text-shadow: 0 1px 8px rgba(0, 0, 0, 0.15);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
 }
 .hero__buttons {
   display: flex;
@@ -364,14 +364,17 @@ p { margin-bottom: var(--space-sm); }
   box-shadow: var(--shadow-sm);
   transition: all var(--transition);
   border: 1px solid var(--color-border-light);
+  display: flex;
+  flex-direction: column;
 }
+.card .btn { margin-top: auto; align-self: center; }
 .card:hover {
   box-shadow: var(--shadow-md);
   transform: translateY(-4px);
 }
 
 /* Pillar cards */
-.pillar-card { text-align: center; }
+.pillar-card { text-align: center; display: flex; flex-direction: column; }
 .pillar-card__icon {
   width: 72px;
   height: 72px;
@@ -384,7 +387,7 @@ p { margin-bottom: var(--space-sm); }
   color: var(--color-accent);
 }
 .pillar-card h3 { margin-bottom: var(--space-xs); font-size: var(--text-lg); }
-.pillar-card p { font-size: var(--text-sm); color: var(--color-text-light); margin-bottom: 0; }
+.pillar-card p { font-size: var(--text-sm); color: var(--color-text-light); margin-bottom: 0; flex-grow: 1; }
 
 /* Program cards — vertical pricing style */
 .program-card {
