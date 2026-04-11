@@ -116,7 +116,9 @@
     var elapsed = Math.min(daysBetween(p.startDate, todayStr()), p.durationDays);
     var rem = Math.max(0, p.durationDays - elapsed);
     var pct = Math.min(100, Math.round((elapsed / p.durationDays) * 100));
-    return '<div class="espace-header"><h1>&#x1F98B; Bienvenue ' + esc(d.client.firstName) + '</h1>' +
+    return '<div class="espace-header">' +
+      '<a href="../index.html" class="espace-header__brand"><img src="../assets-sandra/logo-papillon.svg" alt="" width="40" height="40"><span>Sois Sublime</span></a>' +
+      '<h1>Bienvenue ' + esc(d.client.firstName) + '</h1>' +
       '<p>' + esc(p.name) + ' &mdash; J' + elapsed + '/' + p.durationDays + (rem > 0 ? ' &middot; ' + rem + ' jours restants' : ' &middot; Termine !') + '</p>' +
       '<div class="welcome-card__progress" style="max-width:300px;margin:var(--space-xs) auto 0;"><div class="welcome-card__progress-bar" style="width:' + pct + '%;"></div></div></div>';
   }
