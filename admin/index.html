@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Sois Sublime</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" type="image/png" sizes="32x32" href="../assets-sandra/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/style.css">
+<style>
+/* Admin specific */
+.admin-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: var(--space-sm); margin-bottom: var(--space-lg); }
+.stat-card { background: var(--color-white); border-radius: var(--radius-md); padding: var(--space-md); text-align: center; border: 1px solid var(--color-border-light); }
+.stat-card__number { font-family: var(--font-heading); font-size: var(--text-3xl); color: var(--color-primary); line-height: 1; }
+.stat-card__label { font-size: var(--text-xs); color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; margin-top: 4px; }
+
+.client-table { width: 100%; border-collapse: collapse; }
+.client-table th { font-family: var(--font-heading); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted); text-align: left; padding: var(--space-sm); border-bottom: 2px solid var(--color-border); }
+.client-table td { padding: var(--space-sm); border-bottom: 1px solid var(--color-border-light); font-size: var(--text-sm); vertical-align: middle; }
+.client-table tr { cursor: pointer; transition: background var(--transition); }
+.client-table tr:hover { background: var(--color-bg-warm); }
+
+.badge { display: inline-block; font-size: var(--text-xs); padding: 3px 10px; border-radius: var(--radius-full); font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.badge--active { background: #e8f5e9; color: #2e7d32; }
+.badge--pending { background: #fff3e0; color: #e65100; }
+.badge--expired { background: #fce4ec; color: #c62828; }
+
+.detail-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: var(--space-sm); margin-bottom: var(--space-lg); }
+.detail-header h2 { margin-bottom: 0; }
+.detail-actions { display: flex; gap: var(--space-xs); flex-wrap: wrap; }
+
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-sm); margin-bottom: var(--space-lg); }
+@media (max-width: 640px) { .detail-grid { grid-template-columns: 1fr; } }
+.detail-item { font-size: var(--text-sm); }
+.detail-item__label { font-weight: 600; color: var(--color-text-muted); font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.note-form { background: var(--color-white); border-radius: var(--radius-lg); padding: var(--space-lg); border: 1px solid var(--color-border-light); margin-bottom: var(--space-lg); }
+
+.tracker-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.tracker-table th { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); text-align: left; padding: 8px; border-bottom: 2px solid var(--color-border); }
+.tracker-table td { padding: 8px; border-bottom: 1px solid var(--color-border-light); }
+
+.back-btn { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-sm); color: var(--color-accent); cursor: pointer; margin-bottom: var(--space-md); background: none; border: none; font-family: inherit; }
+.back-btn:hover { text-decoration: underline; }
+
+@media (max-width: 768px) {
+  .client-table th:nth-child(3), .client-table td:nth-child(3),
+  .client-table th:nth-child(5), .client-table td:nth-child(5) { display: none; }
+}
+</style>
+</head>
+<body class="espace">
+
+<div id="app"></div>
+<div class="toast" id="toast"></div>
+
+<script src="../config.js"></script>
+<script>
+(function() {
+  'use strict';
+
+  /* ═══ MOCK DATA ═══ */
+  var MOCK_CLIENTS = [
+    {
+      token: 'abc123-def456-ghi789',
+      firstName: 'Marie', lastName: 'Dupont',
+      email: 'marie.dupont@email.com', phone: '06 12 34 56 78',
+      program: 'evolution', programName: 'Sublime Evolution',
+      startDate: '2026-03-15', endDate: '2026-06-15',
+      status: 'active',
+      tracker: [
+        { date: '2026-04-11', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', notes: '' },
+        { date: '2026-04-10', fringales: 'un_peu', activite: 'marche', respect: 'a_peu_pres', humeur: 'stable', notes: 'Journée chargée' },
+        { date: '2026-04-09', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', notes: 'Super séance !' },
+        { date: '2026-04-08', fringales: 'non', activite: 'non', respect: 'oui', humeur: 'stable', notes: '' }
+      ],
+      coachNotes: [
+        { date: '2026-04-07', text: 'Super progrès cette semaine Marie ! Tes habitudes se mettent bien en place. Continue comme ça.' },
+        { date: '2026-03-25', text: 'On a travaillé sur la composition des petits-déjeuners. Marie a bien compris le principe IG Bas. RDV dans 2 semaines.' }
+      ]
+    },
+    {
+      token: 'jkl012-mno345-pqr678',
+      firstName: 'Sophie', lastName: 'Martin',
+      email: 'sophie.martin@email.com', phone: '06 98 76 54 32',
+      program: 'reset21', programName: 'Sublime Reset 21',
+      startDate: '2026-04-01', endDate: '2026-04-22',
+      status: 'active',
+      tracker: [
+        { date: '2026-04-11', fringales: 'oui', activite: 'non', respect: 'a_peu_pres', humeur: 'pas_top', notes: 'Difficile aujourd\'hui' }
+      ],
+      coachNotes: []
+    },
+    {
+      token: 'stu901-vwx234-yza567',
+      firstName: 'Isabelle', lastName: 'Roux',
+      email: 'isabelle.roux@email.com', phone: '06 11 22 33 44',
+      program: 'reset21', programName: 'Sublime Reset 21',
+      startDate: '2026-01-10', endDate: '2026-01-31',
+      status: 'expired',
+      tracker: [
+        { date: '2026-01-25', fringales: 'non', activite: 'marche', respect: 'oui', humeur: 'forme', notes: '' },
+        { date: '2026-01-20', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', notes: 'Très motivée' }
+      ],
+      coachNotes: [
+        { date: '2026-01-30', text: 'Programme terminé. Isabelle a perdu 3kg et se sent beaucoup mieux. On envisage un passage à Evolution.' }
+      ]
+    },
+    {
+      token: '',
+      firstName: 'Claire', lastName: 'Bernard',
+      email: 'claire.bernard@email.com', phone: '06 55 44 33 22',
+      program: 'evolution', programName: 'Sublime Evolution',
+      startDate: '', endDate: '',
+      status: 'pending',
+      tracker: [],
+      coachNotes: []
+    }
+  ];
+
+  /* ═══ STATE ═══ */
+  var state = { view: 'list', clients: [], selectedToken: null, noteText: '' };
+  var app = document.getElementById('app');
+
+  /* ═══ UTILS ═══ */
+  function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function formatDate(d) { if (!d) return '—'; var p = d.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
+  function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 3000); }
+  function statusLabel(s) {
+    var m = { active: ['Active', 'badge--active'], pending: ['En attente', 'badge--pending'], expired: ['Expirée', 'badge--expired'] };
+    var r = m[s] || m.pending;
+    return '<span class="badge ' + r[1] + '">' + r[0] + '</span>';
+  }
+  var moods = { forme: '😄', stable: '😐', pas_top: '😔' };
+  var respects = { oui: '✅', a_peu_pres: '🟡', non: '🔴' };
+
+  /* ═══ LOAD DATA ═══ */
+  function loadData() {
+    if (!CONFIG.WEBHOOK_ADMIN_CLIENTS) {
+      state.clients = MOCK_CLIENTS;
+      render();
+      return;
+    }
+    fetch(CONFIG.WEBHOOK_ADMIN_CLIENTS)
+      .then(function(r) { return r.json(); })
+      .then(function(data) { state.clients = data; render(); })
+      .catch(function() { state.clients = MOCK_CLIENTS; render(); });
+  }
+
+  /* ═══ RENDER ═══ */
+  function render() {
+    var h = renderHeader();
+    if (state.view === 'list') { h += renderList(); }
+    else if (state.view === 'detail') { h += renderDetail(); }
+    app.innerHTML = h;
+    bindEvents();
+  }
+
+  function renderHeader() {
+    return '<header class="header" style="background:var(--color-primary);border-bottom:none;">' +
+      '<div class="header__inner">' +
+      '<a class="header__logo" href="../index.html"><img src="../assets-sandra/logo-papillon.svg" alt="Sois Sublime" width="40" height="40" style="filter:brightness(0) invert(1);"><span style="color:#fff;">Sois Sublime</span></a>' +
+      '<span style="color:rgba(255,255,255,.6);font-family:var(--font-heading);font-size:var(--text-sm);letter-spacing:0.06em;text-transform:uppercase;">Admin</span>' +
+      '</div></header>';
+  }
+
+  /* ═══ LIST VIEW ═══ */
+  function renderList() {
+    var c = state.clients;
+    var active = c.filter(function(cl) { return cl.status === 'active'; }).length;
+    var pending = c.filter(function(cl) { return cl.status === 'pending'; }).length;
+    var expired = c.filter(function(cl) { return cl.status === 'expired'; }).length;
+
+    var h = '<div class="espace-content" style="padding-top:calc(var(--header-h) + var(--space-md));">';
+
+    // Stats
+    h += '<div class="admin-stats">';
+    h += '<div class="stat-card"><div class="stat-card__number">' + c.length + '</div><div class="stat-card__label">Total</div></div>';
+    h += '<div class="stat-card"><div class="stat-card__number" style="color:#2e7d32;">' + active + '</div><div class="stat-card__label">Actives</div></div>';
+    h += '<div class="stat-card"><div class="stat-card__number" style="color:#e65100;">' + pending + '</div><div class="stat-card__label">En attente</div></div>';
+    h += '<div class="stat-card"><div class="stat-card__number" style="color:#c62828;">' + expired + '</div><div class="stat-card__label">Expirées</div></div>';
+    h += '</div>';
+
+    // Table
+    h += '<div style="overflow-x:auto;">';
+    h += '<table class="client-table">';
+    h += '<thead><tr><th>Nom</th><th>Programme</th><th>Email</th><th>Statut</th><th>Dates</th></tr></thead>';
+    h += '<tbody>';
+    c.forEach(function(cl) {
+      h += '<tr data-token="' + esc(cl.token) + '">';
+      h += '<td><strong>' + esc(cl.firstName) + ' ' + esc(cl.lastName) + '</strong></td>';
+      h += '<td>' + esc(cl.programName) + '</td>';
+      h += '<td>' + esc(cl.email) + '</td>';
+      h += '<td>' + statusLabel(cl.status) + '</td>';
+      h += '<td>' + formatDate(cl.startDate) + (cl.endDate ? ' → ' + formatDate(cl.endDate) : '') + '</td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table></div></div>';
+    return h;
+  }
+
+  /* ═══ DETAIL VIEW ═══ */
+  function renderDetail() {
+    var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+    if (!cl) { state.view = 'list'; render(); return ''; }
+
+    var siteUrl = CONFIG.siteUrl || 'https://sois-sublime.fr';
+    var espaceLink = siteUrl + '/espace/?t=' + cl.token;
+
+    var h = '<div class="espace-content" style="padding-top:calc(var(--header-h) + var(--space-md));">';
+
+    // Back button
+    h += '<button class="back-btn" id="back-btn">← Retour à la liste</button>';
+
+    // Header + actions
+    h += '<div class="detail-header">';
+    h += '<div><h2>' + esc(cl.firstName) + ' ' + esc(cl.lastName) + '</h2>';
+    h += '<p style="color:var(--color-text-muted);margin:0;">' + esc(cl.programName) + ' · ' + statusLabel(cl.status) + '</p></div>';
+    h += '<div class="detail-actions">';
+    if (cl.status === 'pending') {
+      h += '<button class="btn btn--primary btn--sm" id="activate-btn">Activer l\'accès</button>';
+    }
+    if (cl.token) {
+      h += '<button class="btn btn--outline btn--sm" id="copy-link-btn" data-link="' + esc(espaceLink) + '">Copier le lien</button>';
+    }
+    h += '</div></div>';
+
+    // Info grid
+    h += '<div class="detail-grid">';
+    h += '<div class="detail-item"><div class="detail-item__label">Email</div><a href="mailto:' + esc(cl.email) + '" style="color:var(--color-accent);">' + esc(cl.email) + '</a></div>';
+    h += '<div class="detail-item"><div class="detail-item__label">Téléphone</div>' + (cl.phone ? '<a href="tel:' + esc(cl.phone) + '">' + esc(cl.phone) + '</a>' : '—') + '</div>';
+    h += '<div class="detail-item"><div class="detail-item__label">Début</div>' + formatDate(cl.startDate) + '</div>';
+    h += '<div class="detail-item"><div class="detail-item__label">Fin</div>' + formatDate(cl.endDate) + '</div>';
+    if (cl.token) {
+      h += '<div class="detail-item" style="grid-column:1/-1;"><div class="detail-item__label">Lien espace client</div><span style="font-size:var(--text-xs);color:var(--color-text-muted);word-break:break-all;">' + esc(espaceLink) + '</span></div>';
+    }
+    h += '</div>';
+
+    // Add note
+    h += '<div class="note-form">';
+    h += '<h3 style="margin-bottom:var(--space-sm);">Ajouter un compte-rendu</h3>';
+    h += '<textarea class="form__textarea" id="note-textarea" placeholder="Écris ton compte-rendu de séance ici..." style="min-height:100px;">' + esc(state.noteText) + '</textarea>';
+    h += '<button class="btn btn--primary btn--sm" id="add-note-btn" style="margin-top:var(--space-sm);">Enregistrer la note</button>';
+    h += '</div>';
+
+    // Coach notes
+    if (cl.coachNotes && cl.coachNotes.length) {
+      h += '<h3 style="margin-bottom:var(--space-sm);">Notes & comptes-rendus</h3>';
+      cl.coachNotes.forEach(function(n) {
+        h += '<div class="coach-note"><div class="coach-note__date">' + formatDate(n.date) + '</div><p>' + esc(n.text) + '</p></div>';
+      });
+    }
+
+    // Tracker
+    if (cl.tracker && cl.tracker.length) {
+      h += '<h3 style="margin:var(--space-lg) 0 var(--space-sm);">Historique tracker</h3>';
+      h += '<div style="overflow-x:auto;"><table class="tracker-table">';
+      h += '<thead><tr><th>Date</th><th>Humeur</th><th>Programme</th><th>Fringales</th><th>Activité</th><th>Notes</th></tr></thead>';
+      h += '<tbody>';
+      cl.tracker.forEach(function(e) {
+        h += '<tr>';
+        h += '<td>' + formatDate(e.date) + '</td>';
+        h += '<td>' + (moods[e.humeur] || '—') + '</td>';
+        h += '<td>' + (respects[e.respect] || '—') + '</td>';
+        h += '<td>' + esc(e.fringales || '—') + '</td>';
+        h += '<td>' + esc(e.activite || '—') + '</td>';
+        h += '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;">' + esc(e.notes || '') + '</td>';
+        h += '</tr>';
+      });
+      h += '</tbody></table></div>';
+    } else {
+      h += '<p style="color:var(--color-text-muted);margin-top:var(--space-lg);">Aucune entrée tracker pour le moment.</p>';
+    }
+
+    h += '</div>';
+    return h;
+  }
+
+  /* ═══ EVENTS ═══ */
+  function bindEvents() {
+    // Row click → detail
+    document.querySelectorAll('.client-table tr[data-token]').forEach(function(row) {
+      row.addEventListener('click', function() {
+        state.selectedToken = this.dataset.token;
+        state.view = 'detail';
+        state.noteText = '';
+        render();
+        window.scrollTo(0, 0);
+      });
+    });
+
+    // Back button
+    var backBtn = document.getElementById('back-btn');
+    if (backBtn) backBtn.addEventListener('click', function() { state.view = 'list'; render(); });
+
+    // Copy link
+    var copyBtn = document.getElementById('copy-link-btn');
+    if (copyBtn) copyBtn.addEventListener('click', function() {
+      var link = this.dataset.link;
+      navigator.clipboard.writeText(link).then(function() { showToast('Lien copié !'); });
+    });
+
+    // Activate access
+    var activateBtn = document.getElementById('activate-btn');
+    if (activateBtn) activateBtn.addEventListener('click', function() {
+      var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+      if (!cl) return;
+
+      if (!CONFIG.WEBHOOK_ADMIN_ACTIVATE) {
+        // Mock: generate token, set status active, set dates
+        cl.token = 'tok-' + Math.random().toString(36).substr(2, 12);
+        cl.status = 'active';
+        cl.startDate = new Date().toISOString().slice(0, 10);
+        var end = new Date();
+        end.setDate(end.getDate() + (cl.program === 'reset21' ? 21 : 90));
+        cl.endDate = end.toISOString().slice(0, 10);
+        state.selectedToken = cl.token;
+        showToast('Accès activé pour ' + cl.firstName + ' ! (mock)');
+        render();
+        return;
+      }
+
+      fetch(CONFIG.WEBHOOK_ADMIN_ACTIVATE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: cl.email, program: cl.program })
+      }).then(function(r) { return r.json(); })
+        .then(function(data) {
+          cl.token = data.token;
+          cl.status = 'active';
+          cl.startDate = data.startDate;
+          cl.endDate = data.endDate;
+          state.selectedToken = cl.token;
+          showToast('Accès activé et email envoyé !');
+          render();
+        }).catch(function() { showToast('Erreur — réessaie'); });
+    });
+
+    // Note textarea
+    var noteArea = document.getElementById('note-textarea');
+    if (noteArea) noteArea.addEventListener('input', function() { state.noteText = this.value; });
+
+    // Add note
+    var addNoteBtn = document.getElementById('add-note-btn');
+    if (addNoteBtn) addNoteBtn.addEventListener('click', function() {
+      if (!state.noteText.trim()) { showToast('Écris quelque chose avant d\'enregistrer'); return; }
+      var cl = state.clients.find(function(c) { return c.token === state.selectedToken; });
+      if (!cl) return;
+
+      var note = { date: new Date().toISOString().slice(0, 10), text: state.noteText.trim() };
+
+      if (!CONFIG.WEBHOOK_ADMIN_NOTE) {
+        cl.coachNotes.unshift(note);
+        state.noteText = '';
+        showToast('Note enregistrée !');
+        render();
+        return;
+      }
+
+      fetch(CONFIG.WEBHOOK_ADMIN_NOTE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ token: cl.token, text: note.text })
+      }).then(function(r) { return r.json(); })
+        .then(function() { cl.coachNotes.unshift(note); state.noteText = ''; showToast('Note enregistrée !'); render(); })
+        .catch(function() { showToast('Erreur — réessaie'); });
+    });
+  }
+
+  /* ═══ INIT ═══ */
+  loadData();
+})();
+</script>
+</body>
+</html>

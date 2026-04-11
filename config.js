@@ -27,6 +27,11 @@ var CONFIG = {
   WEBHOOK_VERIFY: '',
   WEBHOOK_CONTACT: '',
 
+  // ── Webhooks admin (portail Sandra) ──
+  WEBHOOK_ADMIN_CLIENTS: '',
+  WEBHOOK_ADMIN_ACTIVATE: '',
+  WEBHOOK_ADMIN_NOTE: '',
+
   // ── Diagnostic (bouton permanent dans l'espace client) ──
   diagnosticUrl: 'https://calendly.com/sandra-soissublime',
   diagnosticPrice: '39\u20AC',
