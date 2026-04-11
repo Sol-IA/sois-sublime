@@ -32,6 +32,9 @@
   var MOCK_DATA = {
     client: { firstName: 'Marie', lastName: 'Dupont', email: 'marie@example.com', needsVerification: false },
     program: { id: 'evolution', name: 'Sublime Evolution', startDate: '2026-03-15', endDate: '2026-06-15', expired: false, durationDays: 90 },
+    programHistory: [
+      { name: 'Sublime Reset 21', startDate: '2025-12-01', endDate: '2025-12-22', status: 'completed' }
+    ],
     paniers: [
       { name: 'Beauty Focus Collagene', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/beauty-focus-collagen.html' },
       { name: 'LumiSpa', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/ageloc-lumispa.html' },
@@ -265,6 +268,20 @@
     } else {
       h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Tes comptes-rendus apparaitront ici apres tes coachings.</div>';
     }
+
+    // Historique programmes
+    var history = state.data.programHistory || [];
+    if (history.length) {
+      h += '<h3 style="margin:var(--space-xl) 0 var(--space-sm);">Mes anciens programmes</h3>';
+      history.forEach(function(p) {
+        h += '<div style="display:flex;gap:var(--space-sm);align-items:center;padding:var(--space-sm) 0;border-bottom:1px solid var(--color-border-light);font-size:var(--text-sm);">';
+        h += '<span style="display:inline-block;font-size:var(--text-xs);padding:2px 8px;border-radius:var(--radius-full);background:#e8f5e9;color:#2e7d32;">' + (p.status === 'completed' ? 'Termine' : 'Expire') + '</span>';
+        h += '<strong>' + esc(p.name) + '</strong>';
+        h += '<span style="color:var(--color-text-muted);">' + formatDate(p.startDate) + ' → ' + formatDate(p.endDate) + '</span>';
+        h += '</div>';
+      });
+    }
+
     return h;
   }
 
