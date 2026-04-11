@@ -213,9 +213,9 @@ p { margin-bottom: var(--space-sm); }
   align-items: center;
   justify-content: space-between;
   height: 100%;
-  max-width: var(--container-max);
+  max-width: var(--container-wide);
   margin: 0 auto;
-  padding: 0 var(--space-md);
+  padding: 0 var(--space-lg);
 }
 
 .header__logo {
@@ -225,7 +225,7 @@ p { margin-bottom: var(--space-sm); }
   flex-shrink: 0;
 }
 .header__logo img {
-  height: 64px;
+  height: 72px;
   width: auto;
 }
 .header__logo span {
@@ -317,7 +317,7 @@ p { margin-bottom: var(--space-sm); }
 .hero__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(90, 3, 3, 0.82) 0%, rgba(90, 3, 3, 0.55) 50%, rgba(0, 0, 0, 0.4) 100%);
+  background: linear-gradient(to right, rgba(90, 3, 3, 0.8) 0%, rgba(90, 3, 3, 0.5) 40%, rgba(0, 0, 0, 0.15) 70%, rgba(0, 0, 0, 0.05) 100%);
 }
 .hero__content {
   position: relative;
@@ -986,6 +986,8 @@ p { margin-bottom: var(--space-sm); }
   .split__img { width: 45%; flex-shrink: 0; }
   .split__text { width: 55%; }
 
+  .hero { text-align: left; align-items: flex-end; justify-content: flex-start; }
+  .hero__content { max-width: 600px; margin-left: 5%; }
   .hero h1 { font-size: var(--text-5xl); }
   .hero__buttons { flex-direction: row; }
 
