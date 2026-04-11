@@ -71,6 +71,9 @@
       program: 'evolution', programName: 'Sublime Evolution',
       startDate: '2026-03-15', endDate: '2026-06-15',
       status: 'active',
+      programHistory: [
+        { program: 'reset21', programName: 'Sublime Reset 21', startDate: '2025-12-01', endDate: '2025-12-22', status: 'completed' }
+      ],
       options: { tracker: true, recettesPerso: true },
       paniers: [
         { name: 'Beauty Focus Collagène', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/beauty-focus-collagen.html' },
@@ -96,6 +99,7 @@
       program: 'reset21', programName: 'Sublime Reset 21',
       startDate: '2026-04-01', endDate: '2026-04-22',
       status: 'active',
+      programHistory: [],
       options: { tracker: false, recettesPerso: false },
       paniers: [],
       ebooks: [],
@@ -111,6 +115,7 @@
       program: 'reset21', programName: 'Sublime Reset 21',
       startDate: '2026-01-10', endDate: '2026-01-31',
       status: 'expired',
+      programHistory: [],
       options: { tracker: false, recettesPerso: false },
       paniers: [],
       ebooks: [],
@@ -129,6 +134,7 @@
       program: 'evolution', programName: 'Sublime Evolution',
       startDate: '', endDate: '',
       status: 'pending',
+      programHistory: [],
       options: { tracker: false, recettesPerso: false },
       paniers: [],
       ebooks: [],
@@ -300,10 +306,35 @@
     }
     h += '</div>';
     if (cl.status === 'active' || cl.status === 'expired') {
-      h += '<div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;align-items:center;">';
+      h += '<div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;align-items:center;margin-bottom:var(--space-md);">';
       h += '<span style="font-size:var(--text-sm);font-weight:600;">Accès jusqu\'au :</span> <span style="font-size:var(--text-sm);">' + formatDate(cl.endDate) + '</span>';
       h += ' <input type="number" id="extend-days" value="30" min="1" max="365" style="width:60px;padding:4px 8px;border:1px solid var(--color-border);border-radius:var(--radius-sm);font-size:var(--text-sm);text-align:center;">';
       h += ' <button class="btn btn--outline btn--sm" id="extend-btn">+ Prolonger</button>';
+      h += '</div>';
+    }
+    // Nouveau programme
+    if (cl.status === 'expired' || cl.status === 'active') {
+      h += '<div style="display:flex;gap:var(--space-sm);flex-wrap:wrap;align-items:center;margin-bottom:var(--space-md);">';
+      h += '<span style="font-size:var(--text-sm);font-weight:600;">Démarrer un nouveau programme :</span>';
+      h += '<select id="new-program-select" class="form__input" style="width:auto;padding:4px 10px;font-size:var(--text-sm);">';
+      h += '<option value="reset21">Sublime Reset 21 (21j)</option>';
+      h += '<option value="evolution">Sublime Evolution (90j)</option>';
+      h += '</select>';
+      h += '<button class="btn btn--primary btn--sm" id="new-program-btn">Démarrer</button>';
+      h += '</div>';
+    }
+    // Historique programmes
+    var history = cl.programHistory || [];
+    if (history.length) {
+      h += '<div style="margin-top:var(--space-sm);">';
+      h += '<span style="font-size:var(--text-sm);font-weight:600;display:block;margin-bottom:var(--space-xs);">Historique des programmes</span>';
+      history.forEach(function(p) {
+        h += '<div style="display:flex;gap:var(--space-sm);align-items:center;padding:6px 0;border-bottom:1px solid var(--color-border-light);font-size:var(--text-sm);">';
+        h += '<span class="badge badge--' + (p.status === 'completed' ? 'active' : 'expired') + '" style="font-size:9px;">' + (p.status === 'completed' ? 'Terminé' : 'Expiré') + '</span>';
+        h += '<span>' + esc(p.programName) + '</span>';
+        h += '<span style="color:var(--color-text-muted);">' + formatDate(p.startDate) + ' → ' + formatDate(p.endDate) + '</span>';
+        h += '</div>';
+      });
       h += '</div>';
     }
     h += '</div>';
@@ -493,6 +524,39 @@
       cl.endDate = end.toISOString().slice(0, 10);
       if (cl.status === 'expired') cl.status = 'active';
       showToast('Accès prolongé de ' + days + ' jours !');
+      render();
+    });
+
+    // New program
+    var newProgBtn = document.getElementById('new-program-btn');
+    if (newProgBtn) newProgBtn.addEventListener('click', function() {
+      var cl = state.clients.find(function(c) { return c.token === state.selectedToken || c.email === state.selectedToken; });
+      if (!cl) return;
+      var select = document.getElementById('new-program-select');
+      var newProg = select ? select.value : 'reset21';
+      var progNames = { reset21: 'Sublime Reset 21', evolution: 'Sublime Evolution' };
+      var durations = { reset21: 21, evolution: 90 };
+      // Archive current program
+      if (cl.program && cl.startDate) {
+        if (!cl.programHistory) cl.programHistory = [];
+        cl.programHistory.unshift({
+          program: cl.program,
+          programName: cl.programName,
+          startDate: cl.startDate,
+          endDate: cl.endDate,
+          status: cl.status === 'active' ? 'completed' : cl.status
+        });
+      }
+      // Set new program
+      cl.program = newProg;
+      cl.programName = progNames[newProg];
+      cl.startDate = new Date().toISOString().slice(0, 10);
+      var end = new Date();
+      end.setDate(end.getDate() + durations[newProg]);
+      cl.endDate = end.toISOString().slice(0, 10);
+      cl.status = 'active';
+      if (newProg === 'evolution') { cl.options.tracker = true; cl.options.recettesPerso = true; }
+      showToast('Nouveau programme ' + progNames[newProg] + ' démarré !');
       render();
     });
 
