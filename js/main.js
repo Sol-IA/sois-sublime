@@ -192,9 +192,10 @@
   /* ═══ RANDOM RELATED ARTICLES (from articles.json) ═══ */
   var path = window.location.pathname;
   var currentSlug = path.split('/').pop();
+  if (currentSlug && currentSlug.indexOf('.html') === -1) currentSlug += '.html';
   var relatedContainer = document.querySelector('[data-related]');
 
-  if (relatedContainer && currentSlug && currentSlug.endsWith('.html') && path.indexOf('/blog/') !== -1) {
+  if (relatedContainer && currentSlug && path.indexOf('/blog/') !== -1) {
     // Fetch articles list — path relative to current page (we're in /blog/)
     fetch('articles.json')
       .then(function(r) { return r.json(); })
