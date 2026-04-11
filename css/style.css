@@ -636,15 +636,6 @@ p { margin-bottom: var(--space-sm); }
   padding: var(--space-md);
   text-align: center;
 }
-.espace-header__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: var(--space-sm);
-  text-decoration: none;
-}
-.espace-header__brand img { height: 36px; width: auto; filter: brightness(0) invert(1); opacity: 0.9; }
-.espace-header__brand span { font-family: var(--font-heading); font-size: var(--text-xl); color: rgba(255,255,255,0.9); }
 .espace-header h1 { color: var(--color-white); font-size: var(--text-2xl); margin-bottom: 4px; }
 .espace-header p { color: rgba(255, 255, 255, 0.7); font-size: var(--text-sm); margin-bottom: 0; }
 
