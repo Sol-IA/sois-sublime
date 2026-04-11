@@ -189,4 +189,45 @@
     sects.forEach(function(s) { navObs.observe(s); });
   }
 
+  /* ═══ RANDOM RELATED ARTICLES ═══ */
+  var allArticles = [
+    { slug: 'pourquoi-tu-narrive-pas-a-perdre-du-poids.html', title: "Pourquoi tu n'arrives pas à perdre du poids", desc: 'Les 3 vraies raisons qui bloquent ta perte de poids.' },
+    { slug: 'tu-manges-sain-mais-tu-stockes-quand-meme.html', title: 'Tu manges sain mais tu stockes quand même', desc: 'Comprendre le mécanisme du stockage malgré une alimentation saine.' },
+    { slug: 'la-prise-de-poids-est-un-symptome.html', title: 'La prise de poids est un symptôme', desc: 'Les kilos sont un message du corps, pas le problème.' },
+    { slug: 'le-role-du-foie-dans-la-perte-de-poids.html', title: 'Le rôle du foie dans la perte de poids', desc: "L'organe clé de la combustion des graisses." },
+    { slug: 'ce-qui-change-quand-tu-stabilises-ta-glycemie.html', title: 'Ce qui change quand tu stabilises ta glycémie', desc: 'Fringales, énergie, peau, sommeil — les vrais changements.' },
+    { slug: 'pourquoi-ton-metabolisme-est-au-ralenti.html', title: 'Pourquoi ton métabolisme est au ralenti', desc: 'Les régimes répétés ralentissent le métabolisme. Comment le relancer.' },
+    { slug: 'comment-jarrete-de-compenser-les-emotions-avec-la-nourriture.html', title: "Comment j'ai arrêté de compenser avec la nourriture", desc: 'La compensation alimentaire émotionnelle et comment en sortir.' }
+  ];
+
+  // Only run on blog article pages
+  var path = window.location.pathname;
+  var currentSlug = path.split('/').pop();
+  var relatedContainer = document.querySelector('[data-related]');
+
+  if (relatedContainer && currentSlug && currentSlug.endsWith('.html') && path.indexOf('/blog/') !== -1) {
+    var others = allArticles.filter(function(a) { return a.slug !== currentSlug; });
+    // Shuffle
+    for (var i = others.length - 1; i > 0; i--) {
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = others[i]; others[i] = others[j]; others[j] = tmp;
+    }
+    var picked = others.slice(0, 2);
+    // Determine base path (are we in /blog/ or /blog/articles/?)
+    var base = '';
+    var progBase = '../programmes.html';
+
+    var h = '';
+    picked.forEach(function(a) {
+      h += '<a href="' + base + a.slug + '" class="card" style="text-decoration:none;">' +
+        '<h3 style="font-size:var(--text-lg);margin-bottom:var(--space-xs);">' + a.title + '</h3>' +
+        '<p style="font-size:var(--text-sm);color:var(--color-text-light);margin-bottom:0;">' + a.desc + '</p></a>';
+    });
+    h += '<a href="' + progBase + '" class="card" style="text-decoration:none;">' +
+      '<h3 style="font-size:var(--text-lg);margin-bottom:var(--space-xs);">Découvrir les programmes</h3>' +
+      '<p style="font-size:var(--text-sm);color:var(--color-text-light);margin-bottom:0;">Reset 21 jours ou Evolution 3 mois — choisis ce qui te correspond.</p></a>';
+
+    relatedContainer.innerHTML = h;
+  }
+
 })();
