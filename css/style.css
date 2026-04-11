@@ -237,7 +237,7 @@ p { margin-bottom: var(--space-sm); }
 }
 
 .header__nav {
-  display: none;
+  display: flex;
   position: fixed;
   top: 0;
   right: -100%;
@@ -312,6 +312,7 @@ p { margin-bottom: var(--space-sm); }
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center top;
 }
 .hero__overlay {
   position: absolute;

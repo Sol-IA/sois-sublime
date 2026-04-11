@@ -77,7 +77,7 @@
   var programGrid = document.getElementById('program-grid');
   if (programGrid) {
     var prh = '';
-    CONFIG.programs.forEach(function(prog) {
+    CONFIG.programs.filter(function(p) { return p.id !== 'diagnostic'; }).forEach(function(prog) {
       var modClass = '';
       if (prog.id === 'reset21') modClass = ' program-card--accent';
       if (prog.id === 'evolution') modClass = ' program-card--rose';

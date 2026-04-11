@@ -155,18 +155,18 @@ var CONFIG = {
   pillars: [
     {
       icon: 'leaf',
-      title: 'Nutrition & methode IG Bas',
-      text: 'Perdre du poids durablement grace a l\'Index Glycemique Bas. Sans frustration, sans compter les calories. Une approche qui respecte ton corps.'
-    },
-    {
-      icon: 'heart',
-      title: 'Beaute, anti-age & routines',
-      text: 'Routines de soins, conseils anti-age, eclat de la peau. Je t\'aide a reveler ta beaute naturelle avec des produits et gestes qui fonctionnent.'
+      title: 'Gestion du poids',
+      text: 'Perdre du poids durablement grace a la methode IG Bas (Index Glycemique Bas). Sans frustration, sans compter les calories. Une approche qui respecte ton corps et tes envies.'
     },
     {
       icon: 'star',
-      title: 'Vitalite & micro-nutrition',
-      text: 'Fatigue, sommeil, hormones, libido, energie. La micro-nutrition et un accompagnement personnalise pour relancer ta vitalite au quotidien.'
+      title: 'Vitalite',
+      text: 'Fatigue, sommeil, equilibre hormonal, energie, libido. Grace a la micro-nutrition et un accompagnement global, on relance ta vitalite au quotidien.'
+    },
+    {
+      icon: 'heart',
+      title: 'Beaute',
+      text: 'Anti-age, skincare, eclat de la peau, routines beaute. Je t\'aide a reveler ta beaute naturelle avec des produits et des gestes qui fonctionnent vraiment.'
     }
   ],
 
