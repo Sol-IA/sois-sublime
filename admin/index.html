@@ -75,6 +75,7 @@
         { program: 'reset21', programName: 'Sublime Reset 21', startDate: '2025-12-01', endDate: '2025-12-22', status: 'completed' }
       ],
       options: { tracker: true, recettesPerso: true },
+      assignedDocs: ['d1', 'd2', 'd3', 'd4', 'd5'],
       paniers: [
         { name: 'Beauty Focus Collagène', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/beauty-focus-collagen.html' },
         { name: 'LumiSpa', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/ageloc-lumispa.html' },
@@ -101,6 +102,7 @@
       status: 'active',
       programHistory: [],
       options: { tracker: false, recettesPerso: false },
+      assignedDocs: ['d1', 'd3'],
       paniers: [],
       ebooks: [],
       tracker: [
@@ -117,6 +119,7 @@
       status: 'expired',
       programHistory: [],
       options: { tracker: false, recettesPerso: false },
+      assignedDocs: ['d1', 'd3'],
       paniers: [],
       ebooks: [],
       tracker: [
@@ -136,6 +139,7 @@
       status: 'pending',
       programHistory: [],
       options: { tracker: false, recettesPerso: false },
+      assignedDocs: [],
       paniers: [],
       ebooks: [],
       tracker: [],
@@ -433,6 +437,41 @@
       h += '<button class="btn btn--sm toggle-ebook-btn" data-ebook="' + esc(eb.title) + '" style="' + (owned ? 'background:var(--color-accent);color:#fff;border-color:var(--color-accent);' : '') + '">' + (owned ? '✓ Acheté' : 'Marquer acheté') + '</button>';
       h += '</div>';
     });
+    h += '</div>';
+
+    // ── Contenus attribués (checklist par onglet) ──
+    var tabLabelsDetail = { methode: 'Méthode', essentiels: 'Essentiels', fiches: 'Fiches pratiques', recettes: 'Recettes', suivi: 'Suivi', produits: 'Bien-être' };
+    var clientDocs = cl.assignedDocs || [];
+    h += '<div class="card" style="margin-bottom:var(--space-lg);padding:var(--space-lg);">';
+    h += '<h3 style="margin-bottom:var(--space-md);">Contenus attribués</h3>';
+    h += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-md);">Coche les contenus accessibles pour cette cliente. Les docs personnalisés (catégorie C) apparaissent uniquement pour elle.</p>';
+
+    Object.keys(tabLabelsDetail).forEach(function(tabKey) {
+      var tabDocs = state.docs.filter(function(d) { return d.tab === tabKey; });
+      if (tabDocs.length === 0 && tabKey !== 'recettes') return;
+
+      h += '<div style="margin-bottom:var(--space-md);">';
+      h += '<h4 style="font-size:var(--text-sm);color:var(--color-primary);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:var(--space-xs);">' + tabLabelsDetail[tabKey] + '</h4>';
+
+      tabDocs.forEach(function(doc) {
+        var isAssigned = clientDocs.indexOf(doc.id) !== -1 || doc.category === 'A' || (doc.category === 'C' && doc.assignedTo.indexOf(cl.token) !== -1);
+        h += '<label style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:var(--text-sm);cursor:pointer;border-bottom:1px solid var(--color-border-light);">';
+        h += '<input type="checkbox" class="doc-check" data-doc-id="' + doc.id + '"' + (isAssigned ? ' checked' : '') + '>';
+        h += '<span>' + esc(doc.title) + '</span>';
+        var catBadge = doc.category === 'A' ? 'Permanent' : doc.category === 'B' ? 'Programme' : 'Perso';
+        h += '<span class="badge" style="font-size:8px;margin-left:auto;opacity:.6;">' + catBadge + '</span>';
+        if (doc.dayStart > 0) h += '<span style="font-size:var(--text-xs);color:var(--color-text-muted);margin-left:4px;">J' + doc.dayStart + '</span>';
+        h += '</label>';
+      });
+
+      // Bouton ajouter un doc perso pour cet onglet
+      h += '<div style="margin-top:var(--space-xs);display:flex;gap:var(--space-xs);align-items:center;">';
+      h += '<input type="text" class="form__input add-perso-title" data-tab="' + tabKey + '" placeholder="+ Ajouter un document personnalisé..." style="padding:4px 8px;font-size:var(--text-xs);flex:1;">';
+      h += '<button class="btn btn--outline btn--sm add-perso-btn" data-tab="' + tabKey + '" style="font-size:var(--text-xs);padding:4px 10px;">Ajouter</button>';
+      h += '</div>';
+      h += '</div>';
+    });
+
     h += '</div>';
 
     // Add note
@@ -817,6 +856,49 @@
           showToast('Accès activé et email envoyé !');
           render();
         }).catch(function() { showToast('Erreur — réessaie'); });
+    });
+
+    // Doc checkboxes (assign/unassign)
+    document.querySelectorAll('.doc-check').forEach(function(cb) {
+      cb.addEventListener('change', function() {
+        var cl = state.clients.find(function(c) { return c.token === state.selectedToken || c.email === state.selectedToken; });
+        if (!cl) return;
+        if (!cl.assignedDocs) cl.assignedDocs = [];
+        var docId = this.dataset.docId;
+        if (this.checked) {
+          if (cl.assignedDocs.indexOf(docId) === -1) cl.assignedDocs.push(docId);
+          showToast('Contenu activé');
+        } else {
+          cl.assignedDocs = cl.assignedDocs.filter(function(d) { return d !== docId; });
+          showToast('Contenu retiré');
+        }
+      });
+    });
+
+    // Add perso doc from client detail
+    document.querySelectorAll('.add-perso-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var cl = state.clients.find(function(c) { return c.token === state.selectedToken || c.email === state.selectedToken; });
+        if (!cl) return;
+        var tab = this.dataset.tab;
+        var input = document.querySelector('.add-perso-title[data-tab="' + tab + '"]');
+        if (!input || !input.value.trim()) { showToast('Titre requis'); return; }
+        var doc = {
+          id: 'dp' + Date.now(),
+          title: input.value.trim(),
+          tab: tab,
+          category: 'C',
+          minProgram: '',
+          dayStart: 0,
+          file: '(upload simulé)',
+          assignedTo: [cl.token]
+        };
+        state.docs.push(doc);
+        if (!cl.assignedDocs) cl.assignedDocs = [];
+        cl.assignedDocs.push(doc.id);
+        showToast('Document personnalisé ajouté !');
+        render();
+      });
     });
 
     // Paniers — add
