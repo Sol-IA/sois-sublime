@@ -544,7 +544,7 @@
     var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-lg);flex-wrap:wrap;gap:var(--space-sm);">';
     h += '<h2 style="margin:0;">Gestion des contenus</h2>';
-    h += '<button class="btn btn--primary btn--sm" id="add-doc-btn">+ Ajouter un document</button>';
+    h += '<button class="btn btn--primary" id="add-doc-btn" style="font-size:var(--text-sm);">+ Ajouter un document</button>';
     h += '</div>';
 
     // Stats (cliquables comme filtres)
@@ -675,13 +675,6 @@
     });
 
     // Add doc button
-    var addDocBtn = document.getElementById('add-doc-btn');
-    if (addDocBtn) addDocBtn.addEventListener('click', function() {
-      var form = document.getElementById('add-doc-form');
-      if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    });
-
-    // Contenus: add doc button
     var addDocBtn = document.getElementById('add-doc-btn');
     if (addDocBtn) addDocBtn.addEventListener('click', function() {
       var form = document.getElementById('add-doc-form');
