@@ -1045,8 +1045,8 @@ p { margin-bottom: var(--space-sm); }
 /* ── RESPONSIVE — SMALL MOBILE ── */
 @media (max-width: 480px) {
   .btn { width: 100%; justify-content: center; }
-  .hero { text-align: left; align-items: flex-start; justify-content: center; min-height: 100vh; }
-  .hero__content { max-width: 60%; padding-left: var(--space-md); }
+  .hero { text-align: left; }
+  .hero__content { max-width: 65%; padding-left: var(--space-md); }
   .hero h1 { font-size: var(--text-xl); }
   .hero p { font-size: var(--text-sm); }
   .hero__mobile-intro { display: none; }
