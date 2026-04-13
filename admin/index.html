@@ -542,10 +542,7 @@
     });
 
     var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
-    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-lg);flex-wrap:wrap;gap:var(--space-sm);">';
-    h += '<h2 style="margin:0;">Gestion des contenus</h2>';
-    h += '<button class="btn btn--primary" id="add-doc-btn" style="font-size:var(--text-sm);">+ Ajouter un document</button>';
-    h += '</div>';
+    h += '<h2 style="margin-bottom:var(--space-lg);">Gestion des contenus</h2>';
 
     // Stats (cliquables comme filtres)
     h += '<div class="admin-stats" style="margin-bottom:var(--space-sm);">';
@@ -606,28 +603,21 @@
       h += '<td><button class="btn btn--outline btn--sm remove-doc-btn" data-idx="' + idx + '" style="font-size:var(--text-xs);color:#c44;border-color:#c44;padding:2px 8px;">×</button></td>';
       h += '</tr>';
     });
-    h += '</tbody></table></div>';
-
-    // Add document form (hidden by default, shown on click)
-    h += '<div id="add-doc-form" style="display:none;margin-top:var(--space-lg);">';
-    h += '<div class="card" style="padding:var(--space-lg);">';
-    h += '<h3 style="margin-bottom:var(--space-md);">Nouveau document</h3>';
-    h += '<div class="grid grid--2" style="gap:var(--space-sm);">';
-    h += '<div class="form__group"><label class="form__label">Titre *</label><input class="form__input" id="doc-title" placeholder="Titre du document"></div>';
-    h += '<div class="form__group"><label class="form__label">Onglet *</label><select class="form__input" id="doc-tab" style="cursor:pointer;">';
+    // Ligne d'ajout en bas du tableau
+    h += '<tr style="background:var(--color-bg-warm);">';
+    h += '<td><input type="text" id="doc-title" class="form__input" placeholder="Titre du nouveau document..." style="padding:4px 8px;font-size:var(--text-sm);"></td>';
+    h += '<td><select id="doc-tab" style="font-size:var(--text-xs);padding:2px 4px;border:1px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;">';
     Object.keys(tabLabels).forEach(function(k) { h += '<option value="' + k + '">' + tabLabels[k] + '</option>'; });
-    h += '</select></div>';
-    h += '<div class="form__group"><label class="form__label">Catégorie *</label><select class="form__input" id="doc-cat" style="cursor:pointer;"><option value="A">A — Permanent (toutes)</option><option value="B" selected>B — Par programme</option><option value="C">C — Personnalisé</option></select></div>';
-    h += '<div class="form__group"><label class="form__label">Programme minimum</label><select class="form__input" id="doc-prog" style="cursor:pointer;"><option value="">Aucun</option><option value="reset21">Reset 21</option><option value="evolution">Evolution</option></select></div>';
-    h += '<div class="form__group"><label class="form__label">Accessible à partir du jour</label><input class="form__input" type="number" id="doc-day" value="0" min="0" style="width:100px;"></div>';
-    h += '<div class="form__group"><label class="form__label">Fichier (simulé)</label><input class="form__input" type="file" id="doc-file" accept=".pdf"><p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:4px;">Upload simulé — fonctionnel sur OVH</p></div>';
-    h += '</div>';
-    // Assign to client (for category C)
-    h += '<div id="doc-assign-section" style="display:none;margin-top:var(--space-sm);"><label class="form__label">Assigner à une cliente</label><select class="form__input" id="doc-assign" style="cursor:pointer;"><option value="">Aucune</option>';
-    state.clients.forEach(function(cl) { if (cl.token) h += '<option value="' + esc(cl.token) + '">' + esc(cl.firstName + ' ' + cl.lastName) + '</option>'; });
-    h += '</select></div>';
-    h += '<button class="btn btn--primary" id="save-doc-btn" style="margin-top:var(--space-md);">Enregistrer le document</button>';
-    h += '</div></div>';
+    h += '</select></td>';
+    h += '<td><select id="doc-cat" style="font-size:var(--text-xs);padding:2px 4px;border:1px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;"><option value="A">Permanent</option><option value="B" selected>Programme</option><option value="C">Perso</option></select></td>';
+    h += '<td><select id="doc-prog" style="font-size:var(--text-xs);padding:2px 4px;border:1px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;"><option value="">—</option><option value="reset21">Reset 21</option><option value="evolution">Evolution</option></select></td>';
+    h += '<td><input type="number" id="doc-day" value="0" min="0" style="width:50px;font-size:var(--text-xs);padding:2px 4px;border:1px solid var(--color-border);border-radius:var(--radius-sm);text-align:center;"></td>';
+    h += '<td><select id="doc-assign" style="font-size:var(--text-xs);padding:2px 4px;border:1px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;"><option value="">—</option>';
+    state.clients.forEach(function(cl) { if (cl.token) h += '<option value="' + esc(cl.token) + '">' + esc(cl.firstName) + '</option>'; });
+    h += '</select></td>';
+    h += '<td><button class="btn btn--primary btn--sm" id="save-doc-btn" style="padding:4px 12px;font-size:var(--text-xs);">+</button></td>';
+    h += '</tr>';
+    h += '</tbody></table></div>';
 
     h += '</div>';
     return h;
@@ -637,30 +627,38 @@
   function renderLeads() {
     var leads = state.leads;
     var objLabels = { perte_poids: 'Perte de poids', vitalite: 'Vitalité & énergie', beaute: 'Beauté & peau', ne_sais_pas: 'Ne sait pas encore' };
-    var dureeLabels = { moins_6_mois: '< 6 mois', '6_mois_2_ans': '6 mois - 2 ans', plus_2_ans: '> 2 ans' };
+    var dureeLabels = { moins_6_mois: 'Moins de 6 mois', '6_mois_2_ans': 'Entre 6 mois et 2 ans', plus_2_ans: 'Plus de 2 ans' };
 
     var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
     h += '<h2 style="margin-bottom:var(--space-lg);">Leads collectés <span style="font-size:var(--text-sm);color:var(--color-text-muted);">(' + leads.length + ')</span></h2>';
 
     if (leads.length === 0) {
-      h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Aucun lead pour le moment. Les leads apparaîtront ici quand des visiteurs rempliront le formulaire lead magnet ou le formulaire de contact.</div>';
+      h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Aucun lead pour le moment.</div>';
     } else {
-      h += '<div style="overflow-x:auto;"><table class="client-table">';
-      h += '<thead><tr><th>Nom</th><th>Email</th><th>Tél</th><th>Objectif</th><th>Depuis</th><th>Régimes</th><th>Source</th><th>Date</th></tr></thead>';
-      h += '<tbody>';
       leads.forEach(function(l) {
-        h += '<tr>';
-        h += '<td><strong>' + esc(l.prenom + ' ' + l.nom) + '</strong></td>';
-        h += '<td><a href="mailto:' + esc(l.email) + '" style="color:var(--color-accent);">' + esc(l.email) + '</a></td>';
-        h += '<td>' + (l.telephone ? '<a href="tel:' + esc(l.telephone) + '">' + esc(l.telephone) + '</a>' : '—') + '</td>';
-        h += '<td><span class="badge badge--active" style="font-size:9px;">' + (objLabels[l.objectif] || l.objectif) + '</span></td>';
-        h += '<td>' + (dureeLabels[l.duree] || l.duree) + '</td>';
-        h += '<td>' + (l.regimes === 'oui' ? 'Oui' : 'Non') + '</td>';
-        h += '<td style="font-size:var(--text-xs);">' + esc(l.source) + '</td>';
-        h += '<td>' + formatDate(l.date) + '</td>';
-        h += '</tr>';
+        h += '<div class="card" style="margin-bottom:var(--space-sm);padding:var(--space-md);">';
+        h += '<div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:var(--space-sm);margin-bottom:var(--space-sm);">';
+        h += '<div>';
+        h += '<strong style="font-size:var(--text-base);">' + esc(l.prenom + ' ' + l.nom) + '</strong>';
+        h += '<span class="badge badge--' + (l.source === 'lead_magnet' ? 'active' : 'pending') + '" style="font-size:8px;margin-left:8px;">' + (l.source === 'lead_magnet' ? 'Lead magnet' : 'Contact') + '</span>';
+        h += '</div>';
+        h += '<span style="font-size:var(--text-xs);color:var(--color-text-muted);">' + formatDate(l.date) + '</span>';
+        h += '</div>';
+
+        h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-sm);font-size:var(--text-sm);">';
+        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Email</span><br><a href="mailto:' + esc(l.email) + '" style="color:var(--color-accent);">' + esc(l.email) + '</a></div>';
+        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Téléphone</span><br>' + (l.telephone ? '<a href="tel:' + esc(l.telephone) + '">' + esc(l.telephone) + '</a>' : 'Non renseigné') + '</div>';
+        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Objectif principal</span><br><span class="badge badge--active">' + (objLabels[l.objectif] || l.objectif) + '</span></div>';
+        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Depuis combien de temps</span><br>' + (dureeLabels[l.duree] || l.duree) + '</div>';
+        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">A déjà fait des régimes</span><br>' + (l.regimes === 'oui' ? 'Oui' : 'Non') + '</div>';
+        h += '</div>';
+
+        h += '<div style="display:flex;gap:var(--space-xs);margin-top:var(--space-sm);">';
+        h += '<a href="https://wa.me/33' + (l.telephone || '').replace(/\s/g,'').replace(/^0/,'') + '" target="_blank" rel="noopener" class="btn btn--outline btn--sm" style="font-size:var(--text-xs);border-color:#25D366;color:#25D366;">WhatsApp</a>';
+        h += '<a href="mailto:' + esc(l.email) + '" class="btn btn--outline btn--sm" style="font-size:var(--text-xs);">Email</a>';
+        h += '</div>';
+        h += '</div>';
       });
-      h += '</tbody></table></div>';
     }
 
     h += '</div>';
@@ -674,35 +672,23 @@
       btn.addEventListener('click', function() { state.view = this.dataset.adminTab; render(); window.scrollTo(0,0); });
     });
 
-    // Add doc button
-    var addDocBtn = document.getElementById('add-doc-btn');
-    if (addDocBtn) addDocBtn.addEventListener('click', function() {
-      var form = document.getElementById('add-doc-form');
-      if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
-    });
-    // Contenus: category C toggle assign
-    var docCat = document.getElementById('doc-cat');
-    if (docCat) docCat.addEventListener('change', function() {
-      var sec = document.getElementById('doc-assign-section');
-      if (sec) sec.style.display = this.value === 'C' ? 'block' : 'none';
-    });
-    // Contenus: save doc
+    // Contenus: save doc (inline en bas du tableau)
     var saveDocBtn = document.getElementById('save-doc-btn');
     if (saveDocBtn) saveDocBtn.addEventListener('click', function() {
       var title = document.getElementById('doc-title');
       if (!title || !title.value.trim()) { showToast('Titre requis'); return; }
+      var cat = document.getElementById('doc-cat').value;
+      var assign = document.getElementById('doc-assign');
       var doc = {
         id: 'd' + Date.now(),
         title: title.value.trim(),
         tab: document.getElementById('doc-tab').value,
-        category: document.getElementById('doc-cat').value,
+        category: cat,
         minProgram: document.getElementById('doc-prog').value,
         dayStart: parseInt(document.getElementById('doc-day').value) || 0,
         file: '(upload simulé)',
-        assignedTo: []
+        assignedTo: (cat === 'C' && assign && assign.value) ? [assign.value] : []
       };
-      var assign = document.getElementById('doc-assign');
-      if (doc.category === 'C' && assign && assign.value) doc.assignedTo = [assign.value];
       state.docs.push(doc);
       showToast('Document ajouté !');
       render();
