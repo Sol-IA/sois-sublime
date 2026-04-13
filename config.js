@@ -250,12 +250,7 @@ var CONFIG = {
     { id: 'eb3', title: 'Detox douce & IG Bas', desc: 'Un programme detox compatible avec la methode IG Bas pour relancer ton organisme.', price: '', available: false }
   ],
 
-  // ── Produits recommandés (paniers bien-être) ──
-  products: [
-    { id: 'p1', title: 'Beauty Focus Collagene', description: 'Complement alimentaire pour la peau, les cheveux et les ongles. 4 mois de cure recommandes.', shopUrl: '#', category: 'complement' },
-    { id: 'p2', title: 'LumiSpa', description: 'Appareil de nettoyage facial pour une peau nette et eclatante.', shopUrl: '#', category: 'soin' },
-    { id: 'p3', title: 'Tegreen', description: 'Antioxydant puissant a base de the vert pour booster ton metabolisme.', shopUrl: '#', category: 'complement' },
-    { id: 'p4', title: 'LifePak', description: 'Formule complete de vitamines et mineraux.', shopUrl: '#', category: 'complement' },
-    { id: 'p5', title: 'Serum Anti-age', description: 'Soin concentre pour reduire les signes visibles du temps.', shopUrl: '#', category: 'soin' }
-  ]
+  // ── Produits bien-être ──
+  // Gérés par Sandra depuis l'admin (onglet Contenus)
+  products: []
 };

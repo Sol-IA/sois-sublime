@@ -126,7 +126,7 @@
     var pct = Math.min(100, Math.round((elapsed / p.durationDays) * 100));
     return '<header class="header" style="background:var(--color-primary);border-bottom:none;">' +
       '<div class="header__inner">' +
-      '<a class="header__logo" href="../index.html"><img src="../assets-sandra/logo-sandra-prune.svg" alt="Sois Sublime" width="40" height="40" style="filter:brightness(0) invert(1);"><span style="color:#fff;">Sois Sublime</span></a>' +
+      '<a class="header__logo" href="../index.html"><img src="../assets-sandra/logo-sandra-prune.svg" alt="Sois Sublime" width="40" height="40" style="filter:brightness(0) invert(1);"></a>' +
       '</div></header>' +
       '<div class="espace-header" style="padding-top:calc(var(--header-h) + var(--space-sm));">' +
       '<h1 style="color:#fff;">&#x1F98B; Bienvenue ' + esc(d.client.firstName) + '</h1>' +
@@ -303,17 +303,9 @@
       h += '</div>';
     }
 
-    // Produits standards (du config.js)
-    if (typeof CONFIG !== 'undefined' && CONFIG.products && CONFIG.products.length) {
-      h += '<h3 style="margin:var(--space-lg) 0 var(--space-sm);">Produits recommandes</h3>';
-      h += '<div class="grid grid--2">';
-      CONFIG.products.forEach(function(p) {
-        h += '<div class="product-card"><h4>' + esc(p.title) + '</h4>';
-        h += '<p style="font-size:var(--text-sm);color:var(--color-text-light);">' + esc(p.description) + '</p>';
-        if (p.shopUrl && p.shopUrl !== '#') h += '<a class="btn btn--outline btn--sm" href="' + p.shopUrl + '" target="_blank" rel="noopener">Voir le produit</a>';
-        h += '</div>';
-      });
-      h += '</div>';
+    // Les produits standards sont gérés par Sandra depuis l'admin
+    if (!paniers.length) {
+      h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Sandra n'a pas encore ajouté de produits pour toi. Ils apparaitront ici bientot !</div>';
     }
 
     return h;
