@@ -104,10 +104,8 @@
       case 'ebooks': h += renderEbooks(); break;
     }
     // Upsell Evolution pour Reset 21
-    if (pid === 'reset21' && state.tab !== 'ebooks') {
-      h += '<div class="upsell-banner"><div class="upsell-banner__inner">' +
-        ICO.star + ' <strong>Envie d\'aller plus loin ?</strong> Passe a <em>Sublime Evolution</em> pour debloquer le tracker, toutes les fiches pratiques, les recettes completes et un suivi personnalise.' +
-        ' <a href="mailto:' + CONFIG.email + '">Contacter Sandra</a></div></div>';
+    if (pid === 'reset21' && state.tab !== 'ebooks' && state.tab !== 'produits') {
+      h += renderUpsellBlock();
     }
     h += '</div>';
     // Bouton diagnostic sticky
@@ -141,11 +139,11 @@
     var pid = state.data.program.id;
     var tabs = [
       { id: 'methode', label: 'Methode', ico: '&#x1F4D6;' },
-      { id: 'fiches', label: 'Fiches', ico: '&#x1F4A1;', needsEvo: true },
       { id: 'essentiels', label: 'Essentiels', ico: '&#x1F34E;' },
-      { id: 'recettes', label: 'Recettes', ico: '&#x1F373;' },
+      { id: 'fiches', label: 'Fiches', ico: '&#x1F4A1;' },
+      { id: 'recettes', label: 'Recettes', ico: '&#x1F373;', needsEvo: true },
       { id: 'tracker', label: 'Tracker', ico: '&#x1F4CA;', needsEvo: true },
-      { id: 'suivi', label: 'Suivi', ico: '&#x1F4DD;', needsEvo: true },
+      { id: 'suivi', label: 'Suivi', ico: '&#x1F4DD;' },
       { id: 'produits', label: 'Bien-etre', ico: '&#x2728;' },
       { id: 'ebooks', label: 'E-books', ico: '&#x1F4DA;' }
     ];
@@ -162,14 +160,20 @@
   /* ═══ GENERIC DOC LIST RENDERER ═══ */
   function renderDocs(title, desc, items) {
     var pid = state.data.program.id;
+    var elapsed = daysBetween(state.data.program.startDate, todayStr());
     var h = '<h2 style="margin-bottom:var(--space-xs);">' + esc(title) + '</h2>';
     h += '<p class="lead" style="margin-bottom:var(--space-lg);">' + esc(desc) + '</p>';
     items.forEach(function(item) {
       var ok = hasAccess(pid, item.minProgram);
-      if (ok) {
+      var dayOk = !item.dayStart || elapsed >= item.dayStart;
+      if (ok && dayOk) {
         h += '<a class="content-card" href="' + encodeURI('../' + item.file) + '" target="_blank" rel="noopener">';
         h += '<div class="content-card__icon">' + ICO.pdf + '</div>';
         h += '<div class="content-card__text"><h4>' + esc(item.title) + '</h4>' + (item.desc ? '<small>' + esc(item.desc) + '</small>' : '') + '</div></a>';
+      } else if (ok && !dayOk) {
+        var daysLeft = item.dayStart - elapsed;
+        h += '<div class="content-card content-card--locked"><div class="content-card__icon">&#x1F551;</div>';
+        h += '<div class="content-card__text"><h4>' + esc(item.title) + '</h4><small>Disponible dans ' + daysLeft + ' jour' + (daysLeft > 1 ? 's' : '') + '</small></div></div>';
       } else {
         h += '<div class="content-card content-card--locked"><div class="content-card__icon">' + ICO.lock + '</div>';
         h += '<div class="content-card__text"><h4>' + esc(item.title) + '</h4><small>Disponible avec Sublime Evolution</small></div></div>';
@@ -197,8 +201,7 @@
     });
     h += '</div>';
     if (!hasAccess(pid, 'evolution')) {
-      h += '<div style="margin-top:var(--space-lg);padding:var(--space-md);border:2px dashed var(--color-accent-light);border-radius:var(--radius-lg);background:var(--color-bg-rose);text-align:center;">';
-      h += '<p style="margin:0;color:var(--color-accent);">' + ICO.star + ' <strong>Recettes personnalisees</strong> — Passe a Sublime Evolution pour des menus adaptes a tes gouts.</p></div>';
+      h += renderUpsellBlock();
     }
     return h;
   }
@@ -207,10 +210,7 @@
   function renderTracker() {
     var pid = state.data.program.id;
     if (!hasAccess(pid, 'evolution')) {
-      return '<div class="espace-message" style="min-height:auto;padding:var(--space-xl) var(--space-md);">' +
-        '<div class="espace-message__icon">' + ICO.lock + '</div><h1 style="font-size:var(--text-2xl);">Tracker Bien-etre</h1>' +
-        '<p>Le tracker quotidien est inclus dans Sublime Evolution. Suis ta progression : humeur, energie, alimentation.</p>' +
-        '<a class="btn btn--primary" href="mailto:' + CONFIG.email + '">Passer a Evolution</a></div>';
+      return renderLockedTab('Tracker Bien-être', 'Le tracker quotidien est inclus dans Sublime Evolution. Suis ta progression jour après jour : humeur, énergie, alimentation.');
     }
     var h = '<h2 style="margin-bottom:var(--space-md);">Mon Tracker du jour</h2><div class="tracker-form">';
     var fields = [
@@ -337,6 +337,26 @@
       });
     }
     return h;
+  }
+
+  /* ═══ UPSELL BLOCK ═══ */
+  function renderUpsellBlock() {
+    return '<div style="margin-top:var(--space-xl);padding:var(--space-lg);border:2px dashed var(--color-accent-light);border-radius:var(--radius-lg);background:var(--color-bg-rose);text-align:center;">' +
+      '<div style="font-size:32px;margin-bottom:var(--space-sm);">' + ICO.lock + '</div>' +
+      '<p style="font-size:var(--text-base);margin-bottom:var(--space-xs);"><strong>Ce contenu n\'est pas inclus dans ton programme actuel.</strong></p>' +
+      '<p style="font-size:var(--text-sm);color:var(--color-text-light);margin-bottom:var(--space-md);">Avant d\'acheter, contacte Sandra — elle pourra te conseiller le contenu le plus adapté à ta situation et te proposer une réduction si tu combines plusieurs éléments.</p>' +
+      '<a class="btn btn--primary" href="https://wa.me/33612452960?text=Bonjour%20Sandra%2C%20je%20souhaite%20en%20savoir%20plus%20sur%20les%20options..." target="_blank" rel="noopener">Contacter Sandra</a>' +
+      '<p style="margin-top:var(--space-sm);"><a href="#" style="font-size:var(--text-xs);color:var(--color-text-muted);">Acheter directement</a></p>' +
+      '</div>';
+  }
+
+  function renderLockedTab(title, desc) {
+    return '<div style="text-align:center;padding:var(--space-xl) var(--space-md);">' +
+      '<div style="font-size:48px;margin-bottom:var(--space-md);opacity:.3;">' + ICO.lock + '</div>' +
+      '<h2 style="margin-bottom:var(--space-xs);">' + esc(title) + '</h2>' +
+      '<p style="color:var(--color-text-light);max-width:450px;margin:0 auto var(--space-md);">' + esc(desc) + '</p>' +
+      renderUpsellBlock() +
+      '</div>';
   }
 
   /* ═══ EVENTS ═══ */

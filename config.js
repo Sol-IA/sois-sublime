@@ -184,35 +184,35 @@ var CONFIG = {
 
   // ── Onglet "Ma Méthode" — fiches méthode IG Bas ──
   methode: [
-    { title: 'Methode IG Bas — Les bases (21 jours)', file: 'Documents mois 1/FICHE MENSUELLE 1.pdf', minProgram: 'reset21', desc: 'Le socle complet de la methode Index Glycemique Bas' },
-    { title: 'Methode IG Bas — Mois 2 : Approfondir', file: 'Documents mois 2/Fiche mensuelle 2.pdf', minProgram: 'evolution', desc: 'Aller plus loin dans la comprehension et l\'application' },
-    { title: 'Methode IG Bas — Mois 3 : Autonomie', file: 'Documents mois 3/Fiche mensuelle 3.pdf', minProgram: 'evolution', desc: 'Consolider tes acquis et devenir autonome' }
+    { title: 'Methode IG Bas — Les bases (21 jours)', file: 'Documents mois 1/FICHE MENSUELLE 1.pdf', minProgram: 'reset21', dayStart: 0, desc: 'Le socle complet de la methode Index Glycemique Bas' },
+    { title: 'Methode IG Bas — Mois 2 : Approfondir', file: 'Documents mois 2/Fiche mensuelle 2.pdf', minProgram: 'evolution', dayStart: 31, desc: 'Aller plus loin dans la comprehension et l\'application' },
+    { title: 'Methode IG Bas — Mois 3 : Autonomie', file: 'Documents mois 3/Fiche mensuelle 3.pdf', minProgram: 'evolution', dayStart: 61, desc: 'Consolider tes acquis et devenir autonome' }
   ],
 
   // ── Onglet "Fiches Pratiques" ──
   fichesPratiques: [
-    { title: 'Glucides & perte de poids', file: 'Documents mois 1/Glucides & perte de poids.pdf', minProgram: 'reset21' },
-    { title: 'Sucrer mes boissons autrement', file: 'Documents mois 1/Sucrer mes boissons.pdf', minProgram: 'reset21' },
-    { title: 'Petit-dejeuner IG Bas', file: 'Documents mois 1/Petit-déjeuner IGBA.pdf', minProgram: 'reset21' },
-    { title: 'Une journee type dans mes assiettes', file: 'Documents mois 1/Fiche pratique Une journée type dans mes assiettes.pdf', minProgram: 'reset21' },
-    { title: 'Le vinaigre et ses bienfaits', file: 'Documents mois 2/Fiche pratique le vinaigre mois 2.pdf', minProgram: 'evolution' },
-    { title: 'Le verre d\'eau tiede du matin', file: 'Documents mois 2/Fiche pratique le verre d\'eau tiède du matin mois 2.pdf', minProgram: 'evolution' },
-    { title: 'FAQ : le gluten et la methode IG Bas', file: 'Documents mois 2/FAQ le gluten et la méthode IGbas.pdf', minProgram: 'evolution' },
-    { title: 'Le choix des bonnes huiles', file: 'Documents mois 3/Fiche pratique Le choix des bonnes huiles mois 3.pdf', minProgram: 'evolution' },
-    { title: 'Pourquoi ne pas compter ses calories', file: 'Documents mois 3/Fiche pratique Pqoi ne pas compter ses calories mois 3.pdf', minProgram: 'evolution' },
-    { title: 'Tout comprendre sur les proteines animales', file: 'Documents mois 3/Fiche pratique Tour comprendre sur protéines animales Mois 3.pdf', minProgram: 'evolution' }
+    { title: 'Glucides & perte de poids', file: 'Documents mois 1/Glucides & perte de poids.pdf', minProgram: 'reset21', dayStart: 0 },
+    { title: 'Sucrer mes boissons autrement', file: 'Documents mois 1/Sucrer mes boissons.pdf', minProgram: 'reset21', dayStart: 0 },
+    { title: 'Petit-dejeuner IG Bas', file: 'Documents mois 1/Petit-déjeuner IGBA.pdf', minProgram: 'reset21', dayStart: 0 },
+    { title: 'Une journee type dans mes assiettes', file: 'Documents mois 1/Fiche pratique Une journée type dans mes assiettes.pdf', minProgram: 'reset21', dayStart: 0 },
+    { title: 'Le vinaigre et ses bienfaits', file: 'Documents mois 2/Fiche pratique le vinaigre mois 2.pdf', minProgram: 'evolution', dayStart: 31 },
+    { title: 'Le verre d\'eau tiede du matin', file: 'Documents mois 2/Fiche pratique le verre d\'eau tiède du matin mois 2.pdf', minProgram: 'evolution', dayStart: 31 },
+    { title: 'FAQ : le gluten et la methode IG Bas', file: 'Documents mois 2/FAQ le gluten et la méthode IGbas.pdf', minProgram: 'evolution', dayStart: 31 },
+    { title: 'Le choix des bonnes huiles', file: 'Documents mois 3/Fiche pratique Le choix des bonnes huiles mois 3.pdf', minProgram: 'evolution', dayStart: 61 },
+    { title: 'Pourquoi ne pas compter ses calories', file: 'Documents mois 3/Fiche pratique Pqoi ne pas compter ses calories mois 3.pdf', minProgram: 'evolution', dayStart: 61 },
+    { title: 'Tout comprendre sur les proteines animales', file: 'Documents mois 3/Fiche pratique Tour comprendre sur protéines animales Mois 3.pdf', minProgram: 'evolution', dayStart: 61 }
   ],
 
   // ── Onglet "Les Essentiels" — bases pratiques ──
   essentiels: [
-    { title: 'Liste de courses IG Bas', file: 'Documents mois 1/Liste de Courses pour un Régime à Index Glycémique Bas.pdf', minProgram: 'reset21' },
-    { title: 'Idees gouters IG Bas', file: 'Documents mois 1/Idées goûters.pdf', minProgram: 'reset21' },
-    { title: 'Objectif beaute du mois 1', file: 'Documents mois 1/Objectif beauté du mois 1.pdf', minProgram: 'reset21' },
-    { title: 'Objectif bien-etre du mois 1', file: 'Documents mois 1/Objectif bien être du mois 1.pdf', minProgram: 'reset21' },
-    { title: 'Objectif mouvement du mois 1', file: 'Documents mois 1/Objectif mouvement du mois (1).pdf', minProgram: 'reset21' },
-    { title: 'Objectif beaute du mois 2', file: 'Documents mois 2/Objectif beauté mois 2.pdf', minProgram: 'evolution' },
-    { title: 'Objectif bien-etre du mois 2', file: 'Documents mois 2/Objectif bien-être mois 2.pdf', minProgram: 'evolution' },
-    { title: 'Objectif mouvement du mois 2', file: 'Documents mois 2/Objectif mouvement du mois 2.pdf', minProgram: 'evolution' }
+    { title: 'Liste de courses IG Bas', file: 'Documents mois 1/Liste de Courses pour un Régime à Index Glycémique Bas.pdf', minProgram: 'reset21', dayStart: 0 },
+    { title: 'Idees gouters IG Bas', file: 'Documents mois 1/Idées goûters.pdf', minProgram: 'reset21', dayStart: 0 },
+    { title: 'Objectif beaute du mois 1', file: 'Documents mois 1/Objectif beauté du mois 1.pdf', minProgram: 'reset21', dayStart: 0 },
+    { title: 'Objectif bien-etre du mois 1', file: 'Documents mois 1/Objectif bien être du mois 1.pdf', minProgram: 'reset21', dayStart: 0 },
+    { title: 'Objectif mouvement du mois 1', file: 'Documents mois 1/Objectif mouvement du mois (1).pdf', minProgram: 'reset21', dayStart: 0 },
+    { title: 'Objectif beaute du mois 2', file: 'Documents mois 2/Objectif beauté mois 2.pdf', minProgram: 'evolution', dayStart: 31 },
+    { title: 'Objectif bien-etre du mois 2', file: 'Documents mois 2/Objectif bien-être mois 2.pdf', minProgram: 'evolution', dayStart: 31 },
+    { title: 'Objectif mouvement du mois 2', file: 'Documents mois 2/Objectif mouvement du mois 2.pdf', minProgram: 'evolution', dayStart: 31 }
   ],
 
   // ── Onglet "Mes Recettes" ──
