@@ -32,7 +32,7 @@ var CONFIG = {
   WEBHOOK_ADMIN_ACTIVATE: '',
   WEBHOOK_ADMIN_NOTE: '',
 
-  // ── Diagnostic (bouton permanent dans l'espace client) ──
+  // ── Diagnostique (bouton permanent dans l'espace client) ──
   diagnosticUrl: 'https://calendly.com/sandra-soissublime',
   diagnosticPrice: '39\u20AC',
 
@@ -45,8 +45,8 @@ var CONFIG = {
   // ── Programmes ──
   programs: [
     {
-      id: 'diagnostic',
-      name: 'Sublime Diagnostic',
+      id: 'diagnostique',
+      name: 'Sublime Diagnostique',
       price: 39,
       priceLabel: '39\u20AC',
       duration: '30 minutes',
@@ -161,17 +161,17 @@ var CONFIG = {
     {
       icon: 'leaf',
       title: 'Gestion du poids',
-      text: 'Perdre du poids durablement grace a la methode IG Bas (Index Glycemique Bas). Sans frustration, sans compter les calories. Une approche qui respecte ton corps et tes envies.'
+      text: 'Pour garder ton poids d\'equilibre ou perdre du poids durablement grace a la methode IG bas (Index glycemique bas), sans frustration. Une approche globale qui agit sur ton energie, ton metabolisme et ta peau.'
     },
     {
       icon: 'star',
-      title: 'Vitalite',
-      text: 'Fatigue, sommeil, equilibre hormonal, energie, libido. Grace a la micro-nutrition et un accompagnement global, on relance ta vitalite au quotidien.'
+      title: 'Vitalite & micronutrition',
+      text: 'Retrouver ton energie, ameliorer ton sommeil et soutenir ton equilibre hormonal grace a la micronutrition. Une approche en profondeur pour relancer ta vitalite et ton bien-etre global.'
     },
     {
       icon: 'heart',
-      title: 'Beaute',
-      text: 'Anti-age, skincare, eclat de la peau, routines beaute. Je t\'aide a reveler ta beaute naturelle avec des produits et des gestes qui fonctionnent vraiment.'
+      title: 'Beaute & skincare',
+      text: 'Ameliorer la qualite de ta peau, prevenir les signes de l\'age et retrouver de l\'eclat grace a des routines beaute adaptees a toutes tes problematiques. Des protocoles et conseils cibles pour des resultats visibles et durables.'
     }
   ],
 

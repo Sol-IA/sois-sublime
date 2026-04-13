@@ -112,7 +112,7 @@
     h += '</div>';
     // Bouton diagnostic sticky
     h += '<a class="diagnostic-sticky" href="' + CONFIG.diagnosticUrl + '" target="_blank" rel="noopener">' +
-      '&#x1F4DE; Besoin d\'aide entre deux seances ? <strong>Sublime Diagnostic — ' + CONFIG.diagnosticPrice + '</strong></a>';
+      '&#x1F4DE; Besoin d\'aide entre deux seances ? <strong>Sublime Diagnostique — ' + CONFIG.diagnosticPrice + '</strong></a>';
     app.innerHTML = h;
     bindEvents();
   }
@@ -128,7 +128,7 @@
     var pct = Math.min(100, Math.round((elapsed / p.durationDays) * 100));
     return '<header class="header" style="background:var(--color-primary);border-bottom:none;">' +
       '<div class="header__inner">' +
-      '<a class="header__logo" href="../index.html"><img src="../assets-sandra/logo-papillon.svg" alt="Sois Sublime" width="40" height="40" style="filter:brightness(0) invert(1);"><span style="color:#fff;">Sois Sublime</span></a>' +
+      '<a class="header__logo" href="../index.html"><img src="../assets-sandra/logo-sandra-prune.svg" alt="Sois Sublime" width="40" height="40" style="filter:brightness(0) invert(1);"><span style="color:#fff;">Sois Sublime</span></a>' +
       '</div></header>' +
       '<div class="espace-header" style="padding-top:calc(var(--header-h) + var(--space-sm));">' +
       '<h1 style="color:#fff;">&#x1F98B; Bienvenue ' + esc(d.client.firstName) + '</h1>' +

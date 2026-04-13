@@ -77,7 +77,7 @@
   var programGrid = document.getElementById('program-grid');
   if (programGrid && hasConfig) {
     var prh = '';
-    CONFIG.programs.filter(function(p) { return p.id !== 'diagnostic'; }).forEach(function(prog) {
+    CONFIG.programs.filter(function(p) { return p.id !== 'diagnostique'; }).forEach(function(prog) {
       var modClass = '';
       if (prog.id === 'reset21') modClass = ' program-card--accent';
       if (prog.id === 'evolution') modClass = ' program-card--rose';
@@ -98,7 +98,7 @@
       }
       if (!prog.comingSoon) {
         var href = prog.stripeLink || CONFIG.calendlyUrl;
-        var label = prog.id === 'diagnostic' ? 'Prendre RDV' : 'Je me lance';
+        var label = prog.id === 'diagnostique' ? 'Prendre RDV' : 'Je me lance';
         prh += '<a class="btn btn--primary" href="' + href + '" target="_blank" rel="noopener">' + label + '</a>';
       } else {
         prh += '<span class="btn btn--outline" style="opacity:.5;cursor:default;">Bientot disponible</span>';
