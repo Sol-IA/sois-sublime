@@ -143,8 +143,24 @@
     }
   ];
 
+  /* ═══ MOCK DOCUMENTS ═══ */
+  var MOCK_DOCS = [
+    { id: 'd1', title: 'Methode IG Bas — Les bases', tab: 'methode', category: 'B', minProgram: 'reset21', dayStart: 0, file: 'Documents mois 1/FICHE MENSUELLE 1.pdf', assignedTo: [] },
+    { id: 'd2', title: 'Methode IG Bas — Mois 2', tab: 'methode', category: 'B', minProgram: 'evolution', dayStart: 31, file: 'Documents mois 2/Fiche mensuelle 2.pdf', assignedTo: [] },
+    { id: 'd3', title: 'Liste de courses IG Bas', tab: 'essentiels', category: 'B', minProgram: 'reset21', dayStart: 0, file: 'Documents mois 1/Liste de courses.pdf', assignedTo: [] },
+    { id: 'd4', title: 'Recette perso Marie — Bowl Buddha', tab: 'recettes', category: 'C', minProgram: '', dayStart: 0, file: 'contenus/perso/abc123/bowl-buddha.pdf', assignedTo: ['abc123-def456-ghi789'] },
+    { id: 'd5', title: 'CR Coaching Marie — Avril', tab: 'suivi', category: 'C', minProgram: '', dayStart: 0, file: '', assignedTo: ['abc123-def456-ghi789'] }
+  ];
+
+  /* ═══ MOCK LEADS ═══ */
+  var MOCK_LEADS = [
+    { id: 'l1', prenom: 'Julie', nom: 'Moreau', email: 'julie.moreau@email.com', telephone: '06 77 88 99 00', objectif: 'perte_poids', duree: 'plus_2_ans', regimes: 'oui', date: '2026-04-10', source: 'lead_magnet' },
+    { id: 'l2', prenom: 'Camille', nom: 'Petit', email: 'camille.p@email.com', telephone: '', objectif: 'vitalite', duree: 'moins_6_mois', regimes: 'non', date: '2026-04-08', source: 'contact' },
+    { id: 'l3', prenom: 'Nadia', nom: 'Bensalem', email: 'nadia.b@email.com', telephone: '06 44 55 66 77', objectif: 'beaute', duree: '6_mois_2_ans', regimes: 'oui', date: '2026-04-05', source: 'lead_magnet' }
+  ];
+
   /* ═══ STATE ═══ */
-  var state = { view: 'list', clients: [], selectedToken: null, noteText: '', search: '', filterStatus: 'all', filterProgram: 'all' };
+  var state = { view: 'list', clients: [], docs: [], leads: [], selectedToken: null, noteText: '', search: '', filterStatus: 'all', filterProgram: 'all' };
   var app = document.getElementById('app');
 
   /* ═══ UTILS ═══ */
@@ -163,6 +179,8 @@
   function loadData() {
     if (!CONFIG.WEBHOOK_ADMIN_CLIENTS) {
       state.clients = MOCK_CLIENTS;
+      state.docs = MOCK_DOCS;
+      state.leads = MOCK_LEADS;
       render();
       return;
     }
@@ -175,10 +193,30 @@
   /* ═══ RENDER ═══ */
   function render() {
     var h = renderHeader();
+    h += renderAdminNav();
     if (state.view === 'list') { h += renderList(); }
     else if (state.view === 'detail') { h += renderDetail(); }
+    else if (state.view === 'contenus') { h += renderContenus(); }
+    else if (state.view === 'leads') { h += renderLeads(); }
     app.innerHTML = h;
     bindEvents();
+  }
+
+  function renderAdminNav() {
+    var tabs = [
+      { id: 'list', label: 'Clientes', ico: '&#x1F465;' },
+      { id: 'contenus', label: 'Contenus', ico: '&#x1F4C1;' },
+      { id: 'leads', label: 'Leads', ico: '&#x1F4E9;' }
+    ];
+    var h = '<div class="tab-bar" style="position:sticky;top:var(--header-h);z-index:99;">';
+    tabs.forEach(function(t) {
+      var active = state.view === t.id || (t.id === 'list' && state.view === 'detail');
+      h += '<button class="tab-btn' + (active ? ' active' : '') + '" data-admin-tab="' + t.id + '">' +
+        '<span class="tab-btn__icon">' + t.ico + '</span><span class="tab-btn__label">' + t.label + '</span>' +
+        (t.id === 'leads' ? '<span style="background:var(--color-accent);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px;">' + state.leads.length + '</span>' : '') +
+        '</button>';
+    });
+    return h + '</div>';
   }
 
   function renderHeader() {
@@ -449,8 +487,161 @@
     return h;
   }
 
+  /* ═══ CONTENUS VIEW ═══ */
+  function renderContenus() {
+    var d = state.docs;
+    var catLabels = { A: 'Permanent (toutes)', B: 'Par programme', C: 'Personnalisé' };
+    var tabLabels = { methode: 'Méthode', essentiels: 'Essentiels', fiches: 'Fiches', recettes: 'Recettes', suivi: 'Suivi', produits: 'Bien-être', ebooks: 'E-books' };
+
+    var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-lg);flex-wrap:wrap;gap:var(--space-sm);">';
+    h += '<h2 style="margin:0;">Gestion des contenus</h2>';
+    h += '<button class="btn btn--primary btn--sm" id="add-doc-btn">+ Ajouter un document</button>';
+    h += '</div>';
+
+    // Stats
+    h += '<div class="admin-stats" style="margin-bottom:var(--space-md);">';
+    h += '<div class="stat-card"><div class="stat-card__number">' + d.length + '</div><div class="stat-card__label">Total</div></div>';
+    h += '<div class="stat-card"><div class="stat-card__number">' + d.filter(function(x){return x.category==='A';}).length + '</div><div class="stat-card__label">Permanent</div></div>';
+    h += '<div class="stat-card"><div class="stat-card__number">' + d.filter(function(x){return x.category==='B';}).length + '</div><div class="stat-card__label">Programme</div></div>';
+    h += '<div class="stat-card"><div class="stat-card__number">' + d.filter(function(x){return x.category==='C';}).length + '</div><div class="stat-card__label">Perso</div></div>';
+    h += '</div>';
+
+    // Table
+    h += '<div style="overflow-x:auto;"><table class="client-table">';
+    h += '<thead><tr><th>Titre</th><th>Onglet</th><th>Catégorie</th><th>Programme min</th><th>Jour</th><th>Assigné à</th><th></th></tr></thead>';
+    h += '<tbody>';
+    d.forEach(function(doc, i) {
+      var assignNames = '';
+      if (doc.category === 'C' && doc.assignedTo.length) {
+        assignNames = doc.assignedTo.map(function(tok) {
+          var cl = state.clients.find(function(c) { return c.token === tok; });
+          return cl ? cl.firstName + ' ' + cl.lastName : tok.slice(0,8);
+        }).join(', ');
+      }
+      h += '<tr>';
+      h += '<td><strong>' + esc(doc.title) + '</strong></td>';
+      h += '<td><span class="badge badge--active" style="font-size:9px;">' + (tabLabels[doc.tab] || doc.tab) + '</span></td>';
+      h += '<td>' + (catLabels[doc.category] || doc.category) + '</td>';
+      h += '<td>' + (doc.minProgram || '—') + '</td>';
+      h += '<td>J' + (doc.dayStart || 0) + '</td>';
+      h += '<td style="font-size:var(--text-xs);">' + (assignNames || '—') + '</td>';
+      h += '<td><button class="btn btn--outline btn--sm remove-doc-btn" data-idx="' + i + '" style="font-size:var(--text-xs);color:#c44;border-color:#c44;padding:2px 8px;">×</button></td>';
+      h += '</tr>';
+    });
+    h += '</tbody></table></div>';
+
+    // Add document form (hidden by default, shown on click)
+    h += '<div id="add-doc-form" style="display:none;margin-top:var(--space-lg);">';
+    h += '<div class="card" style="padding:var(--space-lg);">';
+    h += '<h3 style="margin-bottom:var(--space-md);">Nouveau document</h3>';
+    h += '<div class="grid grid--2" style="gap:var(--space-sm);">';
+    h += '<div class="form__group"><label class="form__label">Titre *</label><input class="form__input" id="doc-title" placeholder="Titre du document"></div>';
+    h += '<div class="form__group"><label class="form__label">Onglet *</label><select class="form__input" id="doc-tab" style="cursor:pointer;">';
+    Object.keys(tabLabels).forEach(function(k) { h += '<option value="' + k + '">' + tabLabels[k] + '</option>'; });
+    h += '</select></div>';
+    h += '<div class="form__group"><label class="form__label">Catégorie *</label><select class="form__input" id="doc-cat" style="cursor:pointer;"><option value="A">A — Permanent (toutes)</option><option value="B" selected>B — Par programme</option><option value="C">C — Personnalisé</option></select></div>';
+    h += '<div class="form__group"><label class="form__label">Programme minimum</label><select class="form__input" id="doc-prog" style="cursor:pointer;"><option value="">Aucun</option><option value="reset21">Reset 21</option><option value="evolution">Evolution</option></select></div>';
+    h += '<div class="form__group"><label class="form__label">Accessible à partir du jour</label><input class="form__input" type="number" id="doc-day" value="0" min="0" style="width:100px;"></div>';
+    h += '<div class="form__group"><label class="form__label">Fichier (simulé)</label><input class="form__input" type="file" id="doc-file" accept=".pdf"><p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-top:4px;">Upload simulé — fonctionnel sur OVH</p></div>';
+    h += '</div>';
+    // Assign to client (for category C)
+    h += '<div id="doc-assign-section" style="display:none;margin-top:var(--space-sm);"><label class="form__label">Assigner à une cliente</label><select class="form__input" id="doc-assign" style="cursor:pointer;"><option value="">Aucune</option>';
+    state.clients.forEach(function(cl) { if (cl.token) h += '<option value="' + esc(cl.token) + '">' + esc(cl.firstName + ' ' + cl.lastName) + '</option>'; });
+    h += '</select></div>';
+    h += '<button class="btn btn--primary" id="save-doc-btn" style="margin-top:var(--space-md);">Enregistrer le document</button>';
+    h += '</div></div>';
+
+    h += '</div>';
+    return h;
+  }
+
+  /* ═══ LEADS VIEW ═══ */
+  function renderLeads() {
+    var leads = state.leads;
+    var objLabels = { perte_poids: 'Perte de poids', vitalite: 'Vitalité & énergie', beaute: 'Beauté & peau', ne_sais_pas: 'Ne sait pas encore' };
+    var dureeLabels = { moins_6_mois: '< 6 mois', '6_mois_2_ans': '6 mois - 2 ans', plus_2_ans: '> 2 ans' };
+
+    var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
+    h += '<h2 style="margin-bottom:var(--space-lg);">Leads collectés <span style="font-size:var(--text-sm);color:var(--color-text-muted);">(' + leads.length + ')</span></h2>';
+
+    if (leads.length === 0) {
+      h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Aucun lead pour le moment. Les leads apparaîtront ici quand des visiteurs rempliront le formulaire lead magnet ou le formulaire de contact.</div>';
+    } else {
+      h += '<div style="overflow-x:auto;"><table class="client-table">';
+      h += '<thead><tr><th>Nom</th><th>Email</th><th>Tél</th><th>Objectif</th><th>Depuis</th><th>Régimes</th><th>Source</th><th>Date</th></tr></thead>';
+      h += '<tbody>';
+      leads.forEach(function(l) {
+        h += '<tr>';
+        h += '<td><strong>' + esc(l.prenom + ' ' + l.nom) + '</strong></td>';
+        h += '<td><a href="mailto:' + esc(l.email) + '" style="color:var(--color-accent);">' + esc(l.email) + '</a></td>';
+        h += '<td>' + (l.telephone ? '<a href="tel:' + esc(l.telephone) + '">' + esc(l.telephone) + '</a>' : '—') + '</td>';
+        h += '<td><span class="badge badge--active" style="font-size:9px;">' + (objLabels[l.objectif] || l.objectif) + '</span></td>';
+        h += '<td>' + (dureeLabels[l.duree] || l.duree) + '</td>';
+        h += '<td>' + (l.regimes === 'oui' ? 'Oui' : 'Non') + '</td>';
+        h += '<td style="font-size:var(--text-xs);">' + esc(l.source) + '</td>';
+        h += '<td>' + formatDate(l.date) + '</td>';
+        h += '</tr>';
+      });
+      h += '</tbody></table></div>';
+    }
+
+    h += '</div>';
+    return h;
+  }
+
   /* ═══ EVENTS ═══ */
   function bindEvents() {
+    // Admin nav tabs
+    document.querySelectorAll('[data-admin-tab]').forEach(function(btn) {
+      btn.addEventListener('click', function() { state.view = this.dataset.adminTab; render(); window.scrollTo(0,0); });
+    });
+
+    // Add doc button
+    var addDocBtn = document.getElementById('add-doc-btn');
+    if (addDocBtn) addDocBtn.addEventListener('click', function() {
+      var form = document.getElementById('add-doc-form');
+      if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Doc category change → show/hide assign
+    var docCat = document.getElementById('doc-cat');
+    if (docCat) docCat.addEventListener('change', function() {
+      var sec = document.getElementById('doc-assign-section');
+      if (sec) sec.style.display = this.value === 'C' ? 'block' : 'none';
+    });
+
+    // Save doc
+    var saveDocBtn = document.getElementById('save-doc-btn');
+    if (saveDocBtn) saveDocBtn.addEventListener('click', function() {
+      var title = document.getElementById('doc-title');
+      if (!title || !title.value.trim()) { showToast('Titre requis'); return; }
+      var doc = {
+        id: 'd' + Date.now(),
+        title: title.value.trim(),
+        tab: document.getElementById('doc-tab').value,
+        category: document.getElementById('doc-cat').value,
+        minProgram: document.getElementById('doc-prog').value,
+        dayStart: parseInt(document.getElementById('doc-day').value) || 0,
+        file: '(upload simulé)',
+        assignedTo: []
+      };
+      var assign = document.getElementById('doc-assign');
+      if (doc.category === 'C' && assign && assign.value) doc.assignedTo = [assign.value];
+      state.docs.push(doc);
+      showToast('Document ajouté !');
+      render();
+    });
+
+    // Remove doc
+    document.querySelectorAll('.remove-doc-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.docs.splice(parseInt(this.dataset.idx), 1);
+        showToast('Document supprimé');
+        render();
+      });
+    });
+
     // Search
     var searchInput = document.getElementById('search-input');
     if (searchInput) {
