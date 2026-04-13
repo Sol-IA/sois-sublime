@@ -681,6 +681,48 @@
       if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
     });
 
+    // Contenus: add doc button
+    var addDocBtn = document.getElementById('add-doc-btn');
+    if (addDocBtn) addDocBtn.addEventListener('click', function() {
+      var form = document.getElementById('add-doc-form');
+      if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
+    // Contenus: category C toggle assign
+    var docCat = document.getElementById('doc-cat');
+    if (docCat) docCat.addEventListener('change', function() {
+      var sec = document.getElementById('doc-assign-section');
+      if (sec) sec.style.display = this.value === 'C' ? 'block' : 'none';
+    });
+    // Contenus: save doc
+    var saveDocBtn = document.getElementById('save-doc-btn');
+    if (saveDocBtn) saveDocBtn.addEventListener('click', function() {
+      var title = document.getElementById('doc-title');
+      if (!title || !title.value.trim()) { showToast('Titre requis'); return; }
+      var doc = {
+        id: 'd' + Date.now(),
+        title: title.value.trim(),
+        tab: document.getElementById('doc-tab').value,
+        category: document.getElementById('doc-cat').value,
+        minProgram: document.getElementById('doc-prog').value,
+        dayStart: parseInt(document.getElementById('doc-day').value) || 0,
+        file: '(upload simulé)',
+        assignedTo: []
+      };
+      var assign = document.getElementById('doc-assign');
+      if (doc.category === 'C' && assign && assign.value) doc.assignedTo = [assign.value];
+      state.docs.push(doc);
+      showToast('Document ajouté !');
+      render();
+    });
+    // Contenus: remove doc
+    document.querySelectorAll('.remove-doc-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.docs.splice(parseInt(this.dataset.idx), 1);
+        showToast('Document supprimé');
+        render();
+      });
+    });
+
     // Contenus: category filter (cards)
     document.querySelectorAll('.doc-cat-filter').forEach(function(card) {
       card.addEventListener('click', function() {
