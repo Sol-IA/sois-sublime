@@ -164,7 +164,7 @@
   ];
 
   /* ═══ STATE ═══ */
-  var state = { view: 'list', clients: [], docs: [], leads: [], selectedToken: null, noteText: '', search: '', filterStatus: 'all', filterProgram: 'all' };
+  var state = { view: 'list', clients: [], docs: [], leads: [], selectedToken: null, noteText: '', search: '', filterStatus: 'all', filterProgram: 'all', filterDocCat: 'all', filterDocTab: 'all' };
   var app = document.getElementById('app');
 
   /* ═══ UTILS ═══ */
@@ -528,9 +528,18 @@
 
   /* ═══ CONTENUS VIEW ═══ */
   function renderContenus() {
-    var d = state.docs;
-    var catLabels = { A: 'Permanent (toutes)', B: 'Par programme', C: 'Personnalisé' };
+    var allDocs = state.docs;
+    var catLabels = { A: 'Permanent', B: 'Programme', C: 'Perso' };
     var tabLabels = { methode: 'Méthode', essentiels: 'Essentiels', fiches: 'Fiches', recettes: 'Recettes', suivi: 'Suivi', produits: 'Bien-être', ebooks: 'E-books' };
+    var fc = state.filterDocCat || 'all';
+    var ft = state.filterDocTab || 'all';
+
+    // Apply filters
+    var d = allDocs.filter(function(doc) {
+      if (fc !== 'all' && doc.category !== fc) return false;
+      if (ft !== 'all' && doc.tab !== ft) return false;
+      return true;
+    });
 
     var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
     h += '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:var(--space-lg);flex-wrap:wrap;gap:var(--space-sm);">';
@@ -538,34 +547,63 @@
     h += '<button class="btn btn--primary btn--sm" id="add-doc-btn">+ Ajouter un document</button>';
     h += '</div>';
 
-    // Stats
-    h += '<div class="admin-stats" style="margin-bottom:var(--space-md);">';
-    h += '<div class="stat-card"><div class="stat-card__number">' + d.length + '</div><div class="stat-card__label">Total</div></div>';
-    h += '<div class="stat-card"><div class="stat-card__number">' + d.filter(function(x){return x.category==='A';}).length + '</div><div class="stat-card__label">Permanent</div></div>';
-    h += '<div class="stat-card"><div class="stat-card__number">' + d.filter(function(x){return x.category==='B';}).length + '</div><div class="stat-card__label">Programme</div></div>';
-    h += '<div class="stat-card"><div class="stat-card__number">' + d.filter(function(x){return x.category==='C';}).length + '</div><div class="stat-card__label">Perso</div></div>';
+    // Stats (cliquables comme filtres)
+    h += '<div class="admin-stats" style="margin-bottom:var(--space-sm);">';
+    h += '<div class="stat-card doc-cat-filter" data-cat="all" style="cursor:pointer;' + (fc === 'all' ? 'border-color:var(--color-primary);' : '') + '"><div class="stat-card__number">' + allDocs.length + '</div><div class="stat-card__label">Total</div></div>';
+    h += '<div class="stat-card doc-cat-filter" data-cat="A" style="cursor:pointer;' + (fc === 'A' ? 'border-color:#2e7d32;' : '') + '"><div class="stat-card__number" style="color:#2e7d32;">' + allDocs.filter(function(x){return x.category==='A';}).length + '</div><div class="stat-card__label">Permanent</div></div>';
+    h += '<div class="stat-card doc-cat-filter" data-cat="B" style="cursor:pointer;' + (fc === 'B' ? 'border-color:#1565c0;' : '') + '"><div class="stat-card__number" style="color:#1565c0;">' + allDocs.filter(function(x){return x.category==='B';}).length + '</div><div class="stat-card__label">Programme</div></div>';
+    h += '<div class="stat-card doc-cat-filter" data-cat="C" style="cursor:pointer;' + (fc === 'C' ? 'border-color:#e65100;' : '') + '"><div class="stat-card__number" style="color:#e65100;">' + allDocs.filter(function(x){return x.category==='C';}).length + '</div><div class="stat-card__label">Perso</div></div>';
     h += '</div>';
 
-    // Table
+    // Tab filter
+    h += '<div class="filter-bar" style="margin-bottom:var(--space-md);">';
+    h += '<button class="filter-btn doc-tab-filter' + (ft === 'all' ? ' active' : '') + '" data-tab="all">Tous</button>';
+    Object.keys(tabLabels).forEach(function(k) {
+      h += '<button class="filter-btn doc-tab-filter' + (ft === k ? ' active' : '') + '" data-tab="' + k + '">' + tabLabels[k] + '</button>';
+    });
+    h += '</div>';
+
+    // Results count
+    if (d.length !== allDocs.length) {
+      h += '<p style="font-size:var(--text-sm);color:var(--color-text-muted);margin-bottom:var(--space-sm);">' + d.length + ' document' + (d.length > 1 ? 's' : '') + ' sur ' + allDocs.length + '</p>';
+    }
+
+    // Table with inline editable selects
     h += '<div style="overflow-x:auto;"><table class="client-table">';
-    h += '<thead><tr><th>Titre</th><th>Onglet</th><th>Catégorie</th><th>Programme min</th><th>Jour</th><th>Assigné à</th><th></th></tr></thead>';
+    h += '<thead><tr><th>Titre</th><th>Onglet</th><th>Catégorie</th><th>Programme</th><th>Jour</th><th>Assigné à</th><th></th></tr></thead>';
     h += '<tbody>';
-    d.forEach(function(doc, i) {
+    if (d.length === 0) {
+      h += '<tr><td colspan="7" style="text-align:center;color:var(--color-text-muted);padding:var(--space-xl);">Aucun document</td></tr>';
+    }
+    d.forEach(function(doc) {
+      var idx = allDocs.indexOf(doc);
       var assignNames = '';
-      if (doc.category === 'C' && doc.assignedTo.length) {
+      if (doc.category === 'C' && doc.assignedTo && doc.assignedTo.length) {
         assignNames = doc.assignedTo.map(function(tok) {
           var cl = state.clients.find(function(c) { return c.token === tok; });
-          return cl ? cl.firstName + ' ' + cl.lastName : tok.slice(0,8);
+          return cl ? cl.firstName : tok.slice(0,6);
         }).join(', ');
       }
       h += '<tr>';
       h += '<td><strong>' + esc(doc.title) + '</strong></td>';
-      h += '<td><span class="badge badge--active" style="font-size:9px;">' + (tabLabels[doc.tab] || doc.tab) + '</span></td>';
-      h += '<td>' + (catLabels[doc.category] || doc.category) + '</td>';
-      h += '<td>' + (doc.minProgram || '—') + '</td>';
-      h += '<td>J' + (doc.dayStart || 0) + '</td>';
+      // Inline editable: onglet
+      h += '<td><select class="doc-edit-tab" data-idx="' + idx + '" style="font-size:var(--text-xs);padding:2px 4px;border:1px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;">';
+      Object.keys(tabLabels).forEach(function(k) { h += '<option value="' + k + '"' + (doc.tab === k ? ' selected' : '') + '>' + tabLabels[k] + '</option>'; });
+      h += '</select></td>';
+      // Inline editable: catégorie
+      h += '<td><select class="doc-edit-cat" data-idx="' + idx + '" style="font-size:var(--text-xs);padding:2px 4px;border:1px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;">';
+      ['A','B','C'].forEach(function(c) { h += '<option value="' + c + '"' + (doc.category === c ? ' selected' : '') + '>' + catLabels[c] + '</option>'; });
+      h += '</select></td>';
+      // Inline editable: programme min
+      h += '<td><select class="doc-edit-prog" data-idx="' + idx + '" style="font-size:var(--text-xs);padding:2px 4px;border:1px solid var(--color-border);border-radius:var(--radius-sm);cursor:pointer;">';
+      h += '<option value=""' + (!doc.minProgram ? ' selected' : '') + '>—</option>';
+      h += '<option value="reset21"' + (doc.minProgram === 'reset21' ? ' selected' : '') + '>Reset 21</option>';
+      h += '<option value="evolution"' + (doc.minProgram === 'evolution' ? ' selected' : '') + '>Evolution</option>';
+      h += '</select></td>';
+      // Inline editable: jour
+      h += '<td><input type="number" class="doc-edit-day" data-idx="' + idx + '" value="' + (doc.dayStart || 0) + '" min="0" style="width:50px;font-size:var(--text-xs);padding:2px 4px;border:1px solid var(--color-border);border-radius:var(--radius-sm);text-align:center;"></td>';
       h += '<td style="font-size:var(--text-xs);">' + (assignNames || '—') + '</td>';
-      h += '<td><button class="btn btn--outline btn--sm remove-doc-btn" data-idx="' + i + '" style="font-size:var(--text-xs);color:#c44;border-color:#c44;padding:2px 8px;">×</button></td>';
+      h += '<td><button class="btn btn--outline btn--sm remove-doc-btn" data-idx="' + idx + '" style="font-size:var(--text-xs);color:#c44;border-color:#c44;padding:2px 8px;">×</button></td>';
       h += '</tr>';
     });
     h += '</tbody></table></div>';
@@ -641,6 +679,37 @@
     if (addDocBtn) addDocBtn.addEventListener('click', function() {
       var form = document.getElementById('add-doc-form');
       if (form) form.style.display = form.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Contenus: category filter (cards)
+    document.querySelectorAll('.doc-cat-filter').forEach(function(card) {
+      card.addEventListener('click', function() {
+        state.filterDocCat = this.dataset.cat;
+        render();
+      });
+    });
+    // Contenus: tab filter
+    document.querySelectorAll('.doc-tab-filter').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.filterDocTab = this.dataset.tab;
+        render();
+      });
+    });
+    // Contenus: inline edit tab
+    document.querySelectorAll('.doc-edit-tab').forEach(function(sel) {
+      sel.addEventListener('change', function() { state.docs[parseInt(this.dataset.idx)].tab = this.value; showToast('Onglet modifié'); });
+    });
+    // Contenus: inline edit category
+    document.querySelectorAll('.doc-edit-cat').forEach(function(sel) {
+      sel.addEventListener('change', function() { state.docs[parseInt(this.dataset.idx)].category = this.value; showToast('Catégorie modifiée'); });
+    });
+    // Contenus: inline edit programme
+    document.querySelectorAll('.doc-edit-prog').forEach(function(sel) {
+      sel.addEventListener('change', function() { state.docs[parseInt(this.dataset.idx)].minProgram = this.value; showToast('Programme modifié'); });
+    });
+    // Contenus: inline edit day
+    document.querySelectorAll('.doc-edit-day').forEach(function(inp) {
+      inp.addEventListener('change', function() { state.docs[parseInt(this.dataset.idx)].dayStart = parseInt(this.value) || 0; showToast('Jour modifié'); });
     });
 
     // Doc category change → show/hide assign
