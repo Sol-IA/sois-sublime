@@ -1,0 +1,163 @@
+<!--
+  Template email branded Sois Sublime
+  ────────────────────────────────────
+  Usage : copier ce HTML dans l'outil d'envoi (Brevo, n8n, lead.php, send.php).
+  Remplacer les placeholders {{VARIABLE}} par le contenu réel.
+
+  Placeholders disponibles :
+    {{PREHEADER}}    — Texte d'aperçu (50-100 car, masqué dans l'email)
+    {{TITLE}}        — Titre principal de l'email
+    {{SUBTITLE}}     — Sous-titre optionnel
+    {{BODY_HTML}}    — Corps du message en HTML (paragraphes, listes...)
+    {{CTA_URL}}      — URL du bouton principal
+    {{CTA_LABEL}}    — Texte du bouton
+    {{SIGNATURE}}    — Texte de signature (Sandra, Sois Sublime, etc.)
+    {{UNSUBSCRIBE}}  — Lien de désinscription (obligatoire pour marketing)
+
+  Compatible Gmail, Outlook, Apple Mail, Yahoo, Thunderbird.
+  Largeur max 600px. Tables imbriquées pour compat Outlook.
+  Couleurs inline, pas de classes CSS (sauf media queries).
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="fr">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="x-apple-disable-message-reformatting" />
+<title>Sois Sublime</title>
+<!--[if mso]>
+<style type="text/css">
+  table { border-collapse: collapse; }
+  td, th { font-family: Georgia, serif !important; }
+</style>
+<![endif]-->
+<style type="text/css">
+  body { margin: 0 !important; padding: 0 !important; background-color: #FDEFEC; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  table { border-collapse: collapse; }
+  img { border: 0; display: block; outline: none; text-decoration: none; -ms-interpolation-mode: bicubic; }
+  a { color: #5A0303; text-decoration: underline; }
+  a.btn { text-decoration: none !important; }
+  @media screen and (max-width: 600px) {
+    .container { width: 100% !important; }
+    .px { padding-left: 20px !important; padding-right: 20px !important; }
+    h1 { font-size: 26px !important; }
+    h2 { font-size: 20px !important; }
+  }
+</style>
+</head>
+<body bgcolor="#FDEFEC" style="margin:0;padding:0;background-color:#FDEFEC;">
+
+<!-- Preheader (texte d'aperçu) -->
+<div style="display:none;max-height:0;overflow:hidden;font-size:1px;line-height:1px;color:#FDEFEC;opacity:0;">
+  {{PREHEADER}}
+</div>
+
+<!-- Wrapper -->
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" bgcolor="#FDEFEC">
+  <tr>
+    <td align="center" style="padding: 30px 10px;">
+
+      <!-- Container 600px -->
+      <table role="presentation" class="container" width="600" cellpadding="0" cellspacing="0" border="0" bgcolor="#FFFFFF" style="width:600px;max-width:600px;border-radius:8px;overflow:hidden;box-shadow:0 4px 20px rgba(90,3,3,0.08);">
+
+        <!-- Header bordeaux -->
+        <tr>
+          <td bgcolor="#5A0303" align="center" style="background:linear-gradient(135deg,#5A0303 0%,#7A1020 100%);padding:28px 20px;">
+            <img src="https://sois-sublime.fr/assets-sandra/logo-sandra-prune.svg" alt="Sois Sublime" width="64" height="64" style="display:block;margin:0 auto;" />
+            <div style="font-family:Georgia,'Cormorant Garamond',serif;color:#FDEFEC;font-size:22px;font-weight:400;letter-spacing:2px;margin-top:10px;text-transform:uppercase;">Sois Sublime</div>
+            <div style="font-family:-apple-system,Arial,sans-serif;color:rgba(253,239,236,0.75);font-size:11px;letter-spacing:1px;margin-top:4px;text-transform:uppercase;">Par Sandra Gabriel</div>
+          </td>
+        </tr>
+
+        <!-- Bande corail -->
+        <tr>
+          <td bgcolor="#F13D52" height="4" style="height:4px;line-height:4px;font-size:0;">&nbsp;</td>
+        </tr>
+
+        <!-- Body -->
+        <tr>
+          <td class="px" style="padding: 40px 40px 20px 40px;font-family:-apple-system,Arial,sans-serif;color:#3D1F1A;">
+
+            <!-- Titre -->
+            <h1 style="margin:0 0 8px;font-family:Georgia,'Cormorant Garamond',serif;font-size:32px;font-weight:400;color:#5A0303;line-height:1.2;">
+              {{TITLE}}
+            </h1>
+
+            <!-- Sous-titre (optionnel) -->
+            <p style="margin:0 0 24px;font-size:14px;color:#F13D52;text-transform:uppercase;letter-spacing:1.5px;font-weight:500;">
+              {{SUBTITLE}}
+            </p>
+
+            <!-- Ligne corail -->
+            <div style="width:60px;height:2px;background-color:#F13D52;margin:0 0 24px;"></div>
+
+            <!-- Corps -->
+            <div style="font-size:16px;line-height:1.65;color:#3D1F1A;">
+              {{BODY_HTML}}
+            </div>
+
+          </td>
+        </tr>
+
+        <!-- CTA -->
+        <tr>
+          <td class="px" align="center" style="padding: 10px 40px 40px 40px;">
+            <table role="presentation" cellpadding="0" cellspacing="0" border="0">
+              <tr>
+                <td bgcolor="#F13D52" style="border-radius:999px;">
+                  <a class="btn" href="{{CTA_URL}}" target="_blank"
+                     style="display:inline-block;padding:16px 36px;font-family:Georgia,serif;font-size:15px;font-weight:600;color:#FFFFFF;text-decoration:none;letter-spacing:1px;text-transform:uppercase;border-radius:999px;">
+                    {{CTA_LABEL}}
+                  </a>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
+
+        <!-- Signature -->
+        <tr>
+          <td class="px" style="padding: 0 40px 30px 40px;font-family:Georgia,serif;font-size:16px;color:#5A0303;font-style:italic;">
+            {{SIGNATURE}}
+          </td>
+        </tr>
+
+        <!-- Séparateur -->
+        <tr>
+          <td class="px" style="padding: 0 40px;">
+            <div style="border-top:1px solid #F0D4CF;"></div>
+          </td>
+        </tr>
+
+        <!-- Footer -->
+        <tr>
+          <td class="px" align="center" style="padding: 24px 40px 30px 40px;font-family:-apple-system,Arial,sans-serif;font-size:12px;color:#8B6F68;line-height:1.6;">
+            <p style="margin:0 0 8px;">
+              <strong style="color:#5A0303;">Sois Sublime</strong> — Sandra Gabriel<br />
+              Coaching nutrition, beauté &amp; bien-être · 100% en ligne
+            </p>
+            <p style="margin:0 0 12px;">
+              <a href="https://sois-sublime.fr" style="color:#F13D52;text-decoration:none;">sois-sublime.fr</a> ·
+              <a href="https://www.instagram.com/sois_sublime" style="color:#F13D52;text-decoration:none;">Instagram</a> ·
+              <a href="https://wa.me/33612452960" style="color:#F13D52;text-decoration:none;">WhatsApp</a>
+            </p>
+            <p style="margin:0 0 12px;font-size:11px;color:#B09994;font-style:italic;">
+              Sois Sublime est un accompagnement bien-être. Il ne remplace pas un avis médical, un diagnostic ou un traitement par un professionnel de santé.
+            </p>
+            <p style="margin:0;font-size:11px;color:#B09994;">
+              Tu reçois cet email car tu es inscrite chez Sois Sublime.<br />
+              <a href="{{UNSUBSCRIBE}}" style="color:#B09994;text-decoration:underline;">Se désinscrire</a> ·
+              <a href="https://sois-sublime.fr/politique-confidentialite.html" style="color:#B09994;text-decoration:underline;">Politique de confidentialité</a>
+            </p>
+          </td>
+        </tr>
+
+      </table>
+      <!-- /Container -->
+
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

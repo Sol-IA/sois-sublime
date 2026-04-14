@@ -227,4 +227,66 @@
       .catch(function() { /* fallback: keep the static HTML */ });
   }
 
+  /* ═══ SCROLL PROGRESS (articles blog) ═══ */
+  if (path.indexOf('/blog/') !== -1 && path.indexOf('blog.html') === -1) {
+    var bar = document.createElement('div');
+    bar.className = 'scroll-progress';
+    bar.setAttribute('aria-hidden', 'true');
+    document.body.appendChild(bar);
+    var updateBar = function() {
+      var h = document.documentElement;
+      var total = h.scrollHeight - h.clientHeight;
+      var pct = total > 0 ? (h.scrollTop / total) * 100 : 0;
+      bar.style.width = pct + '%';
+    };
+    window.addEventListener('scroll', updateBar, { passive: true });
+    updateBar();
+  }
+
+  /* ═══ EXIT-INTENT POPUP (lead magnet) ═══ */
+  var popupShown = false;
+  try { popupShown = localStorage.getItem('ss_ebook_popup') === '1'; } catch(e) {}
+  if (!popupShown && path.indexOf('/merci') === -1 && path.indexOf('/espace/') === -1 && path.indexOf('/admin/') === -1) {
+    var onMouseLeave = function(e) {
+      if (e.clientY > 10 || popupShown) return;
+      popupShown = true;
+      try { localStorage.setItem('ss_ebook_popup', '1'); } catch(e) {}
+      showExitPopup();
+      document.removeEventListener('mouseleave', onMouseLeave);
+    };
+    var showExitPopup = function() {
+      var overlay = document.createElement('div');
+      overlay.className = 'exit-popup';
+      overlay.innerHTML =
+        '<div class="exit-popup__inner" role="dialog" aria-modal="true" aria-labelledby="exit-popup-title">' +
+          '<button class="exit-popup__close" aria-label="Fermer">&times;</button>' +
+          '<img src="/assets-sandra/icon-book.svg" alt="" class="exit-popup__icon" width="60" height="60">' +
+          '<span class="subtitle">Attends !</span>' +
+          '<h3 id="exit-popup-title">Ton ebook offert t\u2019attend</h3>' +
+          '<p>Avant de partir, prends ton guide <strong>"Quand tu te choisis"</strong>. Il t\u2019aidera \u00e0 reprendre le pouvoir sur ton bien-\u00eatre.</p>' +
+          '<a class="btn btn--primary btn--lg" href="/contact.html#lead-magnet">Je le r\u00e9cup\u00e8re</a>' +
+        '</div>';
+      // Fix img path for nested pages (/blog/)
+      if (path.indexOf('/blog/') !== -1) {
+        overlay.querySelector('img').setAttribute('src', '../assets-sandra/icon-book.svg');
+        overlay.querySelector('a').setAttribute('href', '../contact.html#lead-magnet');
+      }
+      document.body.appendChild(overlay);
+      requestAnimationFrame(function() { overlay.classList.add('exit-popup--visible'); });
+      var close = function() {
+        overlay.classList.remove('exit-popup--visible');
+        setTimeout(function() { overlay.remove(); }, 300);
+      };
+      overlay.querySelector('.exit-popup__close').addEventListener('click', close);
+      overlay.addEventListener('click', function(e) { if (e.target === overlay) close(); });
+      document.addEventListener('keydown', function esc(e) {
+        if (e.key === 'Escape') { close(); document.removeEventListener('keydown', esc); }
+      });
+    };
+    // Enable only after 5 seconds on page (avoid early misfires)
+    setTimeout(function() {
+      document.addEventListener('mouseleave', onMouseLeave);
+    }, 5000);
+  }
+
 })();

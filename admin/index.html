@@ -92,7 +92,8 @@
       coachNotes: [
         { date: '2026-04-07', text: 'Super progrès cette semaine Marie ! Tes habitudes se mettent bien en place. Continue comme ça.' },
         { date: '2026-03-25', text: 'On a travaillé sur la composition des petits-déjeuners. Marie a bien compris le principe IG Bas. RDV dans 2 semaines.' }
-      ]
+      ],
+      privateNotes: 'Maman de 2 enfants (3 et 6 ans). Belle-mère très présente, source de pression. Déteste le quinoa. A déjà essayé WW, Dukan. Très motivée mais impatiente.'
     },
     {
       token: 'jkl012-mno345-pqr678',
@@ -109,7 +110,8 @@
       tracker: [
         { date: '2026-04-11', fringales: 'oui', activite: 'non', respect: 'a_peu_pres', humeur: 'pas_top', moment_soi: 'non', difficulte: 'oui', notes: 'Difficile aujourd\'hui', coachComment: '' }
       ],
-      coachNotes: []
+      coachNotes: [],
+      privateNotes: ''
     },
     {
       token: 'stu901-vwx234-yza567',
@@ -129,7 +131,8 @@
       ],
       coachNotes: [
         { date: '2026-01-30', text: 'Programme terminé. Isabelle a perdu 3kg et se sent beaucoup mieux. On envisage un passage à Evolution.' }
-      ]
+      ],
+      privateNotes: 'A perdu 3kg sur Reset 21. Ouverte à Evolution. Rappeler fin avril.'
     },
     {
       token: '',
@@ -144,7 +147,8 @@
       paniers: [],
       ebooks: [],
       tracker: [],
-      coachNotes: []
+      coachNotes: [],
+      privateNotes: ''
     }
   ];
 
@@ -171,11 +175,30 @@
   ];
 
   /* ═══ STATE ═══ */
-  var state = { view: 'list', clients: [], docs: [], leads: [], team: [], selectedToken: null, noteText: '', search: '', filterStatus: 'all', filterProgram: 'all', filterDocCat: 'all', filterDocTab: 'all' };
+  var state = { view: 'dashboard', clients: [], docs: [], leads: [], team: [], selectedToken: null, noteText: '', search: '', filterStatus: 'all', filterProgram: 'all', filterDocCat: 'all', filterDocTab: 'all' };
   var app = document.getElementById('app');
 
   /* ═══ UTILS ═══ */
   function esc(s) { var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+  function downloadCSV(rows, filename) {
+    var csv = rows.map(function(r) {
+      return r.map(function(cell) {
+        var v = String(cell == null ? '' : cell);
+        if (v.indexOf(';') !== -1 || v.indexOf('"') !== -1 || v.indexOf('\n') !== -1) {
+          v = '"' + v.replace(/"/g, '""') + '"';
+        }
+        return v;
+      }).join(';');
+    }).join('\n');
+    var blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    var link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    showToast('Export ' + filename + ' téléchargé');
+  }
   function formatDate(d) { if (!d) return '—'; var p = d.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
   function showToast(msg) { var t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(function() { t.classList.remove('show'); }, 3000); }
   function statusLabel(s) {
@@ -193,6 +216,13 @@
       state.docs = MOCK_DOCS;
       state.leads = MOCK_LEADS;
       state.team = MOCK_TEAM;
+      // Restaurer les notes privées depuis localStorage
+      state.clients.forEach(function(cl) {
+        try {
+          var saved = localStorage.getItem('ss_private_notes_' + (cl.token || cl.email));
+          if (saved !== null) cl.privateNotes = saved;
+        } catch(e) {}
+      });
       render();
       return;
     }
@@ -206,7 +236,8 @@
   function render() {
     var h = renderHeader();
     h += renderAdminNav();
-    if (state.view === 'list') { h += renderList(); }
+    if (state.view === 'dashboard') { h += renderDashboard(); }
+    else if (state.view === 'list') { h += renderList(); }
     else if (state.view === 'detail') { h += renderDetail(); }
     else if (state.view === 'contenus') { h += renderContenus(); }
     else if (state.view === 'leads') { h += renderLeads(); }
@@ -217,6 +248,7 @@
 
   function renderAdminNav() {
     var tabs = [
+      { id: 'dashboard', label: 'Aujourd\'hui', ico: '&#x2600;' },
       { id: 'list', label: 'Clientes', ico: '&#x1F465;' },
       { id: 'contenus', label: 'Contenus', ico: '&#x1F4C1;' },
       { id: 'leads', label: 'Leads', ico: '&#x1F4E9;' },
@@ -224,7 +256,7 @@
     ];
     var h = '<div class="tab-bar" style="position:sticky;top:var(--header-h);z-index:99;">';
     tabs.forEach(function(t) {
-      var active = state.view === t.id || (t.id === 'list' && state.view === 'detail');
+      var active = state.view === t.id || (t.id === 'list' && state.view === 'detail') || (t.id === 'dashboard' && state.view === 'dashboard');
       h += '<button class="tab-btn' + (active ? ' active' : '') + '" data-admin-tab="' + t.id + '">' +
         '<span class="tab-btn__icon">' + t.ico + '</span><span class="tab-btn__label">' + t.label + '</span>' +
         (t.id === 'leads' ? '<span style="background:var(--color-accent);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;margin-left:4px;">' + state.leads.length + '</span>' : '') +
@@ -242,6 +274,117 @@
   }
 
   /* ═══ LIST VIEW ═══ */
+
+  /* ═══ DASHBOARD — ACTION DU JOUR ═══ */
+  function renderDashboard() {
+    var today = new Date();
+    var todayISO = today.toISOString().slice(0,10);
+    var in7Days = new Date(today.getTime() + 7*86400000).toISOString().slice(0,10);
+
+    // Compute actionable items
+    var endingSoon = state.clients.filter(function(cl) {
+      return cl.status === 'active' && cl.endDate && cl.endDate <= in7Days && cl.endDate >= todayISO;
+    });
+    var pending = state.clients.filter(function(cl) { return cl.status === 'pending'; });
+    var staleNotes = state.clients.filter(function(cl) {
+      if (cl.status !== 'active' || !cl.coachNotes || cl.coachNotes.length === 0) return false;
+      var lastNote = cl.coachNotes[0].date;
+      var daysSince = (today - new Date(lastNote)) / 86400000;
+      return daysSince > 10;
+    });
+    var newLeads = state.leads.filter(function(l) {
+      var daysSince = (today - new Date(l.date)) / 86400000;
+      return daysSince <= 7;
+    });
+    var toCallLeads = state.leads.filter(function(l) { return !l.called; });
+
+    var totalActions = endingSoon.length + pending.length + staleNotes.length + newLeads.length + toCallLeads.length;
+
+    var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-sm);margin-bottom:var(--space-lg);">';
+    h += '<div><h2 style="margin:0;">Aujourd\'hui</h2>';
+    h += '<p style="margin:4px 0 0;color:var(--color-text-muted);font-size:var(--text-sm);">' + today.toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long', year:'numeric'}) + '</p></div>';
+    h += '<span class="badge badge--active" style="font-size:var(--text-sm);padding:6px 14px;">' + totalActions + ' action' + (totalActions > 1 ? 's' : '') + ' du jour</span>';
+    h += '</div>';
+
+    if (totalActions === 0) {
+      h += '<div class="card" style="padding:var(--space-xl);text-align:center;">';
+      h += '<div style="font-size:48px;margin-bottom:var(--space-sm);">&#x2728;</div>';
+      h += '<h3 style="margin-bottom:var(--space-xs);">Tu es à jour !</h3>';
+      h += '<p style="color:var(--color-text-muted);">Aucune action urgente aujourd\'hui. Profite de ce moment pour toi.</p>';
+      h += '</div>';
+    } else {
+      // ── Nouvelles leads à rappeler ──
+      if (newLeads.length > 0) {
+        h += '<div class="card" style="margin-bottom:var(--space-md);padding:var(--space-md);border-left:4px solid #F13D52;">';
+        h += '<h3 style="font-size:var(--text-base);margin-bottom:var(--space-sm);">&#x1F4E9; Nouvelles leads à contacter (' + newLeads.length + ')</h3>';
+        newLeads.forEach(function(l) {
+          h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-xs) 0;border-bottom:1px solid var(--color-border-light);gap:var(--space-sm);flex-wrap:wrap;">';
+          h += '<div><strong>' + esc(l.prenom + ' ' + l.nom) + '</strong> <span style="font-size:var(--text-xs);color:var(--color-text-muted);">' + formatDate(l.date) + '</span></div>';
+          h += '<div style="display:flex;gap:var(--space-xs);">';
+          if (l.telephone) h += '<a href="https://wa.me/33' + l.telephone.replace(/\s/g,'').replace(/^0/,'') + '" target="_blank" class="btn btn--outline btn--sm" style="font-size:var(--text-xs);border-color:#25D366;color:#25D366;padding:3px 10px;">WhatsApp</a>';
+          h += '<a href="mailto:' + esc(l.email) + '" class="btn btn--outline btn--sm" style="font-size:var(--text-xs);padding:3px 10px;">Email</a>';
+          h += '</div></div>';
+        });
+        h += '<button class="btn btn--outline btn--sm" data-admin-tab="leads" style="margin-top:var(--space-sm);">Voir tous les leads &rarr;</button>';
+        h += '</div>';
+      }
+
+      // ── Clientes à activer ──
+      if (pending.length > 0) {
+        h += '<div class="card" style="margin-bottom:var(--space-md);padding:var(--space-md);border-left:4px solid #e65100;">';
+        h += '<h3 style="font-size:var(--text-base);margin-bottom:var(--space-sm);">&#x26A1; Clientes en attente d\'activation (' + pending.length + ')</h3>';
+        pending.forEach(function(cl) {
+          h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-xs) 0;border-bottom:1px solid var(--color-border-light);gap:var(--space-sm);flex-wrap:wrap;">';
+          h += '<div><strong>' + esc(cl.firstName + ' ' + cl.lastName) + '</strong> <span style="font-size:var(--text-xs);color:var(--color-text-muted);">' + esc(cl.programName) + '</span></div>';
+          h += '<button class="btn btn--primary btn--sm dashboard-goto" data-token="' + esc(cl.token || cl.email) + '" style="font-size:var(--text-xs);">Ouvrir la fiche</button>';
+          h += '</div>';
+        });
+        h += '</div>';
+      }
+
+      // ── Programmes se terminant bientôt ──
+      if (endingSoon.length > 0) {
+        h += '<div class="card" style="margin-bottom:var(--space-md);padding:var(--space-md);border-left:4px solid #F13D52;">';
+        h += '<h3 style="font-size:var(--text-base);margin-bottom:var(--space-sm);">&#x23F0; Programmes se terminant dans 7 jours (' + endingSoon.length + ')</h3>';
+        endingSoon.forEach(function(cl) {
+          h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-xs) 0;border-bottom:1px solid var(--color-border-light);gap:var(--space-sm);flex-wrap:wrap;">';
+          h += '<div><strong>' + esc(cl.firstName + ' ' + cl.lastName) + '</strong> <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Fin ' + formatDate(cl.endDate) + '</span></div>';
+          h += '<button class="btn btn--outline btn--sm dashboard-goto" data-token="' + esc(cl.token || cl.email) + '" style="font-size:var(--text-xs);">Ouvrir la fiche</button>';
+          h += '</div>';
+        });
+        h += '</div>';
+      }
+
+      // ── Clientes sans suivi récent ──
+      if (staleNotes.length > 0) {
+        h += '<div class="card" style="margin-bottom:var(--space-md);padding:var(--space-md);border-left:4px solid #9A9A9A;">';
+        h += '<h3 style="font-size:var(--text-base);margin-bottom:var(--space-sm);">&#x1F4AD; Clientes sans suivi récent (' + staleNotes.length + ')</h3>';
+        h += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-sm);">Pas de compte-rendu depuis plus de 10 jours.</p>';
+        staleNotes.forEach(function(cl) {
+          var lastNoteDate = cl.coachNotes[0].date;
+          h += '<div style="display:flex;justify-content:space-between;align-items:center;padding:var(--space-xs) 0;border-bottom:1px solid var(--color-border-light);gap:var(--space-sm);flex-wrap:wrap;">';
+          h += '<div><strong>' + esc(cl.firstName + ' ' + cl.lastName) + '</strong> <span style="font-size:var(--text-xs);color:var(--color-text-muted);">Dernière note : ' + formatDate(lastNoteDate) + '</span></div>';
+          h += '<button class="btn btn--outline btn--sm dashboard-goto" data-token="' + esc(cl.token || cl.email) + '" style="font-size:var(--text-xs);">Ajouter un CR</button>';
+          h += '</div>';
+        });
+        h += '</div>';
+      }
+    }
+
+    // ── Résumé rapide ──
+    var activeCount = state.clients.filter(function(c) { return c.status === 'active'; }).length;
+    h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:var(--space-sm);margin-top:var(--space-lg);">';
+    h += '<div class="stat-card"><div class="stat-card__number">' + activeCount + '</div><div class="stat-card__label">Clientes actives</div></div>';
+    h += '<div class="stat-card"><div class="stat-card__number">' + state.leads.length + '</div><div class="stat-card__label">Leads total</div></div>';
+    h += '<div class="stat-card"><div class="stat-card__number">' + state.clients.length + '</div><div class="stat-card__label">Clientes total</div></div>';
+    h += '<div class="stat-card"><div class="stat-card__number">' + state.team.length + '</div><div class="stat-card__label">Équipe</div></div>';
+    h += '</div>';
+
+    h += '</div>';
+    return h;
+  }
+
   function renderList() {
     var all = state.clients;
     var active = all.filter(function(cl) { return cl.status === 'active'; }).length;
@@ -275,6 +418,7 @@
     // Search + programme filter
     h += '<div style="display:flex;gap:var(--space-sm);margin-bottom:var(--space-md);flex-wrap:wrap;align-items:center;">';
     h += '<input type="text" id="search-input" class="form__input" value="' + esc(state.search) + '" placeholder="Rechercher par nom, email, tel..." style="flex:1;min-width:200px;padding:8px 14px;font-size:var(--text-sm);">';
+    h += '<button class="btn btn--outline btn--sm" id="export-clients-csv" style="white-space:nowrap;">&darr; Exporter CSV</button>';
     h += '<select id="filter-program" class="form__input" style="width:auto;padding:8px 14px;font-size:var(--text-sm);cursor:pointer;">';
     h += '<option value="all"' + (state.filterProgram === 'all' ? ' selected' : '') + '>Tous les programmes</option>';
     h += '<option value="reset21"' + (state.filterProgram === 'reset21' ? ' selected' : '') + '>Reset 21</option>';
@@ -493,6 +637,14 @@
 
     h += '</div>';
 
+    // ── Notes privées (mémo perso Sandra) ──
+    h += '<div class="card" style="margin-bottom:var(--space-lg);padding:var(--space-lg);background:#fff9f6;border-left:4px solid var(--color-accent);">';
+    h += '<h3 style="margin-bottom:var(--space-xs);">Notes privées</h3>';
+    h += '<p style="font-size:var(--text-xs);color:var(--color-text-muted);margin-bottom:var(--space-sm);">Mémo perso, non visible par la cliente. Contexte, préférences, points de vigilance.</p>';
+    h += '<textarea id="private-notes-textarea" class="form__textarea" placeholder="Ex: Maman de 2 enfants, déteste le quinoa, très motivée mais impatiente..." style="min-height:80px;">' + esc(cl.privateNotes || '') + '</textarea>';
+    h += '<button class="btn btn--outline btn--sm" id="save-private-notes-btn" style="margin-top:var(--space-sm);">Enregistrer les notes</button>';
+    h += '</div>';
+
     // Add note
     h += '<div class="note-form">';
     h += '<h3 style="margin-bottom:var(--space-sm);">Ajouter un compte-rendu</h3>';
@@ -684,7 +836,10 @@
     var dureeLabels = { moins_6_mois: 'Moins de 6 mois', '6_mois_2_ans': 'Entre 6 mois et 2 ans', plus_2_ans: 'Plus de 2 ans' };
 
     var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
-    h += '<h2 style="margin-bottom:var(--space-lg);">Leads collectés <span style="font-size:var(--text-sm);color:var(--color-text-muted);">(' + leads.length + ')</span></h2>';
+    h += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-sm);margin-bottom:var(--space-lg);">';
+    h += '<h2 style="margin:0;">Leads collectés <span style="font-size:var(--text-sm);color:var(--color-text-muted);">(' + leads.length + ')</span></h2>';
+    h += '<button class="btn btn--outline btn--sm" id="export-leads-csv">&darr; Exporter CSV</button>';
+    h += '</div>';
 
     if (leads.length === 0) {
       h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Aucun lead pour le moment.</div>';
@@ -724,6 +879,54 @@
     // Admin nav tabs
     document.querySelectorAll('[data-admin-tab]').forEach(function(btn) {
       btn.addEventListener('click', function() { state.view = this.dataset.adminTab; render(); window.scrollTo(0,0); });
+    });
+
+    // Dashboard — ouvrir fiche cliente
+    document.querySelectorAll('.dashboard-goto').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.selectedToken = this.dataset.token;
+        state.view = 'detail';
+        render();
+        window.scrollTo(0,0);
+      });
+    });
+
+    // Notes privées
+    var savePrivNotesBtn = document.getElementById('save-private-notes-btn');
+    if (savePrivNotesBtn) savePrivNotesBtn.addEventListener('click', function() {
+      var cl = state.clients.find(function(c) { return c.token === state.selectedToken || c.email === state.selectedToken; });
+      if (!cl) return;
+      var ta = document.getElementById('private-notes-textarea');
+      cl.privateNotes = ta.value;
+      try { localStorage.setItem('ss_private_notes_' + (cl.token || cl.email), ta.value); } catch(e) {}
+      showToast('Notes privées enregistrées');
+    });
+
+    // Export CSV — leads
+    var expLeadsBtn = document.getElementById('export-leads-csv');
+    if (expLeadsBtn) expLeadsBtn.addEventListener('click', function() {
+      var objLabels = { perte_poids: 'Perte de poids', vitalite: 'Vitalité & énergie', beaute: 'Beauté & peau', ne_sais_pas: 'Ne sait pas encore' };
+      var dureeLabels = { moins_6_mois: 'Moins de 6 mois', '6_mois_2_ans': '6 mois à 2 ans', plus_2_ans: 'Plus de 2 ans' };
+      var rows = [['Date', 'Prenom', 'Nom', 'Email', 'Telephone', 'Objectif', 'Depuis', 'Regimes', 'Source']];
+      state.leads.forEach(function(l) {
+        rows.push([l.date, l.prenom, l.nom, l.email, l.telephone || '', objLabels[l.objectif] || l.objectif, dureeLabels[l.duree] || l.duree, l.regimes === 'oui' ? 'Oui' : 'Non', l.source]);
+      });
+      downloadCSV(rows, 'leads-sois-sublime-' + new Date().toISOString().slice(0,10) + '.csv');
+    });
+
+    // Export CSV — clientes
+    var expClientsBtn = document.getElementById('export-clients-csv');
+    if (expClientsBtn) expClientsBtn.addEventListener('click', function() {
+      var rows = [['Prenom', 'Nom', 'Email', 'Telephone', 'Programme', 'Statut', 'Debut', 'Fin', 'Envoyee par']];
+      state.clients.forEach(function(cl) {
+        var sentBy = '';
+        if (cl.referredBy) {
+          var t = state.team.find(function(x) { return x.id === cl.referredBy; });
+          sentBy = t ? (t.firstName + ' ' + t.lastName) : '';
+        }
+        rows.push([cl.firstName, cl.lastName, cl.email, cl.phone || '', cl.programName, cl.status, cl.startDate || '', cl.endDate || '', sentBy]);
+      });
+      downloadCSV(rows, 'clientes-sois-sublime-' + new Date().toISOString().slice(0,10) + '.csv');
     });
 
     // Contenus: save doc (inline en bas du tableau)
