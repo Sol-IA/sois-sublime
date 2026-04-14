@@ -1,0 +1,83 @@
+# ═══════════════════════════════════════════════════════════
+# Sois Sublime — .htaccess OVH
+# Migration depuis ancien site WP → nouveau site statique
+# ═══════════════════════════════════════════════════════════
+
+# ── Charset par défaut ───────────────────────────────────
+AddDefaultCharset UTF-8
+
+# ── HTTPS forcé ───────────────────────────────────────────
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteCond %{HTTPS} !=on
+  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+  # www → apex
+  RewriteCond %{HTTP_HOST} ^www\.sois-sublime\.fr$ [NC]
+  RewriteRule ^(.*)$ https://sois-sublime.fr/$1 [R=301,L]
+
+  # ── REDIRECTIONS 301 — Ancien site Sandra → nouveau ────
+  # TODO : récupérer les URLs de l'ancien site depuis /post-sitemap.xml
+  # et /page-sitemap.xml avant de couper WordPress.
+  #
+  # Exemples :
+  # RewriteRule ^ancien-slug-wp/?$ /blog/ce-qui-change-quand-tu-stabilises-ta-glycemie.html [R=301,L]
+  # RewriteRule ^categorie-wp/(.*)$ /blog.html [R=301,L]
+  # RewriteRule ^page-supprimee/?$ /programmes.html [R=301,L]
+
+  # Fallback : toute URL WP inconnue → blog
+  # RewriteRule ^wp-content/(.*)$ - [L]
+  # RewriteRule ^wp-admin/?$ /index.html [R=301,L]
+  # RewriteRule ^wp-login\.php$ /index.html [R=301,L]
+</IfModule>
+
+# ── 404 personnalisée ────────────────────────────────────
+ErrorDocument 404 /404.html
+
+# ── Protection des fichiers sensibles ────────────────────
+<FilesMatch "^(\.htaccess|\.htpasswd|\.env|\.git|composer\.json|package\.json)$">
+  Require all denied
+</FilesMatch>
+<FilesMatch "\.(log|bak|sql)$">
+  Require all denied
+</FilesMatch>
+
+# ── Désactive le listing des dossiers ────────────────────
+Options -Indexes
+
+# ── Compression GZIP ─────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml text/xml application/xml
+</IfModule>
+
+# ── Cache navigateur (expires) ───────────────────────────
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html                 "access plus 1 hour"
+  ExpiresByType text/css                  "access plus 1 month"
+  ExpiresByType application/javascript    "access plus 1 month"
+  ExpiresByType image/jpeg                "access plus 6 months"
+  ExpiresByType image/png                 "access plus 6 months"
+  ExpiresByType image/webp                "access plus 6 months"
+  ExpiresByType image/avif                "access plus 6 months"
+  ExpiresByType image/svg+xml             "access plus 6 months"
+  ExpiresByType font/woff2                "access plus 1 year"
+  ExpiresByType application/pdf           "access plus 1 month"
+</IfModule>
+
+# ── Headers sécurité ─────────────────────────────────────
+<IfModule mod_headers.c>
+  Header set X-Content-Type-Options "nosniff"
+  Header set X-Frame-Options "SAMEORIGIN"
+  Header set Referrer-Policy "strict-origin-when-cross-origin"
+  Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
+  # CSP basique — à durcir après tests complets
+  # Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'"
+</IfModule>
+
+# ── MIME types manquants ─────────────────────────────────
+<IfModule mod_mime.c>
+  AddType image/webp .webp
+  AddType image/avif .avif
+  AddType font/woff2 .woff2
+</IfModule>

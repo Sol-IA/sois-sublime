@@ -2,4 +2,9 @@ User-agent: *
 Allow: /
 Disallow: /espace/
 Disallow: /admin/
+Disallow: /merci-ebook.html
+Disallow: /merci-contact.html
+Disallow: /*.log$
+Disallow: /*.php$
+
 Sitemap: https://sois-sublime.fr/sitemap.xml
