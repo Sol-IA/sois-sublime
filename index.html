@@ -105,7 +105,10 @@
 <!-- ═══ 1. HERO — QUI JE SUIS ═══ -->
 <section class="hero">
   <div class="hero__bg">
-    <img src="assets-sandra/sandra-accueil.avif" alt="Sandra — Coach bien-etre" loading="eager">
+    <picture>
+      <source media="(max-width: 768px)" srcset="assets-sandra/sandra-souri.jpg">
+      <img src="assets-sandra/sandra-accueil.avif" alt="Sandra — Coach bien-etre et nutrition" loading="eager">
+    </picture>
     <div class="hero__overlay"></div>
   </div>
   <div class="hero__content">
@@ -115,8 +118,10 @@
     </div>
     <img src="assets-sandra/logo-sandra-prune.svg" alt="Sois Sublime" class="hero__logo" loading="eager">
     <span class="hero__badge">Sandra Gabriel · Fondatrice de la méthode Sublime Toi !</span>
-    <h1>Coach en rééquilibrage alimentaire & gestion du poids (méthode IG bas) — Vitalité & expertise beauté</h1>
-    <p>Une approche globale en 3 piliers pour rééquilibrer ton alimentation, relancer ton énergie, sublimer ta peau et transformer durablement ton corps et ton bien-être.</p>
+    <div class="hero__mobile-bottom">
+      <h1>Coach en rééquilibrage alimentaire & gestion du poids (méthode IG bas) — Vitalité & expertise beauté</h1>
+      <p>Une approche globale en 3 piliers pour rééquilibrer ton alimentation, relancer ton énergie, sublimer ta peau et transformer durablement ton corps et ton bien-être.</p>
+    </div>
   </div>
 </section>
 
@@ -189,7 +194,7 @@
   <div class="container">
     <div class="split fade-in">
       <div class="split__img">
-        <img src="assets-sandra/sandra-a-propos.avif" alt="Sandra Grabielle" loading="lazy">
+        <img src="assets-sandra/sandra-bureau.jpg" alt="Sandra Gabriel dans son bureau" loading="lazy">
       </div>
       <div class="split__text">
         <span class="subtitle">Qui suis-je</span>
@@ -228,14 +233,13 @@
 </section>
 
 
-<!-- ═══ LEAD MAGNET (commenté — à activer quand Sandra fournit l'e-book) ═══ -->
-<!--
+<!-- ═══ LEAD MAGNET ═══ -->
 <section class="section section--rose" id="lead-magnet">
   <div class="container container--narrow" style="text-align:center;">
     <span class="subtitle">Un cadeau pour toi</span>
-    <h2>[Titre de l'e-book — à compléter]</h2>
+    <h2>"Quand tu te choisis" — Mon ebook offert</h2>
     <div class="section-line"></div>
-    <p>[Description — à compléter]</p>
+    <p>Un guide inspirant pour reprendre le pouvoir sur ton bien-être, ton énergie et ta beauté. Laisse-moi ton email, je te l'envoie gratuitement.</p>
     <form action="lead.php" method="POST" style="max-width:500px;margin:var(--space-md) auto 0;">
       <div aria-hidden="true" style="display:none;"><input name="website" type="text" tabindex="-1" autocomplete="off"></div>
       <div class="grid grid--2" style="gap:var(--space-xs);">
@@ -269,11 +273,10 @@
         <input type="checkbox" name="rgpd" required style="margin-top:4px;">
         <label style="font-size:var(--text-xs);color:var(--color-text-light);cursor:pointer;">J'accepte de recevoir l'e-book et d'être contactée. <a href="politique-confidentialite.html" style="color:var(--color-accent);">Confidentialité</a></label>
       </div>
-      <button class="btn btn--primary btn--lg" type="submit" style="width:100%;">Je veux mon e-book gratuit</button>
+      <button class="btn btn--primary btn--lg" type="submit" style="width:100%;">Recevoir mon ebook gratuit</button>
     </form>
   </div>
 </section>
--->
 
 <!-- ═══ 7. CTA FINAL — 3 CHOIX ═══ -->
 <section class="section section--bg" id="contact">
