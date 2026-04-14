@@ -42,14 +42,14 @@
     ],
     tracker: {
       entries: [
-        { date: '2026-04-11', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: '', coachComment: 'Bravo Marie, 3 seances de sport cette semaine ! Continue.' },
-        { date: '2026-04-10', fringales: 'un_peu', activite: 'marche', respect: 'a_peu_pres', humeur: 'stable', moment_soi: 'un_peu', difficulte: 'non', notes: 'Journee chargee', coachComment: '' },
-        { date: '2026-04-09', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: 'Super seance !', coachComment: 'Top ! Tu prends le rythme.' },
+        { date: '2026-04-11', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: '', coachComment: 'Bravo Marie, 3 séances de sport cette semaine ! Continue.' },
+        { date: '2026-04-10', fringales: 'un_peu', activite: 'marche', respect: 'a_peu_pres', humeur: 'stable', moment_soi: 'un_peu', difficulte: 'non', notes: 'Journée chargée', coachComment: '' },
+        { date: '2026-04-09', fringales: 'non', activite: 'sport', respect: 'oui', humeur: 'forme', moment_soi: 'oui', difficulte: 'non', notes: 'Super séance !', coachComment: 'Top ! Tu prends le rythme.' },
         { date: '2026-04-08', fringales: 'non', activite: 'non', respect: 'oui', humeur: 'stable', moment_soi: 'non', difficulte: 'non', notes: '', coachComment: '' }
       ],
       coachNotes: [
-        { date: '2026-04-07', text: 'Super progres cette semaine Marie ! Tes habitudes se mettent bien en place. Continue comme ca, les resultats vont suivre.' },
-        { date: '2026-03-25', text: 'On a travaille sur la composition des petits-dejeuners. Marie a bien compris le principe IG Bas.' }
+        { date: '2026-04-07', text: 'Super progrès cette semaine Marie ! Tes habitudes se mettent bien en place. Continue comme ça, les résultats vont suivre.' },
+        { date: '2026-03-25', text: 'On a travaillé sur la composition des petits-dejeuners. Marie a bien compris le principe IG Bas.' }
       ]
     }
   };
@@ -94,8 +94,8 @@
     var pid = state.data.program.id;
     var h = renderHeader() + renderTabs() + '<div class="espace-content">';
     switch (state.tab) {
-      case 'methode': h += renderDocs('Ma Methode IG Bas', 'Les fiches fondamentales de la methode.', CONFIG.methode); break;
-      case 'fiches': h += renderDocs('Fiches Pratiques', 'Des conseils concrets pour appliquer la methode au quotidien.', CONFIG.fichesPratiques); break;
+      case 'methode': h += renderDocs('Ma Méthode IG Bas', 'Les fiches fondamentales de la méthode.', CONFIG.methode); break;
+      case 'fiches': h += renderDocs('Fiches Pratiques', 'Des conseils concrets pour appliquer la méthode au quotidien.', CONFIG.fichesPratiques); break;
       case 'essentiels': h += renderDocs('Les Essentiels', 'Tes outils du quotidien : listes de courses, composition d\'assiettes, objectifs.', CONFIG.essentiels); break;
       case 'recettes': h += renderRecettes(); break;
       case 'tracker': h += renderTracker(); break;
@@ -266,7 +266,7 @@
         h += '<div class="coach-note"><div class="coach-note__date">Sandra &mdash; ' + formatDate(n.date) + '</div><p>' + esc(n.text) + '</p></div>';
       });
     } else {
-      h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Tes comptes-rendus apparaitront ici apres tes coachings.</div>';
+      h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Tes comptes-rendus apparaîtront ici apres tes coachings.</div>';
     }
 
     // Historique programmes
@@ -305,7 +305,7 @@
 
     // Les produits standards sont gérés par Sandra depuis l'admin
     if (!paniers.length) {
-      h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Sandra n'a pas encore ajouté de produits pour toi. Ils apparaitront ici bientot !</div>';
+      h += '<div style="text-align:center;padding:var(--space-xl);color:var(--color-text-muted);">Sandra n\'a pas encore ajouté de produits pour toi. Ils apparaîtront ici bientôt !</div>';
     }
 
     return h;
@@ -323,7 +323,7 @@
         if (eb.available && eb.price) {
           h += '<a class="btn btn--primary btn--sm" href="#" style="flex-shrink:0;">' + eb.price + '</a>';
         } else {
-          h += '<span style="flex-shrink:0;font-size:var(--text-xs);color:var(--color-text-muted);padding:6px 12px;border:1px dashed var(--color-border);border-radius:var(--radius-full);">Bientot</span>';
+          h += '<span style="flex-shrink:0;font-size:var(--text-xs);color:var(--color-text-muted);padding:6px 12px;border:1px dashed var(--color-border);border-radius:var(--radius-full);">Bientôt</span>';
         }
         h += '</div>';
       });
