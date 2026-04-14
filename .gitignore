@@ -1,3 +1,7 @@
 .DS_Store
 *.pdf
 .claude/
+
+# Contenus privés Sandra (PDF pédagogiques + photos haute déf)
+# Ne pas commiter — déploiement manuel sur OVH au moment de la bascule
+sources-prives/
