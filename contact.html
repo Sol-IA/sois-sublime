@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#5A0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sois Sublime">
+<link rel="apple-touch-icon" href="/assets-sandra/apple-touch-icon.png">
 <title>Contact — Sois Sublime | Sandra Gabriel</title>
 <meta name="description" content="Contacte Sandra Gabriel pour un accompagnement en nutrition IG Bas, beauté et vitalité. WhatsApp, email ou formulaire — je te réponds rapidement.">
 <meta name="robots" content="index, follow">
@@ -265,5 +271,12 @@
 </footer>
 
 <script src="js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
+</script>
 </body>
 </html>

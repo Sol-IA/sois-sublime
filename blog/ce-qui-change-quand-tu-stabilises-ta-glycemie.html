@@ -9,6 +9,12 @@ EXCERPT: Moins de fringales, plus d'énergie, peau plus nette, perte de poids �
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#5A0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sois Sublime">
+<link rel="apple-touch-icon" href="/assets-sandra/apple-touch-icon.png">
 <title>Ce qui change vraiment quand tu stabilises ta glycémie | Sois Sublime</title>
 <meta name="description" content="Moins de fringales, plus d'énergie, peau plus nette, perte de poids — stabiliser sa glycémie change bien plus que le poids. Sandra raconte ce que ses clientes observent vraiment.">
 <link rel="canonical" href="https://sois-sublime.fr/blog/ce-qui-change-quand-tu-stabilises-ta-glycemie.html">
@@ -303,5 +309,12 @@ EXCERPT: Moins de fringales, plus d'énergie, peau plus nette, perte de poids �
 </footer>
 
 <script src="../js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
+</script>
 </body>
 </html>

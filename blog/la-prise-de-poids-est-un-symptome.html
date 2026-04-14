@@ -9,6 +9,12 @@ EXCERPT: Les kilos en trop ne sont pas le problème — ils en signalent un autr
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#5A0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sois Sublime">
+<link rel="apple-touch-icon" href="/assets-sandra/apple-touch-icon.png">
 <title>La prise de poids est un symptôme, pas le vrai problème | Sois Sublime</title>
 <meta name="description" content="Les kilos en trop ne sont pas le problème — ils en signalent un autre. Sandra Gabriel explique pourquoi s'acharner sur le poids fait souvent l'inverse de ce qu'on veut.">
 <link rel="canonical" href="https://sois-sublime.fr/blog/la-prise-de-poids-est-un-symptome.html">
@@ -278,5 +284,12 @@ EXCERPT: Les kilos en trop ne sont pas le problème — ils en signalent un autr
 </footer>
 
 <script src="../js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
+</script>
 </body>
 </html>

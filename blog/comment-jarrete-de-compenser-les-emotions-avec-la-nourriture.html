@@ -9,6 +9,12 @@ EXCERPT: Manger pour gérer le stress, l'ennui ou la tristesse — c'est humain.
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#5A0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sois Sublime">
+<link rel="apple-touch-icon" href="/assets-sandra/apple-touch-icon.png">
 <title>Comment j'ai arrêté de compenser mes émotions avec la nourriture | Sois Sublime</title>
 <meta name="description" content="Manger pour gérer le stress, l'ennui ou la tristesse — c'est humain. Sandra partage son parcours et ce qui l'a vraiment aidée à changer son rapport à la nourriture.">
 <link rel="canonical" href="https://sois-sublime.fr/blog/comment-jarrete-de-compenser-les-emotions-avec-la-nourriture.html">
@@ -330,5 +336,12 @@ EXCERPT: Manger pour gérer le stress, l'ennui ou la tristesse — c'est humain.
 </footer>
 
 <script src="../js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
+</script>
 </body>
 </html>

@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#5A0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sois Sublime">
+<link rel="apple-touch-icon" href="/assets-sandra/apple-touch-icon.png">
 <title>Programmes Coaching Nutrition IG Bas | Sois Sublime</title>
 <meta name="description" content="Découvre les programmes Sois Sublime : Diagnostique 49€, Reset 21 à 247€ ou Evolution 3 mois à 497€. Méthode IG Bas, coaching personnalisé, 100% en ligne.">
 <link rel="canonical" href="https://sois-sublime.fr/programmes.html">
@@ -262,5 +268,12 @@
 </footer>
 
 <script src="js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
+</script>
 </body>
 </html>

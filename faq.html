@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#5A0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sois Sublime">
+<link rel="apple-touch-icon" href="/assets-sandra/apple-touch-icon.png">
 <title>Questions fréquentes — Méthode IGBas | Sois Sublime</title>
 <meta name="description" content="Toutes les réponses sur la méthode IGBas, les programmes Sois Sublime, la micro-nutrition et l'accompagnement beauté de Sandra Gabriel. Questions fréquentes.">
 <link rel="canonical" href="https://sois-sublime.fr/faq.html">
@@ -302,6 +308,13 @@ document.querySelectorAll('.faq-question').forEach(function(btn) {
     if (!wasOpen) { this.classList.add('open'); answer.classList.add('open'); }
   });
 });
+</script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
 </script>
 </body>
 </html>

@@ -9,6 +9,12 @@ EXCERPT: Salade le midi, pas de sucre, pas de gras — et tu stockes quand même
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#5A0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sois Sublime">
+<link rel="apple-touch-icon" href="/assets-sandra/apple-touch-icon.png">
 <title>Tu manges sain mais tu stockes quand même ? Voici pourquoi | Sois Sublime</title>
 <meta name="description" content="Salade le midi, pas de sucre, pas de gras — et tu stockes quand même. Ce n'est pas une fatalité. Sandra t'explique ce qui se passe vraiment dans ton corps.">
 <link rel="canonical" href="https://sois-sublime.fr/blog/tu-manges-sain-mais-tu-stockes-quand-meme.html">
@@ -270,5 +276,12 @@ EXCERPT: Salade le midi, pas de sucre, pas de gras — et tu stockes quand même
 </footer>
 
 <script src="../js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
+</script>
 </body>
 </html>

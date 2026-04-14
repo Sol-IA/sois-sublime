@@ -9,6 +9,12 @@ EXCERPT: Le foie est l'organe le plus sous-estimé dans la perte de poids. Quand
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#5A0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sois Sublime">
+<link rel="apple-touch-icon" href="/assets-sandra/apple-touch-icon.png">
 <title>Le rôle du foie dans la perte de poids (et pourquoi il bloque) | Sois Sublime</title>
 <meta name="description" content="Le foie est l'organe le plus sous-estimé dans la perte de poids. Quand il est surchargé, il bloque tout. Sandra explique comment l'aider à retrouver son efficacité.">
 <link rel="canonical" href="https://sois-sublime.fr/blog/le-role-du-foie-dans-la-perte-de-poids.html">
@@ -349,5 +355,12 @@ EXCERPT: Le foie est l'organe le plus sous-estimé dans la perte de poids. Quand
 </footer>
 
 <script src="../js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
+</script>
 </body>
 </html>

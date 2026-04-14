@@ -1,0 +1,46 @@
+{
+  "name": "Sois Sublime — Sandra Gabriel",
+  "short_name": "Sois Sublime",
+  "description": "Coach nutrition IG Bas, beauté & bien-être. Accompagnement personnalisé par Sandra Gabriel.",
+  "lang": "fr",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FDEFEC",
+  "theme_color": "#5A0303",
+  "categories": ["health", "lifestyle", "education"],
+  "icons": [
+    {
+      "src": "/assets-sandra/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets-sandra/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets-sandra/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Me contacter",
+      "short_name": "Contact",
+      "url": "/contact.html",
+      "icons": [{ "src": "/assets-sandra/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Mon espace client",
+      "short_name": "Espace",
+      "url": "/espace/",
+      "icons": [{ "src": "/assets-sandra/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}

@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="theme-color" content="#5A0303">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sois Sublime">
+<link rel="apple-touch-icon" href="/assets-sandra/apple-touch-icon.png">
 <title>Coach Nutrition IG Bas & Beauté | Sois Sublime — Sandra Gabriel</title>
 <meta name="description" content="Sandra Gabriel t'accompagne sur 3 piliers : alimentation IG Bas, micro-nutrition et routines beauté. Perte de poids durable, vitalité et beauté naturelle. Diagnostique 49€.">
 <meta name="author" content="Sandra Gabriel — Sois Sublime">
@@ -386,5 +392,12 @@
 
 <script src="config.js"></script>
 <script src="js/main.js"></script>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('/sw.js').catch(function(){});
+  });
+}
+</script>
 </body>
 </html>
