@@ -76,6 +76,7 @@
       ],
       options: { tracker: true, recettesPerso: true },
       assignedDocs: ['d1', 'd2', 'd3', 'd4', 'd5'],
+      referredBy: 't1',
       paniers: [
         { name: 'Beauty Focus Collagène', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/beauty-focus-collagen.html' },
         { name: 'LumiSpa', url: 'https://www.nuskin.com/content/nuskin/fr_FR/products/ageloc-lumispa.html' },
@@ -163,8 +164,14 @@
     { id: 'l3', prenom: 'Nadia', nom: 'Bensalem', email: 'nadia.b@email.com', telephone: '06 44 55 66 77', objectif: 'beaute', duree: '6_mois_2_ans', regimes: 'oui', date: '2026-04-05', source: 'lead_magnet' }
   ];
 
+  /* ═══ MOCK TEAM (apporteurs d'affaires / filiation) ═══ */
+  var MOCK_TEAM = [
+    { id: 't1', firstName: 'Emma', lastName: 'Lefevre', email: 'emma.lefevre@email.com', addedDate: '2026-01-15' },
+    { id: 't2', firstName: 'Claudine', lastName: 'Dubois', email: 'claudine.d@email.com', addedDate: '2026-02-20' }
+  ];
+
   /* ═══ STATE ═══ */
-  var state = { view: 'list', clients: [], docs: [], leads: [], selectedToken: null, noteText: '', search: '', filterStatus: 'all', filterProgram: 'all', filterDocCat: 'all', filterDocTab: 'all' };
+  var state = { view: 'list', clients: [], docs: [], leads: [], team: [], selectedToken: null, noteText: '', search: '', filterStatus: 'all', filterProgram: 'all', filterDocCat: 'all', filterDocTab: 'all' };
   var app = document.getElementById('app');
 
   /* ═══ UTILS ═══ */
@@ -185,6 +192,7 @@
       state.clients = MOCK_CLIENTS;
       state.docs = MOCK_DOCS;
       state.leads = MOCK_LEADS;
+      state.team = MOCK_TEAM;
       render();
       return;
     }
@@ -202,6 +210,7 @@
     else if (state.view === 'detail') { h += renderDetail(); }
     else if (state.view === 'contenus') { h += renderContenus(); }
     else if (state.view === 'leads') { h += renderLeads(); }
+    else if (state.view === 'team') { h += renderTeam(); }
     app.innerHTML = h;
     bindEvents();
   }
@@ -210,7 +219,8 @@
     var tabs = [
       { id: 'list', label: 'Clientes', ico: '&#x1F465;' },
       { id: 'contenus', label: 'Contenus', ico: '&#x1F4C1;' },
-      { id: 'leads', label: 'Leads', ico: '&#x1F4E9;' }
+      { id: 'leads', label: 'Leads', ico: '&#x1F4E9;' },
+      { id: 'team', label: 'Equipe', ico: '&#x1F91D;' }
     ];
     var h = '<div class="tab-bar" style="position:sticky;top:var(--header-h);z-index:99;">';
     tabs.forEach(function(t) {
@@ -336,6 +346,15 @@
     if (cl.token) {
       h += '<div class="detail-item" style="grid-column:1/-1;"><div class="detail-item__label">Lien espace client</div><span style="font-size:var(--text-xs);color:var(--color-text-muted);word-break:break-all;">' + esc(espaceLink) + '</span></div>';
     }
+    // Envoyée par (filiation)
+    h += '<div class="detail-item" style="grid-column:1/-1;"><div class="detail-item__label">Envoyée par</div>';
+    h += '<select class="form__input referredBy-select" style="padding:6px 10px;font-size:var(--text-sm);cursor:pointer;max-width:300px;">';
+    h += '<option value="">— Aucune —</option>';
+    state.team.forEach(function(t) {
+      var sel = (cl.referredBy === t.id) ? ' selected' : '';
+      h += '<option value="' + t.id + '"' + sel + '>' + esc(t.firstName + ' ' + t.lastName) + '</option>';
+    });
+    h += '</select></div>';
     h += '</div>';
 
     // ── Programme & accès ──
@@ -521,6 +540,41 @@
     } else {
       h += '<p style="color:var(--color-text-muted);margin-top:var(--space-lg);">Aucune entrée tracker pour le moment.</p>';
     }
+
+    h += '</div>';
+    return h;
+  }
+
+  /* ═══ TEAM VIEW ═══ */
+  function renderTeam() {
+    var team = state.team;
+    var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
+    h += '<h2 style="margin-bottom:var(--space-md);">Mon équipe — Apporteurs d\'affaires</h2>';
+    h += '<p style="color:var(--color-text-muted);margin-bottom:var(--space-lg);font-size:var(--text-sm);">Les personnes de ton équipe qui peuvent t\'envoyer des clientes. Chaque nouvelle cliente peut être rattachée à l\'une d\'elles.</p>';
+
+    h += '<div style="overflow-x:auto;"><table class="client-table">';
+    h += '<thead><tr><th>Nom</th><th>Email</th><th>Ajoutée le</th><th>Clientes envoyées</th><th>Leads</th><th></th></tr></thead>';
+    h += '<tbody>';
+    team.forEach(function(t, i) {
+      var clientsCount = state.clients.filter(function(cl) { return cl.referredBy === t.id; }).length;
+      var leadsCount = state.leads.filter(function(l) { return l.referredBy === t.id; }).length;
+      h += '<tr>';
+      h += '<td><strong>' + esc(t.firstName + ' ' + t.lastName) + '</strong></td>';
+      h += '<td>' + (t.email ? '<a href="mailto:' + esc(t.email) + '" style="color:var(--color-accent);">' + esc(t.email) + '</a>' : '—') + '</td>';
+      h += '<td>' + formatDate(t.addedDate) + '</td>';
+      h += '<td><strong>' + clientsCount + '</strong></td>';
+      h += '<td>' + leadsCount + '</td>';
+      h += '<td><button class="btn btn--outline btn--sm remove-team-btn" data-idx="' + i + '" style="font-size:var(--text-xs);color:#c44;border-color:#c44;padding:2px 8px;">×</button></td>';
+      h += '</tr>';
+    });
+    // Add row
+    h += '<tr style="background:var(--color-bg-warm);">';
+    h += '<td><input type="text" id="team-firstname" class="form__input" placeholder="Prénom" style="padding:4px 8px;font-size:var(--text-sm);width:48%;margin-right:4%;"><input type="text" id="team-lastname" class="form__input" placeholder="Nom" style="padding:4px 8px;font-size:var(--text-sm);width:48%;"></td>';
+    h += '<td><input type="email" id="team-email" class="form__input" placeholder="email@exemple.com" style="padding:4px 8px;font-size:var(--text-sm);"></td>';
+    h += '<td>—</td><td>—</td><td>—</td>';
+    h += '<td><button class="btn btn--primary btn--sm" id="save-team-btn" style="padding:4px 12px;font-size:var(--text-xs);">+</button></td>';
+    h += '</tr>';
+    h += '</tbody></table></div>';
 
     h += '</div>';
     return h;
@@ -946,6 +1000,41 @@
           showToast('Accès activé et email envoyé !');
           render();
         }).catch(function() { showToast('Erreur — réessaie'); });
+    });
+
+    // Team: save new team member
+    var saveTeamBtn = document.getElementById('save-team-btn');
+    if (saveTeamBtn) saveTeamBtn.addEventListener('click', function() {
+      var fn = document.getElementById('team-firstname');
+      var ln = document.getElementById('team-lastname');
+      if (!fn || !fn.value.trim() || !ln.value.trim()) { showToast('Prénom et nom requis'); return; }
+      var t = {
+        id: 't' + Date.now(),
+        firstName: fn.value.trim(),
+        lastName: ln.value.trim(),
+        email: (document.getElementById('team-email') || {}).value || '',
+        addedDate: new Date().toISOString().slice(0, 10)
+      };
+      state.team.push(t);
+      showToast('Membre ajoutée à ton équipe !');
+      render();
+    });
+    // Team: remove
+    document.querySelectorAll('.remove-team-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        state.team.splice(parseInt(this.dataset.idx), 1);
+        showToast('Retirée de l\'équipe');
+        render();
+      });
+    });
+    // ReferredBy select on client detail
+    document.querySelectorAll('.referredBy-select').forEach(function(sel) {
+      sel.addEventListener('change', function() {
+        var cl = state.clients.find(function(c) { return c.token === state.selectedToken || c.email === state.selectedToken; });
+        if (!cl) return;
+        cl.referredBy = this.value;
+        showToast(this.value ? 'Filiation mise à jour' : 'Filiation retirée');
+      });
     });
 
     // Doc checkboxes (assign/unassign)

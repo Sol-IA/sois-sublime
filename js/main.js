@@ -88,6 +88,7 @@
       prh += '<h3>' + prog.name + '</h3>';
       prh += '<div class="program-card__price">' + prog.priceLabel + '</div>';
       prh += '<div class="program-card__duration">' + prog.duration + '</div>';
+      if (prog.paymentNote) prh += '<div class="program-card__payment">' + prog.paymentNote + '</div>';
       prh += '</div>';
       prh += '<div class="program-card__body">';
       prh += '<p>' + prog.shortDesc + '</p>';
@@ -96,9 +97,12 @@
         prog.features.forEach(function(f) { prh += '<li>' + f + '</li>'; });
         prh += '</ul>';
       }
+      if (prog.upsell) {
+        prh += '<div class="program-card__upsell"><strong>' + prog.upsell.title + ' ' + prog.upsell.priceLabel + '</strong><br><span>' + prog.upsell.desc + '</span></div>';
+      }
       if (!prog.comingSoon) {
         var href = prog.stripeLink || CONFIG.calendlyUrl;
-        var label = prog.id === 'diagnostique' ? 'Prendre RDV' : 'Je me lance';
+        var label = prog.id === 'diagnostique' ? 'Reserver mon Diagnostique' : 'Je me lance';
         prh += '<a class="btn btn--primary" href="' + href + '" target="_blank" rel="noopener">' + label + '</a>';
       } else {
         prh += '<span class="btn btn--outline" style="opacity:.5;cursor:default;">Bientot disponible</span>';

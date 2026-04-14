@@ -426,6 +426,23 @@ p { margin-bottom: var(--space-sm); }
   font-size: var(--text-sm);
   opacity: 0.7;
 }
+.program-card__payment {
+  font-size: var(--text-xs);
+  opacity: 0.8;
+  margin-top: 4px;
+  font-style: italic;
+}
+.program-card__upsell {
+  background: rgba(241, 61, 82, 0.08);
+  border: 1px dashed var(--color-accent);
+  border-radius: var(--radius-sm);
+  padding: var(--space-sm);
+  margin-bottom: var(--space-md);
+  font-size: var(--text-xs);
+  text-align: center;
+  color: var(--color-text-light);
+}
+.program-card__upsell strong { color: var(--color-accent); font-family: var(--font-heading); font-size: var(--text-sm); }
 .program-card__body {
   padding: var(--space-md) var(--space-md) var(--space-lg);
   display: flex;
