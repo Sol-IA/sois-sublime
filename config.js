@@ -72,7 +72,7 @@ var CONFIG = {
       shortDesc: 'Le point de depart pour relancer ta perte de poids durablement en 21 jours avec la methode IGBas.',
       description: 'Un programme de 21 jours base sur la methode IGBas pour reequilibrer ton alimentation, retrouver ton energie et amorcer une perte de poids durable.',
       features: [
-        'Methode IGBas',
+        'La méthode IGBas complète',
         'Menus basiques',
         'Fiches pratiques',
         'Recettes basiques',
@@ -97,7 +97,7 @@ var CONFIG = {
       shortDesc: 'Un accompagnement complet et personnalise pour retrouver equilibre et resultats durables.',
       description: 'Trois mois d\'accompagnement sur mesure avec des menus personnalises, un suivi quotidien, des coachings reguliers et des recommandations adaptees a ton profil.',
       features: [
-        'La methode IGBas complete',
+        'La méthode IGBas complète',
         'Menus sur mesure',
         'Fiches pratiques',
         'Recettes personnalisees a tes habitudes alimentaires',
