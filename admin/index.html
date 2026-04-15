@@ -163,9 +163,9 @@
 
   /* ═══ MOCK LEADS ═══ */
   var MOCK_LEADS = [
-    { id: 'l1', prenom: 'Julie', nom: 'Moreau', email: 'julie.moreau@email.com', telephone: '06 77 88 99 00', objectif: 'perte_poids', duree: 'plus_2_ans', regimes: 'oui', date: '2026-04-10', source: 'lead_magnet' },
-    { id: 'l2', prenom: 'Camille', nom: 'Petit', email: 'camille.p@email.com', telephone: '', objectif: 'vitalite', duree: 'moins_6_mois', regimes: 'non', date: '2026-04-08', source: 'contact' },
-    { id: 'l3', prenom: 'Nadia', nom: 'Bensalem', email: 'nadia.b@email.com', telephone: '06 44 55 66 77', objectif: 'beaute', duree: '6_mois_2_ans', regimes: 'oui', date: '2026-04-05', source: 'lead_magnet' }
+    { id: 'l1', prenom: 'Julie', nom: 'Moreau', email: 'julie.moreau@email.com', telephone: '06 77 88 99 00', interet: 'energie', situation: 'essaye_seule', date: '2026-04-10', source: 'lead_magnet' },
+    { id: 'l2', prenom: 'Camille', nom: 'Petit', email: 'camille.p@email.com', telephone: '', interet: 'mieux_corps', situation: 'curiosite', date: '2026-04-08', source: 'contact' },
+    { id: 'l3', prenom: 'Nadia', nom: 'Bensalem', email: 'nadia.b@email.com', telephone: '06 44 55 66 77', interet: 'apparence', situation: 'perdue', date: '2026-04-05', source: 'lead_magnet' }
   ];
 
   /* ═══ MOCK TEAM (apporteurs d'affaires / filiation) ═══ */
@@ -832,8 +832,8 @@
   /* ═══ LEADS VIEW ═══ */
   function renderLeads() {
     var leads = state.leads;
-    var objLabels = { perte_poids: 'Perte de poids', vitalite: 'Vitalité & énergie', beaute: 'Beauté & peau', ne_sais_pas: 'Ne sait pas encore' };
-    var dureeLabels = { moins_6_mois: 'Moins de 6 mois', '6_mois_2_ans': 'Entre 6 mois et 2 ans', plus_2_ans: 'Plus de 2 ans' };
+    var interetLabels = { mieux_corps: 'Mieux dans mon corps', energie: 'Retrouver de l\'énergie', apparence: 'Prendre soin de mon apparence', reconnecter: 'Me reconnecter à moi', tout: 'Un peu de tout' };
+    var situationLabels = { changer: 'Doit changer quelque chose', essaye_seule: 'A déjà essayé seule', perdue: 'Perdue, ne sait par où commencer', curiosite: 'Curieuse, sans urgence' };
 
     var h = '<div class="espace-content" style="padding-top:var(--space-md);">';
     h += '<div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:var(--space-sm);margin-bottom:var(--space-lg);">';
@@ -857,9 +857,8 @@
         h += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:var(--space-sm);font-size:var(--text-sm);">';
         h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Email</span><br><a href="mailto:' + esc(l.email) + '" style="color:var(--color-accent);">' + esc(l.email) + '</a></div>';
         h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Téléphone</span><br>' + (l.telephone ? '<a href="tel:' + esc(l.telephone) + '">' + esc(l.telephone) + '</a>' : 'Non renseigné') + '</div>';
-        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Objectif principal</span><br><span class="badge badge--active">' + (objLabels[l.objectif] || l.objectif) + '</span></div>';
-        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Depuis combien de temps</span><br>' + (dureeLabels[l.duree] || l.duree) + '</div>';
-        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">A déjà fait des régimes</span><br>' + (l.regimes === 'oui' ? 'Oui' : 'Non') + '</div>';
+        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Ce qui l\'intéresse</span><br><span class="badge badge--active">' + (interetLabels[l.interet] || l.interet || '—') + '</span></div>';
+        h += '<div><span style="font-weight:600;color:var(--color-text-muted);font-size:var(--text-xs);text-transform:uppercase;">Situation actuelle</span><br>' + (situationLabels[l.situation] || l.situation || '—') + '</div>';
         h += '</div>';
 
         h += '<div style="display:flex;gap:var(--space-xs);margin-top:var(--space-sm);">';
@@ -905,11 +904,11 @@
     // Export CSV — leads
     var expLeadsBtn = document.getElementById('export-leads-csv');
     if (expLeadsBtn) expLeadsBtn.addEventListener('click', function() {
-      var objLabels = { perte_poids: 'Perte de poids', vitalite: 'Vitalité & énergie', beaute: 'Beauté & peau', ne_sais_pas: 'Ne sait pas encore' };
-      var dureeLabels = { moins_6_mois: 'Moins de 6 mois', '6_mois_2_ans': '6 mois à 2 ans', plus_2_ans: 'Plus de 2 ans' };
-      var rows = [['Date', 'Prenom', 'Nom', 'Email', 'Telephone', 'Objectif', 'Depuis', 'Regimes', 'Source']];
+      var interetLabels = { mieux_corps: 'Mieux dans mon corps', energie: 'Retrouver de l\'énergie', apparence: 'Prendre soin de mon apparence', reconnecter: 'Me reconnecter à moi', tout: 'Un peu de tout' };
+      var situationLabels = { changer: 'Doit changer quelque chose', essaye_seule: 'A déjà essayé seule', perdue: 'Perdue, ne sait par où commencer', curiosite: 'Curieuse, sans urgence' };
+      var rows = [['Date', 'Prenom', 'Nom', 'Email', 'Telephone', 'Interet', 'Situation', 'Source']];
       state.leads.forEach(function(l) {
-        rows.push([l.date, l.prenom, l.nom, l.email, l.telephone || '', objLabels[l.objectif] || l.objectif, dureeLabels[l.duree] || l.duree, l.regimes === 'oui' ? 'Oui' : 'Non', l.source]);
+        rows.push([l.date, l.prenom, l.nom, l.email, l.telephone || '', interetLabels[l.interet] || l.interet || '', situationLabels[l.situation] || l.situation || '', l.source]);
       });
       downloadCSV(rows, 'leads-sois-sublime-' + new Date().toISOString().slice(0,10) + '.csv');
     });

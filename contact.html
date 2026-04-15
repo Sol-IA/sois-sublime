@@ -103,25 +103,25 @@
         <input class="form__input" type="tel" id="lead-tel" name="telephone" placeholder="06 XX XX XX XX">
       </div>
       <div class="form__group">
-        <label class="form__label" for="lead-objectif">Quel est ton objectif principal ? *</label>
-        <select class="form__input" id="lead-objectif" name="objectif" required style="cursor:pointer;">
+        <label class="form__label" for="lead-interet">Qu'est-ce qui t'intéresse le plus en ce moment ? *</label>
+        <select class="form__input" id="lead-interet" name="interet" required style="cursor:pointer;">
           <option value="">Choisis...</option>
-          <option value="perte_poids">Perte de poids</option>
-          <option value="vitalite">Vitalité & énergie</option>
-          <option value="beaute">Beauté & peau</option>
-          <option value="ne_sais_pas">Je ne sais pas encore</option>
+          <option value="mieux_corps">Me sentir mieux dans mon corps</option>
+          <option value="energie">Retrouver de l'énergie</option>
+          <option value="apparence">Prendre soin de mon apparence</option>
+          <option value="reconnecter">Me reconnecter à moi</option>
+          <option value="tout">Un peu de tout</option>
         </select>
       </div>
       <div class="form__group">
-        <label class="form__label">As-tu déjà fait des régimes ? *</label>
-        <div style="display:flex;gap:var(--space-md);">
-          <label style="display:flex;align-items:center;gap:6px;font-size:var(--text-sm);cursor:pointer;">
-            <input type="radio" name="regimes" value="oui" required> Oui
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;font-size:var(--text-sm);cursor:pointer;">
-            <input type="radio" name="regimes" value="non"> Non
-          </label>
-        </div>
+        <label class="form__label" for="lead-situation">Tu dirais que tu en es où aujourd'hui ? *</label>
+        <select class="form__input" id="lead-situation" name="situation" required style="cursor:pointer;">
+          <option value="">Choisis...</option>
+          <option value="changer">Je sais que je dois changer quelque chose</option>
+          <option value="essaye_seule">J'ai déjà essayé, mais je n'y arrive pas seule</option>
+          <option value="perdue">Je suis perdue, je ne sais pas par où commencer</option>
+          <option value="curiosite">Je m'intéresse au sujet, sans urgence</option>
+        </select>
       </div>
       <div class="form__group" style="display:flex;align-items:flex-start;gap:8px;">
         <input type="checkbox" id="lead-rgpd" name="rgpd" required style="margin-top:4px;">
