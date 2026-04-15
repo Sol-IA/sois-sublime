@@ -1,83 +1,135 @@
 # ═══════════════════════════════════════════════════════════
-# Sois Sublime — .htaccess OVH
-# Migration depuis ancien site WP → nouveau site statique
+# Sois Sublime — .htaccess OVH stable64
+# Conforme Playbook Ultime SOL·IA v1
 # ═══════════════════════════════════════════════════════════
 
-# ── Charset par défaut ───────────────────────────────────
+# ── INDEX PAR DÉFAUT ───
+DirectoryIndex index.html
+
+# ── CHARSET PAR DÉFAUT ───
 AddDefaultCharset UTF-8
 
-# ── HTTPS forcé ───────────────────────────────────────────
+# ── INTERDIRE LE LISTING + DÉSACTIVER MULTIVIEWS ───
+# ⚠️ CRITIQUE : sans -MultiViews, les 301 tombent silencieusement en 404
+# (bug MGE #1 et #7 — slugs ayant un équivalent .html bypass RedirectMatch)
+Options -Indexes -MultiViews +FollowSymLinks
+
+
+# ═══════════════════════════════════════════════════════════
+# FORCER HTTPS + www → apex (mod_rewrite)
+# ═══════════════════════════════════════════════════════════
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteCond %{HTTPS} !=on
-  RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
 
-  # www → apex
+  RewriteCond %{HTTPS} off
+  RewriteRule ^(.*)$ https://%{HTTP_HOST}/$1 [R=301,L]
+
   RewriteCond %{HTTP_HOST} ^www\.sois-sublime\.fr$ [NC]
   RewriteRule ^(.*)$ https://sois-sublime.fr/$1 [R=301,L]
-
-  # ── REDIRECTIONS 301 — Ancien site Sandra → nouveau ────
-  # TODO : récupérer les URLs de l'ancien site depuis /post-sitemap.xml
-  # et /page-sitemap.xml avant de couper WordPress.
-  #
-  # Exemples :
-  # RewriteRule ^ancien-slug-wp/?$ /blog/ce-qui-change-quand-tu-stabilises-ta-glycemie.html [R=301,L]
-  # RewriteRule ^categorie-wp/(.*)$ /blog.html [R=301,L]
-  # RewriteRule ^page-supprimee/?$ /programmes.html [R=301,L]
-
-  # Fallback : toute URL WP inconnue → blog
-  # RewriteRule ^wp-content/(.*)$ - [L]
-  # RewriteRule ^wp-admin/?$ /index.html [R=301,L]
-  # RewriteRule ^wp-login\.php$ /index.html [R=301,L]
 </IfModule>
 
-# ── 404 personnalisée ────────────────────────────────────
-ErrorDocument 404 /404.html
 
-# ── Protection des fichiers sensibles ────────────────────
-<FilesMatch "^(\.htaccess|\.htpasswd|\.env|\.git|composer\.json|package\.json)$">
-  Require all denied
-</FilesMatch>
-<FilesMatch "\.(log|bak|sql)$">
-  Require all denied
-</FilesMatch>
+# ═══════════════════════════════════════════════════════════
+# REDIRECTIONS 301 — MIGRATION WORDPRESS
+# (RedirectMatch via mod_alias, plus fiable que RewriteRule sur OVH)
+# ═══════════════════════════════════════════════════════════
+# À compléter à la bascule OVH depuis /post-sitemap.xml et /page-sitemap.xml
+# de l'ancien site Sandra.
+#
+# Exemples :
+# RedirectMatch 301 ^/prestations/?$                    /programmes.html
+# RedirectMatch 301 ^/a-propos/?$                       /index.html#a-propos
+# RedirectMatch 301 ^/ancien-slug-wp/?$                 /blog/slug-nouveau.html
+# RedirectMatch 301 ^/category/nutrition/?$             /blog.html
+# RedirectMatch 301 ^/mentions-legales/?$               /mentions-legales.html
+# RedirectMatch 301 ^/conditions-generales-de-vente/?$  /cgv.html
 
-# ── Désactive le listing des dossiers ────────────────────
-Options -Indexes
 
-# ── Compression GZIP ─────────────────────────────────────
+# ═══════════════════════════════════════════════════════════
+# PERFORMANCE — COMPRESSION & CACHE
+# ═══════════════════════════════════════════════════════════
+
 <IfModule mod_deflate.c>
-  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml text/xml application/xml
+  AddOutputFilterByType DEFLATE text/html text/plain text/css text/xml text/javascript
+  AddOutputFilterByType DEFLATE application/javascript application/json application/xml
+  AddOutputFilterByType DEFLATE application/ld+json
+  AddOutputFilterByType DEFLATE image/svg+xml
 </IfModule>
 
-# ── Cache navigateur (expires) ───────────────────────────
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/html                 "access plus 1 hour"
   ExpiresByType text/css                  "access plus 1 month"
   ExpiresByType application/javascript    "access plus 1 month"
-  ExpiresByType image/jpeg                "access plus 6 months"
-  ExpiresByType image/png                 "access plus 6 months"
-  ExpiresByType image/webp                "access plus 6 months"
-  ExpiresByType image/avif                "access plus 6 months"
-  ExpiresByType image/svg+xml             "access plus 6 months"
+  ExpiresByType image/jpeg                "access plus 1 year"
+  ExpiresByType image/png                 "access plus 1 year"
+  ExpiresByType image/webp                "access plus 1 year"
+  ExpiresByType image/avif                "access plus 1 year"
+  ExpiresByType image/svg+xml             "access plus 1 year"
+  ExpiresByType image/gif                 "access plus 1 year"
+  ExpiresByType image/x-icon              "access plus 1 year"
+  ExpiresByType font/woff                 "access plus 1 year"
   ExpiresByType font/woff2                "access plus 1 year"
   ExpiresByType application/pdf           "access plus 1 month"
 </IfModule>
 
-# ── Headers sécurité ─────────────────────────────────────
+
+# ═══════════════════════════════════════════════════════════
+# SÉCURITÉ — HEADERS
+# ═══════════════════════════════════════════════════════════
+
 <IfModule mod_headers.c>
-  Header set X-Content-Type-Options "nosniff"
-  Header set X-Frame-Options "SAMEORIGIN"
-  Header set Referrer-Policy "strict-origin-when-cross-origin"
-  Header set Permissions-Policy "geolocation=(), microphone=(), camera=()"
-  # CSP basique — à durcir après tests complets
-  # Header set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'"
+  Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains" env=HTTPS
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=()"
+  Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://www.googletagmanager.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: https:; connect-src 'self'; frame-src https://calendly.com;"
 </IfModule>
 
-# ── MIME types manquants ─────────────────────────────────
+
+# ═══════════════════════════════════════════════════════════
+# BLOCAGE FICHIERS SENSIBLES
+# ═══════════════════════════════════════════════════════════
+
+<Files ".htaccess">
+  Require all denied
+</Files>
+
+<Files ".htpasswd">
+  Require all denied
+</Files>
+
+<Files ".env">
+  Require all denied
+</Files>
+
+<Files "wp-config.php">
+  Require all denied
+</Files>
+
+<Files "config.php">
+  Require all denied
+</Files>
+
+<FilesMatch "\.(log|sql|bak|old|orig|php_bak|save|env|git)$">
+  Require all denied
+</FilesMatch>
+
+
+# ═══════════════════════════════════════════════════════════
+# MIME TYPES
+# ═══════════════════════════════════════════════════════════
+
 <IfModule mod_mime.c>
   AddType image/webp .webp
   AddType image/avif .avif
   AddType font/woff2 .woff2
+  AddType application/manifest+json .webmanifest
 </IfModule>
+
+
+# ═══════════════════════════════════════════════════════════
+# PAGE 404 PERSONNALISÉE
+# ═══════════════════════════════════════════════════════════
+ErrorDocument 404 /404.html

@@ -5,3 +5,10 @@
 # Contenus privés Sandra (PDF pédagogiques + photos haute déf)
 # Ne pas commiter — déploiement manuel sur OVH au moment de la bascule
 sources-prives/
+
+# Fichiers PHP sensibles — uploadés via FTP uniquement (contiendront les clés API)
+config.php
+send.php
+subscribe.php
+ratelimit.php
+lead.php

@@ -4,6 +4,9 @@ Disallow: /espace/
 Disallow: /admin/
 Disallow: /merci-ebook.html
 Disallow: /merci-contact.html
+Disallow: /mentions-legales.html
+Disallow: /cgv.html
+Disallow: /politique-confidentialite.html
 Disallow: /*.log$
 Disallow: /*.php$
 

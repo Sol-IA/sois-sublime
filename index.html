@@ -25,53 +25,76 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "ProfessionalService",
+  "@type": "LocalBusiness",
   "name": "Sois Sublime",
   "description": "Coaching nutrition IG Bas, beauté et micro-nutrition pour femmes. Accompagnement personnalisé pour une perte de poids durable, plus de vitalité et une beauté naturelle.",
   "url": "https://sois-sublime.fr",
-  "telephone": "+33612452960",
+  "logo": "https://sois-sublime.fr/assets-sandra/logo-sandra-prune.svg",
+  "image": "https://sois-sublime.fr/assets-sandra/og-image.jpg",
   "email": "sandra.soissublime@gmail.com",
+  "priceRange": "€€",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "335 chemin du Haut Pilon",
     "addressLocality": "Manosque",
     "postalCode": "04100",
+    "addressRegion": "Provence-Alpes-Côte d'Azur",
     "addressCountry": "FR"
   },
-  "areaServed": {
-    "@type": "Country",
-    "name": "France"
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": 43.8286,
+    "longitude": 5.7869
   },
-  "employee": {
-    "@type": "Person",
-    "name": "Sandra Gabriel",
-    "jobTitle": "Coach certifiée nutrition, beauté et micro-nutrition",
-    "description": "Certifiée en coaching beauté, bien-être, vitalité et micro-nutrition. Ancienne directrice artistique reconvertie dans l'accompagnement féminin global."
-  },
-  "hasOfferCatalog": {
-    "@type": "OfferCatalog",
-    "name": "Programmes Sois Sublime",
-    "itemListElement": [
-      {
-        "@type": "Offer",
-        "itemOffered": { "@type": "Service", "name": "Sublime Diagnostique", "description": "30 minutes pour faire le point sur ta situation et repartir avec un plan d'action clair." },
-        "price": "49", "priceCurrency": "EUR"
-      },
-      {
-        "@type": "Offer",
-        "itemOffered": { "@type": "Service", "name": "Sublime Reset 21", "description": "Programme 21 jours pour relancer ta perte de poids avec la méthode IG Bas." },
-        "price": "247", "priceCurrency": "EUR"
-      },
-      {
-        "@type": "Offer",
-        "itemOffered": { "@type": "Service", "name": "Sublime Evolution", "description": "3 mois d'accompagnement complet : nutrition IG Bas, beauté, vitalité, micro-nutrition." },
-        "price": "497", "priceCurrency": "EUR"
-      }
-    ]
-  },
+  "areaServed": [
+    { "@type": "Country", "name": "France" },
+    { "@type": "State", "name": "Provence-Alpes-Côte d'Azur" },
+    { "@type": "City", "name": "Manosque" }
+  ],
   "sameAs": [
     "https://www.instagram.com/sois_sublime",
     "https://www.facebook.com/share/1AceJpnCmo/"
+  ],
+  "founder": {
+    "@type": "Person",
+    "name": "Sandra Gabriel",
+    "jobTitle": "Coach certifiée nutrition, beauté et micro-nutrition",
+    "description": "Certifiée en coaching beauté, bien-être, vitalité et micro-nutrition. Fondatrice de la méthode Sublime Toi !"
+  },
+  "makesOffer": [
+    {
+      "@type": "Offer",
+      "price": "49",
+      "priceCurrency": "EUR",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Sublime Diagnostique",
+        "description": "30 minutes pour faire le point sur ta situation et repartir avec un plan d'action clair.",
+        "serviceType": "Consultation nutrition"
+      }
+    },
+    {
+      "@type": "Offer",
+      "price": "247",
+      "priceCurrency": "EUR",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Sublime Reset 21",
+        "description": "Programme 21 jours pour relancer ta perte de poids avec la méthode IG Bas complète.",
+        "serviceType": "Programme coaching nutrition"
+      }
+    },
+    {
+      "@type": "Offer",
+      "price": "497",
+      "priceCurrency": "EUR",
+      "itemOffered": {
+        "@type": "Service",
+        "name": "Sublime Évolution",
+        "description": "3 mois d'accompagnement complet : nutrition IG Bas, beauté, vitalité, micro-nutrition.",
+        "serviceType": "Programme coaching premium"
+      }
+    }
   ]
 }
 </script>
@@ -92,7 +115,9 @@
 <meta name="twitter:title" content="Sois Sublime — Sandra Gabriel">
 <meta name="twitter:description" content="Coach nutrition IG Bas, beauté & bien-être. Accompagnement personnalisé.">
 <meta name="twitter:image" content="https://sois-sublime.fr/assets-sandra/og-image.jpg">
-<link rel="stylesheet" href="css/style.css">
+<link rel="preload" as="image" href="assets-sandra/sandra-souri-800.jpg" media="(max-width: 768px)">
+<link rel="preload" as="image" href="assets-sandra/sandra-accueil.avif" media="(min-width: 769px)">
+<link rel="stylesheet" href="css/style.min.css">
 </head>
 <body>
 
@@ -121,7 +146,7 @@
 <section class="hero">
   <div class="hero__bg">
     <picture>
-      <source media="(max-width: 768px)" srcset="assets-sandra/sandra-souri.jpg">
+      <source media="(max-width: 768px)" srcset="assets-sandra/sandra-souri-800.jpg">
       <img src="assets-sandra/sandra-accueil.avif" alt="Sandra — Coach bien-etre et nutrition" loading="eager">
     </picture>
     <div class="hero__overlay"></div>
@@ -129,12 +154,12 @@
   <div class="hero__content">
     <div class="hero__mobile-intro">
       <p class="hero__name">Sandra Gabriel · Fondatrice de la méthode Sublime Toi !</p>
-      <p class="hero__title-mobile">Coach en rééquilibrage alimentaire & gestion du poids (méthode IG bas) — Vitalité & expertise beauté</p>
+      <p class="hero__title-mobile">Coach en rééquilibrage alimentaire & gestion du poids (méthode IG bas), Vitalité & expertise beauté</p>
     </div>
     <img src="assets-sandra/logo-sandra-prune.svg" alt="Sois Sublime" class="hero__logo" loading="eager">
     <span class="hero__badge">Sandra Gabriel · Fondatrice de la méthode Sublime Toi !</span>
     <div class="hero__mobile-bottom">
-      <h1>Coach en rééquilibrage alimentaire & gestion du poids (méthode IG bas) — Vitalité & expertise beauté</h1>
+      <h1>Coach en rééquilibrage alimentaire & gestion du poids (méthode IG bas), Vitalité & expertise beauté</h1>
       <p>Une approche globale en 3 piliers pour rééquilibrer ton alimentation, relancer ton énergie, sublimer ta peau et transformer durablement ton corps et ton bien-être.</p>
     </div>
   </div>
@@ -383,7 +408,7 @@
 </footer>
 
 <script src="config.js"></script>
-<script src="js/main.js"></script>
+<script src="js/main.min.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {

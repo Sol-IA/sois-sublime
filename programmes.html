@@ -25,20 +25,69 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "ItemList",
-  "name": "Programmes Sois Sublime",
-  "description": "Les programmes de coaching nutrition IG Bas et bien-être de Sandra Gabriel",
-  "itemListElement": [
-    {"@type":"ListItem","position":1,"item":{"@type":"Service","name":"Sublime Diagnostique","description":"Rendez-vous 30 minutes en visio pour faire le point sur ta situation. Plan d'action personnalisé. Déduit de tout programme souscrit ensuite.","offers":{"@type":"Offer","price":"49","priceCurrency":"EUR","availability":"https://schema.org/InStock"},"provider":{"@type":"Person","name":"Sandra Gabriel"}}},
-    {"@type":"ListItem","position":2,"item":{"@type":"Service","name":"Sublime Reset 21","description":"Programme 21 jours méthode IG Bas. Inclut : méthode complète, listes de courses, menus, recettes, 2 coachings individuels, accès espace client.","offers":{"@type":"Offer","price":"247","priceCurrency":"EUR","availability":"https://schema.org/InStock"},"provider":{"@type":"Person","name":"Sandra Gabriel"}}},
-    {"@type":"ListItem","position":3,"item":{"@type":"Service","name":"Sublime Evolution","description":"3 mois d'accompagnement complet : 5 coachings individuels, menus personnalisés, tracker bien-être, fiches pratiques nutrition et beauté, accès espace client.","offers":{"@type":"Offer","price":"497","priceCurrency":"EUR","availability":"https://schema.org/InStock"},"provider":{"@type":"Person","name":"Sandra Gabriel"}}}
-  ]
+  "@type": "Service",
+  "name": "Coaching nutrition IG Bas, beauté et micro-nutrition",
+  "description": "Les programmes de coaching nutrition IG Bas et bien-être de Sandra Gabriel — Sois Sublime.",
+  "provider": {
+    "@type": "LocalBusiness",
+    "name": "Sois Sublime",
+    "url": "https://sois-sublime.fr"
+  },
+  "areaServed": {
+    "@type": "Country",
+    "name": "France"
+  },
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Programmes Sois Sublime",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "price": "49",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Sublime Diagnostique",
+          "description": "Rendez-vous 30 minutes en visio pour faire le point sur ta situation. Plan d'action personnalisé. Déduit de tout programme souscrit ensuite."
+        }
+      },
+      {
+        "@type": "Offer",
+        "price": "247",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Sublime Reset 21",
+          "description": "Programme 21 jours méthode IG Bas complète. Inclut : méthode, listes de courses, menus, recettes, 2 coachings individuels, accès espace client."
+        }
+      },
+      {
+        "@type": "Offer",
+        "price": "497",
+        "priceCurrency": "EUR",
+        "availability": "https://schema.org/InStock",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Sublime Évolution",
+          "description": "3 mois d'accompagnement complet : 5 coachings individuels, menus personnalisés, tracker bien-être, fiches pratiques nutrition et beauté, accès espace client."
+        }
+      }
+    ]
+  }
 }
 </script>
 <link rel="icon" type="image/png" sizes="32x32" href="assets-sandra/favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Sois Sublime">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:url" content="https://sois-sublime.fr/programmes.html">
+<meta property="og:title" content="Programmes Coaching Nutrition IG Bas — Sois Sublime">
+<meta property="og:description" content="Diagnostique 49€, Reset 21 à 247€ ou Évolution 3 mois à 497€. Coaching 100% en ligne avec Sandra Gabriel.">
 <meta property="og:image" content="https://sois-sublime.fr/assets-sandra/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -47,7 +96,7 @@
 <meta name="twitter:title" content="Sois Sublime — Sandra Gabriel">
 <meta name="twitter:description" content="Coach nutrition IG Bas, beauté & bien-être. Accompagnement personnalisé.">
 <meta name="twitter:image" content="https://sois-sublime.fr/assets-sandra/og-image.jpg">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.min.css">
 </head>
 <body>
 
@@ -266,7 +315,7 @@
   </div>
 </footer>
 
-<script src="js/main.js"></script>
+<script src="js/main.min.js"></script>
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', function() {
