@@ -460,7 +460,7 @@
     var cl = state.clients.find(function(c) { return c.token === state.selectedToken || c.email === state.selectedToken; });
     if (!cl) { state.view = 'list'; render(); return ''; }
 
-    var siteUrl = CONFIG.siteUrl || 'https://sois-sublime.fr';
+    var siteUrl = CONFIG.siteUrl || 'https://soissublime.fr';
     var espaceLink = siteUrl + '/espace/?t=' + cl.token;
 
     var h = '<div class="espace-content" style="padding-top:calc(var(--header-h) + var(--space-md));">';

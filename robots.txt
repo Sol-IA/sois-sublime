@@ -10,4 +10,4 @@ Disallow: /politique-confidentialite.html
 Disallow: /*.log$
 Disallow: /*.php$
 
-Sitemap: https://sois-sublime.fr/sitemap.xml
+Sitemap: https://soissublime.fr/sitemap.xml

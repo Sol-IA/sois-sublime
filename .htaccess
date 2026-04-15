@@ -30,19 +30,19 @@ Options -Indexes -MultiViews +FollowSymLinks
 
 
 # ═══════════════════════════════════════════════════════════
-# REDIRECTIONS 301 — MIGRATION WORDPRESS
+# REDIRECTIONS 301 — MIGRATION WEBFLOW → STATIQUE
 # (RedirectMatch via mod_alias, plus fiable que RewriteRule sur OVH)
+# Ancien site : soissublime.fr sur Webflow
+# Pages Webflow détectées : /, /qui-suis-je, /coaching-beaute,
+#                            /sublime-toi, /faq, /contact, /mentions-legales
 # ═══════════════════════════════════════════════════════════
-# À compléter à la bascule OVH depuis /post-sitemap.xml et /page-sitemap.xml
-# de l'ancien site Sandra.
-#
-# Exemples :
-# RedirectMatch 301 ^/prestations/?$                    /programmes.html
-# RedirectMatch 301 ^/a-propos/?$                       /index.html#a-propos
-# RedirectMatch 301 ^/ancien-slug-wp/?$                 /blog/slug-nouveau.html
-# RedirectMatch 301 ^/category/nutrition/?$             /blog.html
-# RedirectMatch 301 ^/mentions-legales/?$               /mentions-legales.html
-# RedirectMatch 301 ^/conditions-generales-de-vente/?$  /cgv.html
+
+RedirectMatch 301 ^/qui-suis-je/?$      /index.html#a-propos
+RedirectMatch 301 ^/coaching-beaute/?$  /programmes.html
+RedirectMatch 301 ^/sublime-toi/?$      /programmes.html
+RedirectMatch 301 ^/faq/?$              /faq.html
+RedirectMatch 301 ^/contact/?$          /contact.html
+RedirectMatch 301 ^/mentions-legales/?$ /mentions-legales.html
 
 
 # ═══════════════════════════════════════════════════════════
